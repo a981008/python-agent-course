@@ -370,9 +370,21 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-no { flex: 0 0 2.2rem; font-family: "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--ink-soft); }
 .drill-task { flex: 1; }
 .drill-data { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .5rem .8rem; font-family: "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--ink-soft); }
-.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
+.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; color: var(--ink); }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
+
+.drill-opts { margin: .7rem 0 .3rem; display: grid; gap: .45rem; }
+.drill-opt { display: flex; gap: .6rem; align-items: baseline; padding: .55rem .85rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; transition: border-color .15s; }
+.drill-opt:hover { border-color: var(--accent); }
+.drill-opt input[type=radio] { accent-color: var(--accent); flex: none; margin-top: .15rem; }
+.opt-letter { font-weight: 700; color: var(--accent); flex: none; font-family: "SF Mono", Menlo, monospace; }
+.opt-text { line-height: 1.6; font-size: .92rem; }
+.drill.solved .drill-opt { opacity: .7; }
+.drill-opt.is-right { background: var(--ok-bg); border-color: var(--ok); }
+.drill-opt.is-right .opt-letter { color: var(--ok); }
+.drill-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); }
+.drill-opt.is-wrong .opt-letter { color: var(--bad); }
 .drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
@@ -494,10 +506,10 @@ msgs = [Message(<span class="tk-str">"user"</span>, <span class="tk-str">"你好
 <div class="drill" id="d-4" data-n="4" data-cat="A">
   <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task">在类里写 <code>to_fahrenheit()</code> 方法，把 <code>self.celsius</code> 转成华氏度。下面哪个实现正确？</div></div>
   <div class="drill-ex">例：<code>Temperature(100).to_fahrenheit()</code> → <code>212.0</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-4" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>def to_fahrenheit(self): return self.celsius * 9 / 5 + 32</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-4" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>def to_fahrenheit(self): return self.celsius * 9 / 5</code>（漏了 +32）</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-4" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>def to_fahrenheit(celsius): return celsius * 9 / 5 + 32</code>（漏 self）</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-4" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>def to_fahrenheit(self): return celsius * 9 / 5 + 32</code>（<code>celsius</code> 未定义）</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-4" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">def</span> to_fahrenheit(<span class="tk-kw">self</span>): <span class="tk-kw">return</span> <span class="tk-kw">self</span>.celsius * <span class="tk-num">9</span> / <span class="tk-num">5</span> + <span class="tk-num">32</span></code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">def</span> to_fahrenheit(<span class="tk-kw">self</span>): <span class="tk-kw">return</span> <span class="tk-kw">self</span>.celsius * <span class="tk-num">9</span> / <span class="tk-num">5</span></code>（漏了 +32）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">def</span> to_fahrenheit(celsius): <span class="tk-kw">return</span> celsius * <span class="tk-num">9</span> / <span class="tk-num">5</span> + <span class="tk-num">32</span></code>（漏 self）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">def</span> to_fahrenheit(<span class="tk-kw">self</span>): <span class="tk-kw">return</span> celsius * <span class="tk-num">9</span> / <span class="tk-num">5</span> + <span class="tk-num">32</span></code>（<code>celsius</code> 未定义）</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -737,10 +749,10 @@ class Dog(Animal):
 <div class="drill" id="d-15" data-n="15" data-cat="D">
   <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">想定义一个<strong>可在运行时用 <code>isinstance</code> 检查</strong>的结构化协议，正确的定义方式是？</div></div>
   <div class="drill-ex">例：<code>@runtime_checkable class Tool(Protocol): def run(self, query: str) -&gt; str: ...</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>class Tool: ...</code>（普通基类）</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>class Tool(Protocol): ...</code>，并用 <code>@runtime_checkable</code> 装饰</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>class Tool(ABC): ...</code>，并用 <code>@abstractmethod</code> 装饰方法</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>Tool = TypedDict("Tool", {...})</code></span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">class</span> Tool: ...</code>（普通基类）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">class</span> Tool(Protocol): ...</code>，并用 <code>@runtime_checkable</code> 装饰</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">class</span> Tool(ABC): ...</code>，并用 <code>@abstractmethod</code> 装饰方法</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1">Tool = TypedDict(<span class="tk-str">"Tool"</span>, {...})</code></span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -772,10 +784,10 @@ class Retriever(Protocol):
 <div class="drill" id="d-17" data-n="17" data-cat="D">
   <div class="drill-head"><span class="drill-no">#17</span><div class="drill-task"><code>run_model(model, prompt)</code> 想接受<strong>任何</strong>有 <code>complete</code> 方法的对象，其核心机制是？</div></div>
   <div class="drill-ex">例：<code>run_model(FakeModel(), "hi")</code> 只要 <code>FakeModel</code> 有 <code>complete</code> 方法就能工作</div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-17" value="0"><span class="opt-letter">A</span><span class="opt-text">必须让 <code>model</code> 继承统一的 <code>Model</code> 基类</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-17" value="1"><span class="opt-letter">B</span><span class="opt-text">Python 的鸭子类型——运行时直接查找并调用 <code>model.complete</code>，不检查声明的类型</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-17" value="2"><span class="opt-letter">C</span><span class="opt-text">必须用 <code>@runtime_checkable</code> 的 <code>Protocol</code> 才能通过类型检查</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-17" value="3"><span class="opt-letter">D</span><span class="opt-text">需要用 <code>isinstance(model, Model)</code> 先判断</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-17" value="0"><span class="opt-letter">A</span><span class="opt-text">必须让 <code data-pyhl="1">model</code> 继承统一的 <code data-pyhl="1">Model</code> 基类</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="1"><span class="opt-letter">B</span><span class="opt-text">Python 的鸭子类型——运行时直接查找并调用 <code data-pyhl="1">model.complete</code>，不检查声明的类型</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="2"><span class="opt-letter">C</span><span class="opt-text">必须用 <code data-pyhl="1"><span class="tk-dec">@runtime_checkable</span></code> 的 <code data-pyhl="1">Protocol</code> 才能通过类型检查</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="3"><span class="opt-letter">D</span><span class="opt-text">需要用 <code data-pyhl="1"><span class="tk-fn">isinstance</span>(model, Model)</code> 先判断</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -932,14 +944,12 @@ function refreshUI() {
         if (radio) radio.checked = true;
       }
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+                ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct].replace(/`/g, '') + '\n\n解析：' + ex.explain.replace(/`/g, '') + '\n\n说明：先自己选完再看。';
       }
     } else {
       if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+                ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
       }
     }
   });
@@ -980,13 +990,17 @@ async function ensurePy() {
 }
 
 async function check(n) {
-  const codeVal = codeEl(n).value;
+  const _ed = codeEl(n); const codeVal = _ed ? _ed.value : '';
   const st = statusEl(n);
   const ex = byN[n];
   if (ex.type === 'mc') {
     const sel = row(n).querySelector('input[type=radio]:checked');
     if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
     prog.answers[n] = +sel.value; save();
+    row(n).querySelectorAll('.drill-opt').forEach(l => l.classList.remove('is-right', 'is-wrong'));
+    row(n).querySelector('.drill-opt:has(input[value="' + ex.correct + '"])').classList.add('is-right');
+    if (+sel.value !== ex.correct) sel.closest('.drill-opt').classList.add('is-wrong');
+
     if (+sel.value === ex.correct) {
       st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
       if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
@@ -1044,7 +1058,7 @@ EX.forEach(e => {
   el.querySelector('.drill-ans').addEventListener('click', () => {
     const ab = ansbox(e.n);
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
-    else { ab.hidden = !ab.hidden; }
+    ab.hidden = !ab.hidden;
   });
   if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
@@ -1263,6 +1277,16 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1412,8 +1436,17 @@ refreshUI();
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：4★ 类与 dataclass 练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html" aria-current="page"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html" aria-current="page"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

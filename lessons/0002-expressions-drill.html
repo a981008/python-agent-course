@@ -363,6 +363,8 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-toolbar { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0 1.6rem; }
 .drill-cat { margin: 2rem 0 0.8rem; font-size: 1.05rem; border-bottom: 2px solid var(--accent); padding-bottom: .3rem; }
 .drill-cat .cat-done { font-size: .8rem; color: var(--ink-soft); margin-left: .6rem; }
+.drill-tier { margin: 2.2rem 0 1rem; display: flex; align-items: center; gap: .8rem; color: var(--ink-soft); font-size: .82rem; }
+.drill-tier::before, .drill-tier::after { content: ""; flex: 1; border-top: 1px dashed var(--line); }
 .drill { border: 1px solid var(--line); border-radius: 8px; padding: .8rem 1rem; margin: .7rem 0; background: var(--card); }
 .drill.solved { border-color: #6aa96a; background: var(--ok-bg); }
 .drill.revealed { border-left: 3px solid #d9a441; }
@@ -371,7 +373,20 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-no { flex: 0 0 2.2rem; font-family: "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--ink-soft); }
 .drill-task { flex: 1; }
 .drill-row { display: flex; gap: .5rem; margin-top: .6rem; align-items: center; flex-wrap: wrap; }
-.drill-in { flex: 1 1 18rem; min-width: 12rem; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .85rem; padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 6px; outline: none; }
+
+.drill-opts { margin: .7rem 0 .3rem; display: grid; gap: .45rem; }
+.drill-opt { display: flex; gap: .6rem; align-items: baseline; padding: .55rem .85rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; transition: border-color .15s; }
+.drill-opt:hover { border-color: var(--accent); }
+.drill-opt input[type=radio] { accent-color: var(--accent); flex: none; margin-top: .15rem; }
+.opt-letter { font-weight: 700; color: var(--accent); flex: none; font-family: "SF Mono", Menlo, monospace; }
+.opt-text { line-height: 1.6; font-size: .92rem; }
+.drill.solved .drill-opt { opacity: .7; }
+.drill-opt.is-right { background: var(--ok-bg); border-color: var(--ok); }
+.drill-opt.is-right .opt-letter { color: var(--ok); }
+.drill-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); }
+.drill-opt.is-wrong .opt-letter { color: var(--bad); }
+.drill-in { flex: 1 1 18rem; min-width: 12rem; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .85rem; padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 6px; outline: none; background: var(--code-bg); color: var(--ink); }
+.drill-in::placeholder { color: var(--ink-soft); opacity: 1; }
 .drill-in:focus { border-color: var(--accent); }
 .drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
@@ -403,6 +418,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <h1>练习场 · 100 题表达式训练</h1>
 <p class="meta">第 2 课配套 · 列表/字典/集合推导 + 生成器 + 切片 + Stream 翻译 · 每题一条表达式，自动判分</p>
 <div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；每题在输入框里写<strong>一条表达式</strong>，点"检查"用真实 Python 运行时判分（首次需联网加载运行时，约 10-20 秒）。<code>Ctrl/Cmd+Enter</code> 快捷检查。答案可以看，但<strong>看过答案再写对的，记忆效果减半</strong>——尽量先写。进度自动保存（localStorage）。<br><a href="#data-preview">↓ 先看数据一览</a></div>
+<div class="callout primary"><strong>必修 / 题库分档</strong>：第 <strong>1–20 题</strong>是<strong>必修关卡</strong>——当天做完，覆盖基础映射与过滤的典型写法；第 <strong>21–100 题</strong>是<strong>题库</strong>，按需刷、不要求一次做完。判分与进度保存不变。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>（所有题目共用这份数据，判分时页面里已预置同名变量）：
 <pre><code><span data-pyhl="1"><span class="tk-kw">class</span> Order:          <span class="tk-com"># 数据类（@dataclass），字段直接访问，不用 getter</span>
@@ -498,10 +514,10 @@ sentence = <span class="tk-str">'the quick brown fox jumps over the lazy dog nea
 <div class="drill" id="d-6" data-n="6" data-cat="A">
   <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">要生成 <code>[1, 2, ..., 10]</code>（含 10），正确的 <code>range</code> 写法是？</div></div>
   <div class="drill-ex">例：<code>list(range(1, 11))</code> → <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>range(10)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>range(1, 10)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>range(1, 11)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>range(0, 10, 1)</code></span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">range</span>(<span class="tk-num">10</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">range</span>(<span class="tk-num">1</span>, <span class="tk-num">10</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">range</span>(<span class="tk-num">1</span>, <span class="tk-num">11</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">range</span>(<span class="tk-num">0</span>, <span class="tk-num">10</span>, <span class="tk-num">1</span>)</code></span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -702,6 +718,8 @@ sentence = <span class="tk-str">'the quick brown fox jumps over the lazy dog nea
   </div>
   <pre class="drill-ansbox" hidden></pre>
 </div>
+<div class="drill-tier"><span>必修 20 题到此 · 以下为题库 80 题（按需刷）</span></div>
+
 <div class="drill" id="d-21" data-n="21" data-cat="B">
   <div class="drill-head"><span class="drill-no">#021</span><div class="drill-task"><code>matrix</code> 每行的第一个元素</div></div>
   <div class="drill-ex">例（示意数据，判分用页面预置的真实数据）：若 <code>matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]</code>，表达式应得 <code>[2, 3, 4]</code></div>
@@ -1267,10 +1285,10 @@ sentence = <span class="tk-str">'the quick brown fox jumps over the lazy dog nea
 <div class="drill" id="d-60" data-n="60" data-cat="E">
   <div class="drill-head"><span class="drill-no">#60</span><div class="drill-task">两道题都产出 <code>{词: 长度}</code>：#47 用 <code>words</code>，本题用 <code>sentence</code>。哪个写法<strong>正确对应本题</strong>？</div></div>
   <div class="drill-ex">例：<code>sentence = "the cat sat"</code> → <code>{"the": 3, "cat": 3, "sat": 3}</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-60" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>{w: len(w) for w in words}</code>（这是 #47 的写法）</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-60" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>{w: len(w) for w in sentence.split()}</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-60" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>{w: len(sentence) for w in sentence}</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-60" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>{w: len(w) for w in sentence}</code>（按字符迭代）</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-60" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">{w: <span class="tk-fn">len</span>(w) <span class="tk-kw">for</span> w <span class="tk-kw">in</span> words}</code>（这是 #47 的写法）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-60" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">{w: <span class="tk-fn">len</span>(w) <span class="tk-kw">for</span> w <span class="tk-kw">in</span> sentence.split()}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-60" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1">{w: <span class="tk-fn">len</span>(sentence) <span class="tk-kw">for</span> w <span class="tk-kw">in</span> sentence}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-60" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1">{w: <span class="tk-fn">len</span>(w) <span class="tk-kw">for</span> w <span class="tk-kw">in</span> sentence}</code>（按字符迭代）</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -1549,10 +1567,10 @@ sentence = <span class="tk-str">'the quick brown fox jumps over the lazy dog nea
 <div class="drill" id="d-80" data-n="80" data-cat="H">
   <div class="drill-head"><span class="drill-no">#80</span><div class="drill-task">要反转一个序列，<code>[::-1]</code> 与 <code>reversed()</code> 都常见。下面说法正确的是？</div></div>
   <div class="drill-ex">例：<code>nums = [1,2,3]</code> → <code>nums[::-1]</code> 是 <code>[3,2,1]</code>，<code>nums</code> 本身仍是 <code>[1,2,3]</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-80" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>nums[::-1]</code> 返回新列表，元素顺序完全颠倒</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-80" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>nums[::-1]</code> 会原地修改 <code>nums</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-80" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>reversed(nums)</code> 直接返回反转后的列表</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-80" value="3"><span class="opt-letter">D</span><span class="opt-text">字符串不支持 <code>[::-1]</code>，只有列表能用</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-80" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">nums[::-<span class="tk-num">1</span>]</code> 返回新列表，元素顺序完全颠倒</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-80" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">nums[::-<span class="tk-num">1</span>]</code> 会原地修改 <code>nums</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-80" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1">reversed(nums)</code> 直接返回反转后的列表</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-80" value="3"><span class="opt-letter">D</span><span class="opt-text">字符串不支持 <code data-pyhl="1">[::-<span class="tk-num">1</span>]</code>，只有列表能用</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -1564,10 +1582,10 @@ sentence = <span class="tk-str">'the quick brown fox jumps over the lazy dog nea
 <div class="drill" id="d-81" data-n="81" data-cat="H">
   <div class="drill-head"><span class="drill-no">#81</span><div class="drill-task">要每隔一个取一个元素（下标 0、2、4…），正确的切片写法是？</div></div>
   <div class="drill-ex">例：<code>nums = [0,1,2,3,4]</code> → <code>nums[::2]</code> 是 <code>[0,2,4]</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-81" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>nums[1::2]</code>（取下标 1、3、5…）</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-81" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>nums[::2]</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-81" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>nums[2:]</code>（从下标 2 开始全取）</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-81" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>nums[::3]</code>（每隔两个取一个）</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-81" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">nums[<span class="tk-num">1</span>::<span class="tk-num">2</span>]</code>（取下标 1、3、5…）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-81" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">nums[::<span class="tk-num">2</span>]</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-81" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1">nums[<span class="tk-num">2</span>:]</code>（从下标 2 开始全取）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-81" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1">nums[::<span class="tk-num">3</span>]</code>（每隔两个取一个）</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -1986,14 +2004,12 @@ function refreshUI() {
         if (radio) radio.checked = true;
       }
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+                ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct].replace(/`/g, '') + '\n\n解析：' + ex.explain.replace(/`/g, '') + '\n\n说明：先自己选完再看。';
       }
     } else {
       if (prog.answers[n] !== undefined && input(n).value === '') input(n).value = prog.answers[n];
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '参考答案：' + ex.ans + '\n预期结果：' + ex.exp;
+                ab.textContent = '参考答案：' + ex.ans + '\n预期结果：' + ex.exp;
       }
     }
   });
@@ -2037,13 +2053,17 @@ async function ensurePy() {
 }
 
 async function check(n) {
-  const expr = input(n).value.trim();
+  const _ed = input(n); const expr = _ed ? _ed.value.trim() : '';
   const st = statusEl(n);
   const ex = byN[n];
   if (ex.type === 'mc') {
     const sel = row(n).querySelector('input[type=radio]:checked');
     if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
     prog.answers[n] = +sel.value; save();
+    row(n).querySelectorAll('.drill-opt').forEach(l => l.classList.remove('is-right', 'is-wrong'));
+    row(n).querySelector('.drill-opt:has(input[value="' + ex.correct + '"])').classList.add('is-right');
+    if (+sel.value !== ex.correct) sel.closest('.drill-opt').classList.add('is-wrong');
+
     if (+sel.value === ex.correct) {
       st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
       if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
@@ -2094,7 +2114,7 @@ EX.forEach(e => {
   el.querySelector('.drill-ans').addEventListener('click', () => {
     const ab = ansbox(e.n);
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
-    else { ab.hidden = !ab.hidden; }
+    ab.hidden = !ab.hidden;
   });
   if (e.type !== 'mc') input(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
@@ -2312,6 +2332,16 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -2460,8 +2490,17 @@ refreshUI();
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：2★ 表达式练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html" aria-current="page"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html" aria-current="page"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

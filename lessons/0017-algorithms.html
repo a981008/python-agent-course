@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 10 课 · 装饰器与回调：三段式、带参工厂与 @tool 注册模式</title>
+<title>第 17 课 · 算法手写套路：数据结构选型与五个模板</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -372,135 +372,230 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </head>
 <body>
 <main>
-<h1>第 10 课 · 装饰器与回调：三段式、带参工厂与 @tool 注册模式</h1>
-<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 30 分钟 · 关掉 AI 补全再开始</p>
+<h1>第 17 课 · 算法手写套路：数据结构选型与五个模板</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 35 分钟 · 关掉 AI 补全再开始</p>
 
 <div class="callout win">
-<strong>本课的 win</strong>：拿下 Agent 工程的第一"魔法"——装饰器。验收标准：手写带参装饰器 <code>@retry(times=3)</code> 和 <code>@log</code>，并理解 <code>@tool</code> 注册表为什么是 Agent 框架的地基。
+<strong>本课的 win</strong>：面试手写不再靠灵感——先做数据结构选型，再套五个模板（哈希 / 双指针 / 滑动窗口 / 二分 / 栈），每题都能说清复杂度。验收：五个模板各手写一遍并通过边界测试。
 </div>
 
-<h2>一、心智模型：装饰器 ≈ 代理与拦截器（4 分钟）</h2>
+<h2>一、选型：拿到题先问三件事（3 分钟）</h2>
 
-<p>Java 的注解（<code>@Override</code>/<code>@Transactional</code>）只是贴在代码上的元数据，要靠反射或 AOP 才生效。Python 装饰器<strong>直接就是函数</strong>：接收一个函数、返回一个包装过的新函数，定义即执行。对照：</p>
+<pre><span class="lang-tag">对照 — Java 数据结构 → Python 对应物</span>HashMap / HashSet        →  dict / set
+TreeMap / TreeSet        →  sortedcontainers（第三方）；标准库用 bisect + list
+ArrayDeque               →  collections.deque
+PriorityQueue            →  heapq（最小堆；取负数模拟最大堆）
+Arrays.binarySearch      →  bisect.bisect_left / bisect_right
+Stack（Deque 当栈）       →  list（append / pop）</pre>
 
-<pre><span class="lang-tag">对照 — Java → Python</span>Spring @Transactional（AOP 拦截）    →  @log / @retry（装饰器本身就是拦截器）
-动态代理 InvocationHandler          →  包装函数 wrapper（收原函数、返回新函数）
-Servlet Filter 链                   →  装饰器叠放 @a @b f（自下而上包裹）
-注解要反射/AOP 才生效               →  装饰器是普通函数调用，一行魔法都没有
-函数回调（FunctionalInterface 参数）→  函数是一等公民，直接当参数传</pre>
+<pre><span class="lang-tag">对照 — 先问三件事，再动手</span>① 需要"按值快速找到位置/次数"？      →  哈希表 O(1)
+② 需要"有序 + 找边界/前 k"？          →  排序 / 二分 / 堆
+③ 需要"最近一个未处理元素"？          →  栈 / 单调栈
+④ 需要"连续区间满足某条件"？          →  滑动窗口 / 前缀和</pre>
 
-<p>底层只需要一个事实：<strong>Python 里函数是值</strong>——可以赋给变量、塞进 dict、当参数传。装饰器只是把"包一层再还回去"写成了惯用形式。</p>
-
-<h2>二、三段式解剖：@log（5 分钟）</h2>
-
-<pre><span class="lang-tag">PYTHON — 装饰器三段式</span><code><span data-pyhl="1"><span class="tk-kw">def</span> log(fn):                     <span class="tk-com"># ① 收函数</span>
-    <span class="tk-kw">def</span> wrapper(*args, **kwargs):    <span class="tk-com"># ② 包一层（万能透传签名）</span>
-        <span class="tk-fn">print</span>(f"调用 {fn.__name__} 参数 {args}")
-        <span class="tk-kw">return</span> fn(*args, **kwargs)   <span class="tk-com"># ③ 透传调用、原样返回结果</span>
-    <span class="tk-kw">return</span> wrapper
-
-<span class="tk-dec">@log</span>
-<span class="tk-kw">def</span> add(a, b):
-    <span class="tk-kw">return</span> a + b
-
-<span class="tk-com"># @log 这行 ≈ add = log(add)   ← 语法糖，一行不差</span>
-<span class="tk-com"># add(1, 2) → 先打印，再返回 3</span>
-<span class="tk-com"># *args/**kwargs 是第 3 课的积木：不管原函数什么签名都能接住并原样传下去</span></span></code></pre>
+<p>面试里写不出最优解，通常不是语法问题，而是<strong>没先判断题型</strong>。把上面四行背下来，比刷十道同型题更有用。</p>
 
 <div class="marginnote">
-装饰器语法与 wraps：<br>
-<a href="../reference/java-to-python-syntax.html">参考 · 速查表 · 装饰器</a>
+复杂度速记：哈希 O(1) 查询；二分 O(log n)；堆取前 k 个 O(n log k)；排序 O(n log n)；双指针/滑窗 O(n)。
 </div>
 
-<h2>三、带参装饰器 = 装饰器工厂（三层）（6 分钟）</h2>
+<h2>二、模板 1 · 哈希表：空间换时间（4 分钟）</h2>
 
-<p><code>@log</code> 直接贴函数名；<code>@retry(times=3)</code> 带了参数——多了一层。规则：<strong>带参装饰器是"造装饰器的工厂"</strong>，三层各管一件事：</p>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 两数之和（Hot 100 第 1 题）</span><code><span data-pyhl="1"><span class="tk-kw">def</span> two_sum(nums, target):
+    seen = {}                      <span class="tk-com"># 值 -&gt; 下标</span>
+    <span class="tk-kw">for</span> i, x <span class="tk-kw">in</span> <span class="tk-fn">enumerate</span>(nums):
+        need = target - x
+        <span class="tk-kw">if</span> need <span class="tk-kw">in</span> seen:
+            <span class="tk-kw">return</span> [seen[need], i]
+        seen[x] = i
+    <span class="tk-kw">return</span> []
 
-<pre><span class="lang-tag">PYTHON — @retry(times=3)：工厂三层</span><code><span data-pyhl="1"><span class="tk-kw">def</span> retry(times):                <span class="tk-com"># 第 1 层：收参数 → 返回真装饰器</span>
-    <span class="tk-kw">def</span> deco(fn):                <span class="tk-com"># 第 2 层：收函数 → 返回包装（同三段式）</span>
-        <span class="tk-kw">def</span> wrapper(*args, **kwargs):   <span class="tk-com"># 第 3 层：干活的包装</span>
-            last = <span class="tk-kw">None</span>
-            <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(times):
-                <span class="tk-kw">try</span>:
-                    <span class="tk-kw">return</span> fn(*args, **kwargs)
-                <span class="tk-kw">except</span> Exception <span class="tk-kw">as</span> e:
-                    last = e     <span class="tk-com"># 失败记住，再试</span>
-            <span class="tk-kw">raise</span> last           <span class="tk-com"># 全失败：把最后一次异常抛出去</span>
-        <span class="tk-kw">return</span> wrapper
-    <span class="tk-kw">return</span> deco
+<span class="tk-com"># 例：[2, 7, 11, 15], target=9 → [0, 1]</span>
+<span class="tk-com"># 关键：先查后存，避免同一个元素用两次</span></span></code></pre>
 
-<span class="tk-dec">@retry</span>(times=<span class="tk-num">3</span>)
-<span class="tk-kw">def</span> call_llm(prompt): ...
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 计数与去重：哈希表的另外两种常见形态</span><code><span data-pyhl="1"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
+Counter(<span class="tk-str">"abracadabra"</span>).most_common(<span class="tk-num">2</span>)      <span class="tk-com"># [('a', 5), ('b', 2)]</span>
 
-<span class="tk-com"># 为什么三层？@retry(times=3) 先执行 retry(3) 得到 deco，再 deco(call_llm) 得到包装</span>
-<span class="tk-com"># 无参装饰器两层，带参三层——数 @ 的"层数"就能读懂任何装饰器</span></span></code></pre>
+seen = <span class="tk-fn">set</span>()
+<span class="tk-kw">for</span> x <span class="tk-kw">in</span> nums:
+    <span class="tk-kw">if</span> x <span class="tk-kw">in</span> seen:
+        <span class="tk-kw">return</span> <span class="tk-kw">True</span>                        <span class="tk-com"># 找重复</span>
+    seen.add(x)
 
-<h2>四、functools.wraps 与 @tool 注册表（4 分钟）</h2>
+<span class="tk-com"># 判断"是否存在/出现过" → set；需要"值 → 附加信息" → dict</span>
+<span class="tk-com"># 字符串题注意：sorted(s) 可做异位词比较，但 O(n log n)；计数数组可到 O(n)</span></span></code></pre>
 
-<pre><span class="lang-tag">PYTHON — wraps 保身份；注册表收工具</span><code><span data-pyhl="1"><span class="tk-kw">import</span> functools
+<h2>三、模板 2 · 双指针：把两重循环压成一层（3 分钟）</h2>
 
-<span class="tk-kw">def</span> log(fn):
-    <span class="tk-dec">@functools.wraps</span>(fn)         <span class="tk-com"># 把 fn 的 __name__/__doc__ 拷给 wrapper</span>
-    <span class="tk-kw">def</span> wrapper(*args, **kwargs):
-        <span class="tk-kw">return</span> fn(*args, **kwargs)
-    <span class="tk-kw">return</span> wrapper
-<span class="tk-com"># 不加 wraps：add.__name__ 变成 "wrapper"——调试器、日志、文档全瞎</span>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 有序数组两数之和 II（返回下标，1-based）</span><code><span data-pyhl="1"><span class="tk-kw">def</span> two_sum_sorted(nums, target):
+    lo, hi = <span class="tk-num">0</span>, <span class="tk-fn">len</span>(nums) - <span class="tk-num">1</span>
+    <span class="tk-kw">while</span> lo &lt; hi:
+        s = nums[lo] + nums[hi]
+        <span class="tk-kw">if</span> s == target:
+            <span class="tk-kw">return</span> [lo + <span class="tk-num">1</span>, hi + <span class="tk-num">1</span>]
+        <span class="tk-kw">if</span> s &lt; target:
+            lo += <span class="tk-num">1</span>                     <span class="tk-com"># 和太小，左指针右移</span>
+        <span class="tk-kw">else</span>:
+            hi -= <span class="tk-num">1</span>                     <span class="tk-com"># 和太大，右指针左移</span>
+    <span class="tk-kw">return</span> []</span></code></pre>
 
-TOOLS = {}                       <span class="tk-com"># Agent 工具注册表（function calling 的原型）</span>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 原地去重 / 移动零：快慢指针</span><code><span data-pyhl="1"><span class="tk-kw">def</span> remove_duplicates(nums):
+    <span class="tk-kw">if</span> <span class="tk-kw">not</span> nums:
+        <span class="tk-kw">return</span> <span class="tk-num">0</span>
+    slow = <span class="tk-num">0</span>
+    <span class="tk-kw">for</span> fast <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">1</span>, <span class="tk-fn">len</span>(nums)):
+        <span class="tk-kw">if</span> nums[fast] != nums[slow]:
+            slow += <span class="tk-num">1</span>
+            nums[slow] = nums[fast]
+    <span class="tk-kw">return</span> slow + <span class="tk-num">1</span>                     <span class="tk-com"># 新长度</span>
 
-<span class="tk-kw">def</span> tool(fn):
-    TOOLS[fn.__name__] = fn      <span class="tk-com"># 按 name 收进注册表</span>
-    <span class="tk-kw">return</span> fn                    <span class="tk-com"># 原样返回——注册不改变行为</span>
+<span class="tk-com"># 快指针探索，慢指针写结果；原地修改，O(1) 额外空间</span></span></code></pre>
 
-<span class="tk-dec">@tool</span>
-<span class="tk-kw">def</span> get_weather(city):
-    <span class="tk-kw">return</span> f"{city}: 晴"
+<p>双指针适用前提：数组<strong>有序</strong>，或问题允许"左右夹逼/读写分离"。无序数组强行双指针通常需要先排序，而排序可能破坏下标语义。</p>
 
-<span class="tk-com"># get_weather 仍可正常调用；TOOLS 里多了一个可被 Agent 检索的工具</span>
-<span class="tk-com"># 加新工具 = 写新函数 + @tool，主循环零改动——开闭原则</span></span></code></pre>
+<h2>四、模板 3 · 滑动窗口：连续子串/子数组（4 分钟）</h2>
 
-<p>这就是所有 Agent 框架注册工具的方式（LangChain 的 <code>@tool</code>、OpenAI function calling 的工具清单）。第 13 课综合实战会直接用它。</p>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 最长无重复字符子串（Hot 100 第 3 题）</span><code><span data-pyhl="1"><span class="tk-kw">def</span> longest_unique(s):
+    last = {}                           <span class="tk-com"># 字符 -&gt; 最近下标</span>
+    left = best = <span class="tk-num">0</span>
+    <span class="tk-kw">for</span> right, ch <span class="tk-kw">in</span> <span class="tk-fn">enumerate</span>(s):
+        <span class="tk-kw">if</span> ch <span class="tk-kw">in</span> last <span class="tk-kw">and</span> last[ch] &gt;= left:
+            left = last[ch] + <span class="tk-num">1</span>         <span class="tk-com"># 收缩到重复字符右边</span>
+        last[ch] = right
+        best = <span class="tk-fn">max</span>(best, right - left + <span class="tk-num">1</span>)
+    <span class="tk-kw">return</span> best
 
-<h2>五、动手：@log、@retry(times=3)、@tool（8 分钟）</h2>
+<span class="tk-com"># "abcabcbb" → 3（"abc"）</span>
+<span class="tk-com"># 为什么是 last[ch] &gt;= left：窗口外的旧位置不影响当前窗口</span></span></code></pre>
 
-<p>三个任务对应三层能力：<strong>三段式 + wraps</strong> → <strong>工厂三层 + 重试</strong> → <strong>注册表</strong>。判分环境预置了 <code>LOGBOOK</code>（记录列表）、<code>TOOLS</code>（注册表）和 <code>echo</code> 示例函数；测试会把装饰器应用到 fresh 函数上，调用次数会被清点。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 定长窗口：长度固定时用"进出各一次"</span><code><span data-pyhl="1"><span class="tk-kw">def</span> max_sum_window(nums, k):
+    window = <span class="tk-fn">sum</span>(nums[:k])
+    best = window
+    <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(k, <span class="tk-fn">len</span>(nums)):
+        window += nums[i] - nums[i - k]     <span class="tk-com"># 进一个、出一个</span>
+        best = <span class="tk-fn">max</span>(best, window)
+    <span class="tk-kw">return</span> best</span></code></pre>
 
-<div class="py-lab" data-prelude="prelude-0010" data-tests="tests-0010">
-<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> functools
+<p>滑窗的骨架永远一样：<strong>右指针扩张，条件破坏时左指针收缩，每步更新答案</strong>。变长窗口问"最长/最短"，定长窗口问"固定长度内的最值"。</p>
+
+<h2>五、模板 4 · 二分：边界是灵魂（4 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — lower_bound：第一个 >= target 的位置</span><code><span data-pyhl="1"><span class="tk-kw">def</span> lower_bound(nums, target):
+    lo, hi = <span class="tk-num">0</span>, <span class="tk-fn">len</span>(nums)            <span class="tk-com"># 区间 [lo, hi)</span>
+    <span class="tk-kw">while</span> lo &lt; hi:
+        mid = (lo + hi) // <span class="tk-num">2</span>
+        <span class="tk-kw">if</span> nums[mid] &lt; target:
+            lo = mid + <span class="tk-num">1</span>
+        <span class="tk-kw">else</span>:
+            hi = mid
+    <span class="tk-kw">return</span> lo                        <span class="tk-com"># 可能等于 len(nums)</span>
+
+<span class="tk-com"># [1, 3, 5, 7] target=5 → 2；target=4 → 2；target=99 → 4</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 标准库：bisect 直接给边界</span><code><span data-pyhl="1"><span class="tk-kw">import</span> bisect
+xs = [<span class="tk-num">1</span>, <span class="tk-num">3</span>, <span class="tk-num">5</span>, <span class="tk-num">7</span>]
+bisect.bisect_left(xs, <span class="tk-num">5</span>)        <span class="tk-com"># 2  第一个 &gt;= 5</span>
+bisect.bisect_right(xs, <span class="tk-num">5</span>)       <span class="tk-com"># 3  第一个 &gt; 5</span>
+bisect.insort(xs, <span class="tk-num">4</span>)             <span class="tk-com"># 有序插入，保持 O(n) 移动（查找 O(log n)）</span></span></code></pre>
+
+<p>写二分只记两句话：<strong>循环不变量决定区间开闭，边界更新决定会不会死循环</strong>。<code>[lo, hi)</code> 配 <code>hi = mid</code> 是最好记的一套；写完用空数组、单元素、全小于、全大于四种输入自测。</p>
+
+<h2>六、模板 5 · 栈、单调栈与堆（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 有效括号（栈的经典入口题）</span><code><span data-pyhl="1"><span class="tk-kw">def</span> valid_parens(s):
+    pairs = {<span class="tk-str">")"</span>: <span class="tk-str">"("</span>, <span class="tk-str">"]"</span>: <span class="tk-str">"["</span>, <span class="tk-str">"}"</span>: <span class="tk-str">"{"</span>}
+    stack = []
+    <span class="tk-kw">for</span> ch <span class="tk-kw">in</span> s:
+        <span class="tk-kw">if</span> ch <span class="tk-kw">in</span> <span class="tk-str">"([{"</span>:
+            stack.append(ch)
+        <span class="tk-kw">elif</span> <span class="tk-kw">not</span> stack <span class="tk-kw">or</span> stack.pop() != pairs[ch]:
+            <span class="tk-kw">return</span> <span class="tk-kw">False</span>
+    <span class="tk-kw">return</span> <span class="tk-kw">not</span> stack</span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 单调栈：每日温度（下一个更大元素）</span><code><span data-pyhl="1"><span class="tk-kw">def</span> daily_temperatures(temps):
+    ans = [<span class="tk-num">0</span>] * <span class="tk-fn">len</span>(temps)
+    stack = []                       <span class="tk-com"># 存下标，对应温度单调递减</span>
+    <span class="tk-kw">for</span> i, t <span class="tk-kw">in</span> <span class="tk-fn">enumerate</span>(temps):
+        <span class="tk-kw">while</span> stack <span class="tk-kw">and</span> temps[stack[-<span class="tk-num">1</span>]] &lt; t:
+            j = stack.pop()
+            ans[j] = i - j
+        stack.append(i)
+    <span class="tk-kw">return</span> ans</span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — heapq：前 k 大（TopK）</span><code><span data-pyhl="1"><span class="tk-kw">import</span> heapq
+
+heapq.nlargest(<span class="tk-num">3</span>, [<span class="tk-num">5</span>, <span class="tk-num">1</span>, <span class="tk-num">9</span>, <span class="tk-num">3</span>])         <span class="tk-com"># [9, 5, 3]</span>
+heapq.nsmallest(<span class="tk-num">2</span>, [<span class="tk-num">5</span>, <span class="tk-num">1</span>, <span class="tk-num">9</span>, <span class="tk-num">3</span>])        <span class="tk-com"># [1, 3]</span>
+
+<span class="tk-com"># sorted(...)[-k:] 也对，但要排全部 O(n log n)；</span>
+<span class="tk-com"># nlargest 只维护 k 个元素的堆，约 O(n log k)。</span></span></code></pre>
+
+<p>栈题判断信号："最近未匹配"、"下一个更大/更小"、"嵌套结构"。单调栈在入栈前弹掉破坏单调性的元素，每个下标最多进出一次，整体 O(n)。</p>
+
+<h2>七、动手：五个模板各写一遍（10 分钟）</h2>
+
+<p>预置了 <code>bisect</code> 与 <code>heapq</code>。五道题对应五个模板，测试包含空输入、单元素、无解等边界。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+
+<div class="py-lab" data-prelude="prelude-0017" data-tests="tests-0017">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> bisect
+<span class="tk-kw">import</span> heapq
 
 
-<span class="tk-kw">def</span> log_calls(fn):
-    <span class="tk-str">"""任务 1：包装 fn——每次调用先把 (fn 的名字, 位置实参元组) 记进 LOGBOOK（预置列表），
-    再返回 fn 的原结果；用 functools.wraps 保住原函数名"""</span>
-    ...  <span class="tk-com"># 内层包装记得 @functools.wraps(fn)；最后 return 它</span>
+<span class="tk-kw">def</span> two_sum(nums, target):
+    <span class="tk-str">"""任务 1：返回和为 target 的两个下标 [i, j]（i &lt; j，每个数只用一次）；
+    无解返回 []。要求 O(n)：边扫边记 {值: 下标}。"""</span>
+    ...
 
 
-<span class="tk-kw">def</span> retry(times):
-    <span class="tk-str">"""任务 2：带参装饰器工厂（三层）——装饰后的函数失败就重试，最多总共试 times 次；
-    全失败把最后一次的异常原样抛出去"""</span>
-    ...  <span class="tk-com"># def deco(fn): def wrapper(...): 循环 try；return deco</span>
+<span class="tk-kw">def</span> longest_unique(s):
+    <span class="tk-str">"""任务 2：最长不含重复字符的子串长度（滑动窗口 + 记录最近位置）。"""</span>
+    ...
 
 
-<span class="tk-kw">def</span> tool(fn):
-    <span class="tk-str">"""任务 3：注册器——把 fn 按 fn.__name__ 存进 TOOLS（预置 dict），返回 fn 本身"""</span>
-    ...  <span class="tk-com"># 两行：注册 + return fn</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">import functools
+<span class="tk-kw">def</span> lower_bound(nums, target):
+    <span class="tk-str">"""任务 3：有序列表里第一个 &gt;= target 的下标；都比 target 小则返回 len(nums)。
+    要求 O(log n) 二分，不要用 bisect 模块。"""</span>
+    ...
 
 
-def log_calls(fn):
-    &quot;&quot;&quot;任务 1：包装 fn——每次调用先把 (fn 的名字, 位置实参元组) 记进 LOGBOOK（预置列表），
-    再返回 fn 的原结果；用 functools.wraps 保住原函数名&quot;&quot;&quot;
-    ...  # 内层包装记得 @functools.wraps(fn)；最后 return 它
+<span class="tk-kw">def</span> valid_parens(s):
+    <span class="tk-str">"""任务 4：只含 ()[]{} 的字符串是否括号配对合法（用栈）。"""</span>
+    ...
 
 
-def retry(times):
-    &quot;&quot;&quot;任务 2：带参装饰器工厂（三层）——装饰后的函数失败就重试，最多总共试 times 次；
-    全失败把最后一次的异常原样抛出去&quot;&quot;&quot;
-    ...  # def deco(fn): def wrapper(...): 循环 try；return deco
+<span class="tk-kw">def</span> top_k(nums, k):
+    <span class="tk-str">"""任务 5：返回最大的 k 个数（降序）；k &lt;= 0 返回 []。用 heapq。"""</span>
+    ...
+</pre><textarea class="py-lab-editor" spellcheck="false" rows="34">import bisect
+import heapq
 
 
-def tool(fn):
-    &quot;&quot;&quot;任务 3：注册器——把 fn 按 fn.__name__ 存进 TOOLS（预置 dict），返回 fn 本身&quot;&quot;&quot;
-    ...  # 两行：注册 + return fn</textarea></div>
+def two_sum(nums, target):
+    &quot;&quot;&quot;任务 1：返回和为 target 的两个下标 [i, j]（i &lt; j，每个数只用一次）；
+    无解返回 []。要求 O(n)：边扫边记 {值: 下标}。&quot;&quot;&quot;
+    ...
+
+
+def longest_unique(s):
+    &quot;&quot;&quot;任务 2：最长不含重复字符的子串长度（滑动窗口 + 记录最近位置）。&quot;&quot;&quot;
+    ...
+
+
+def lower_bound(nums, target):
+    &quot;&quot;&quot;任务 3：有序列表里第一个 &gt;= target 的下标；都比 target 小则返回 len(nums)。
+    要求 O(log n) 二分，不要用 bisect 模块。&quot;&quot;&quot;
+    ...
+
+
+def valid_parens(s):
+    &quot;&quot;&quot;任务 4：只含 ()[]{} 的字符串是否括号配对合法（用栈）。&quot;&quot;&quot;
+    ...
+
+
+def top_k(nums, k):
+    &quot;&quot;&quot;任务 5：返回最大的 k 个数（降序）；k &lt;= 0 返回 []。用 heapq。&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="py-lab-bar">
     <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
     <button class="py-lab-btn ghost py-lab-reset">重置</button>
@@ -513,81 +608,97 @@ def tool(fn):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code><span class="tk-kw">import</span> functools
+<pre><code><span data-pyhl="1"><span class="tk-kw">def</span> two_sum(nums, target):
+    seen = {}
+    <span class="tk-kw">for</span> i, x <span class="tk-kw">in</span> <span class="tk-fn">enumerate</span>(nums):
+        <span class="tk-kw">if</span> target - x <span class="tk-kw">in</span> seen:
+            <span class="tk-kw">return</span> [seen[target - x], i]
+        seen[x] = i
+    <span class="tk-kw">return</span> []
 
-<span class="tk-com"># 任务 1 — @log：三段式 + wraps</span>
-<span class="tk-kw">def</span> log_calls(fn):
-    <span class="tk-dec">@functools.wraps</span>(fn)
-    <span class="tk-kw">def</span> wrapper(*args, **kwargs):
-        LOGBOOK.append((fn.__name__, args))
-        <span class="tk-kw">return</span> fn(*args, **kwargs)
-    <span class="tk-kw">return</span> wrapper
+<span class="tk-kw">def</span> longest_unique(s):
+    last, left, best = {}, <span class="tk-num">0</span>, <span class="tk-num">0</span>
+    <span class="tk-kw">for</span> right, ch <span class="tk-kw">in</span> <span class="tk-fn">enumerate</span>(s):
+        <span class="tk-kw">if</span> ch <span class="tk-kw">in</span> last <span class="tk-kw">and</span> last[ch] &gt;= left:
+            left = last[ch] + <span class="tk-num">1</span>
+        last[ch] = right
+        best = <span class="tk-fn">max</span>(best, right - left + <span class="tk-num">1</span>)
+    <span class="tk-kw">return</span> best
 
-<span class="tk-com"># 任务 2 — 带参装饰器 = 工厂三层</span>
-<span class="tk-kw">def</span> retry(times):
-    <span class="tk-kw">def</span> deco(fn):
-        <span class="tk-dec">@functools.wraps</span>(fn)
-        <span class="tk-kw">def</span> wrapper(*args, **kwargs):
-            last = <span class="tk-kw">None</span>
-            <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(times):
-                <span class="tk-kw">try</span>:
-                    <span class="tk-kw">return</span> fn(*args, **kwargs)
-                <span class="tk-kw">except</span> Exception <span class="tk-kw">as</span> e:
-                    last = e
-            <span class="tk-kw">raise</span> last
-        <span class="tk-kw">return</span> wrapper
-    <span class="tk-kw">return</span> deco
+<span class="tk-kw">def</span> lower_bound(nums, target):
+    lo, hi = <span class="tk-num">0</span>, <span class="tk-fn">len</span>(nums)
+    <span class="tk-kw">while</span> lo &lt; hi:
+        mid = (lo + hi) // <span class="tk-num">2</span>
+        <span class="tk-kw">if</span> nums[mid] &lt; target:
+            lo = mid + <span class="tk-num">1</span>
+        <span class="tk-kw">else</span>:
+            hi = mid
+    <span class="tk-kw">return</span> lo
 
-<span class="tk-com"># 任务 3 — @tool 注册表（注册不改行为）</span>
-<span class="tk-kw">def</span> tool(fn):
-    TOOLS[fn.__name__] = fn
-    <span class="tk-kw">return</span> fn</code></pre>
-<p>自评清单：① wrapper 是 <code>*args, **kwargs</code> 万能签名吗？记录发生在调用前还是后？② retry 工厂是不是三层？全失败抛的是"最后一次"的异常吗？③ <code>tool</code> 返回的是 fn 本身还是 wrapper——为什么注册器不该改变行为？</p>
+<span class="tk-kw">def</span> valid_parens(s):
+    pairs = {<span class="tk-str">")"</span>: <span class="tk-str">"("</span>, <span class="tk-str">"]"</span>: <span class="tk-str">"["</span>, <span class="tk-str">"}"</span>: <span class="tk-str">"{"</span>}
+    stack = []
+    <span class="tk-kw">for</span> ch <span class="tk-kw">in</span> s:
+        <span class="tk-kw">if</span> ch <span class="tk-kw">in</span> <span class="tk-str">"([{"</span>:
+            stack.append(ch)
+        <span class="tk-kw">elif</span> <span class="tk-kw">not</span> stack <span class="tk-kw">or</span> stack.pop() != pairs[ch]:
+            <span class="tk-kw">return</span> <span class="tk-kw">False</span>
+    <span class="tk-kw">return</span> <span class="tk-kw">not</span> stack
+
+<span class="tk-kw">def</span> top_k(nums, k):
+    <span class="tk-kw">if</span> k &lt;= <span class="tk-num">0</span>:
+        <span class="tk-kw">return</span> []
+    <span class="tk-kw">return</span> heapq.nlargest(k, nums)</span></code></pre>
+<p>自评清单：① two_sum 是否先查后存？② 滑窗左边界是否只在"重复且在窗口内"时跳？③ lower_bound 返回 len(nums) 的情况测过吗？</p>
 </details>
 
-<h2>六、检索练习：先答后看（关补全）</h2>
-
-<div class="quiz" data-answer="b">
-  <p class="quiz-q">Q1 · <code>@deco</code> 紧跟 <code>def f(): ...</code>，等价于哪一句？</p>
-  <button class="quiz-opt" data-key="a">deco = f(deco)</button>
-  <button class="quiz-opt" data-key="b">f = deco(f)——把 f 替换成包装后的新函数</button>
-  <button class="quiz-opt" data-key="c">只是标记，运行时不起作用</button>
-  <p class="quiz-explain" hidden>装饰器就是语法糖：@deco def f ≡ f = deco(f)。和 Java 注解的本质区别在这——Python 装饰器是立即执行的普通函数调用，不需要反射或 AOP 框架。</p>
-</div>
+<h2>八、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="c">
-  <p class="quiz-q">Q2 · 为什么 <code>@retry(times=3)</code> 要写成三层函数？</p>
-  <button class="quiz-opt" data-key="a">Python 规定装饰器必须三层</button>
-  <button class="quiz-opt" data-key="b">为了性能，层数越多越快</button>
-  <button class="quiz-opt" data-key="c">最外层收参数返回真装饰器（工厂），第二层收函数，第三层干活的包装</button>
-  <p class="quiz-explain" hidden>@retry(times=3) 先执行 retry(3) 得到 deco，再 deco(fn) 得到 wrapper。无参装饰器两层、带参三层——数层数就能读懂任何装饰器。</p>
+  <p class="quiz-q">Q1 · "两数之和"要求返回下标，最优解为什么是哈希表？</p>
+  <button class="quiz-opt" data-key="a">哈希表能自动排序</button>
+  <button class="quiz-opt" data-key="b">哈希表比数组省内存</button>
+  <button class="quiz-opt" data-key="c">边遍历边记录"还差多少"，把两重循环压成 O(n)</button>
+  <p class="quiz-explain" hidden>对每个 x 先查 target-x 是否出现过，再记录 x 的下标。空间换时间：一次遍历、O(n) 时间、O(n) 空间。排序 + 双指针也能做，但会丢原始下标。</p>
 </div>
 
 <div class="quiz" data-answer="a">
-  <p class="quiz-q">Q3 · <code>functools.wraps(fn)</code> 解决什么问题？</p>
-  <button class="quiz-opt" data-key="a">把原函数的 __name__/__doc__ 拷给包装函数，保住身份</button>
-  <button class="quiz-opt" data-key="b">让包装函数跑得更快</button>
-  <button class="quiz-opt" data-key="c">自动捕获异常</button>
-  <p class="quiz-explain" hidden>不加 wraps，fn.__name__ 会变成 "wrapper"——调试器、日志、文档工具全瞎。注册器/框架要靠 __name__ 找函数（比如 @tool 按 name 注册），所以工程装饰器一律带 wraps。</p>
+  <p class="quiz-q">Q2 · 滑动窗口里，右指针什么时候该收缩左边界？</p>
+  <button class="quiz-opt" data-key="a">当前窗口不再满足约束时（如出现重复字符）</button>
+  <button class="quiz-opt" data-key="b">每移动一次右指针都收缩</button>
+  <button class="quiz-opt" data-key="c">窗口长度超过 10 时</button>
+  <p class="quiz-explain" hidden>右指针负责扩张、左指针负责恢复合法性。以"最长无重复子串"为例：遇到已出现且在窗口内的字符，就把左边界跳到它上次出现位置的右边。</p>
 </div>
 
-<h2>七、间隔复习（明天开始学习前做）</h2>
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q3 · 二分查找里 <code>while lo &lt; hi</code> 与 <code>hi = mid</code> 的写法，通常用于？</p>
+  <button class="quiz-opt" data-key="a">找任意一个等于 target 的位置</button>
+  <button class="quiz-opt" data-key="b">找第一个满足条件的边界（lower_bound / 第一个 >= target）</button>
+  <button class="quiz-opt" data-key="c">只能用于偶数长度数组</button>
+  <p class="quiz-explain" hidden>边界二分的关键是区间语义：<code>[lo, hi)</code> 半开区间，<code>nums[mid] &lt; target</code> 时 <code>lo = mid+1</code>，否则 <code>hi = mid</code>。循环结束时 lo 就是第一个满足条件的位置。</p>
+</div>
 
-<p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q4 · 括号匹配、表达式求值、每日温度，共同适合的数据结构是？</p>
+  <button class="quiz-opt" data-key="a">哈希表</button>
+  <button class="quiz-opt" data-key="b">堆</button>
+  <button class="quiz-opt" data-key="c">栈</button>
+  <p class="quiz-explain" hidden>这类问题都有"最近未匹配/最近的更大元素"特征，后进先出正好对应。单调栈则是栈里维持单调性，用来一次扫描解决"下一个更大元素"。</p>
+</div>
 
-<div class="review" data-id="r1" data-mode="code" data-name="shout">
-  <p class="review-q">① 装饰器默写：<code>shout(fn)</code>——调用 fn 后把字符串结果 <code>.upper()</code> 返回（写三段式，并用 <code>functools.wraps</code> 保住名字）</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> functools
+<h2>九、间隔复习（面试前每轮都做）</h2>
 
+<p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言。</p>
 
-<span class="tk-kw">def</span> shout(fn):
-    <span class="tk-str">"""调用 fn，结果 .upper() 后返回"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">import functools
-
-
-def shout(fn):
-    &quot;&quot;&quot;调用 fn，结果 .upper() 后返回&quot;&quot;&quot;
-    ...</textarea></div>
+<div class="review" data-id="r1" data-mode="code" data-name="two_sum">
+  <p class="review-q">① 默写：<code>two_sum(nums, target)</code>——返回和为 target 的两个下标 <code>[i, j]</code>（i&lt;j），无解返回 <code>[]</code>，要求 O(n)</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> two_sum(nums, target):
+    <span class="tk-str">"""哈希表：边扫边记 {值: 下标}"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="8">def two_sum(nums, target):
+    &quot;&quot;&quot;哈希表：边扫边记 {值: 下标}&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -596,13 +707,15 @@ def shout(fn):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<div class="review" data-id="r2" data-mode="code" data-name="repeat">
-  <p class="review-q">② 工厂默写：<code>repeat(times)</code>——装饰器工厂，装饰后的函数每次调用返回 <code>[结果] * times</code></p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> repeat(times):
-    <span class="tk-str">"""工厂三层：times → 装饰器 → 包装；调用返回 [结果] * times"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def repeat(times):
-    &quot;&quot;&quot;工厂三层：times → 装饰器 → 包装；调用返回 [结果] * times&quot;&quot;&quot;
-    ...</textarea></div>
+<div class="review" data-id="r2" data-mode="code" data-name="longest_unique">
+  <p class="review-q">② 默写：<code>longest_unique(s)</code>——最长无重复字符子串的长度（滑动窗口）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> longest_unique(s):
+    <span class="tk-str">"""滑动窗口：记录每个字符最近位置，左边界按需跳转"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="9">def longest_unique(s):
+    &quot;&quot;&quot;滑动窗口：记录每个字符最近位置，左边界按需跳转&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -612,8 +725,8 @@ def shout(fn):
 </div>
 
 <div class="review" data-id="r3" data-mode="expr" data-name="">
-  <p class="review-q">③ 表达式默写：包装函数 <code>w</code>（判分环境已预置，wraps 自 <code>greet</code>）的真名是什么——写出取它 <code>__name__</code> 的表达式</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">w.__name__</pre><textarea class="review-code" spellcheck="false" rows="6">w.__name__</textarea></div>
+  <p class="review-q">③ 表达式默写：判分环境已 <code>import bisect</code>——求 <code>[1, 3, 5, 7]</code> 中第一个 &gt;= 5 的下标，应得 <code>2</code></p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">bisect.bisect_left([<span class="tk-num">1</span>, <span class="tk-num">3</span>, <span class="tk-num">5</span>, <span class="tk-num">7</span>], <span class="tk-num">5</span>)</pre><textarea class="review-code" spellcheck="false" rows="4">bisect.bisect_left([1, 3, 5, 7], 5)</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -622,37 +735,31 @@ def shout(fn):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<p>下一课是<strong>第 11 课 · 生成器与流式输出</strong>——yield、迭代器协议、send 双向通信，手写 LLM 的 token 流式输出。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
-
 <div class="callout primary">
-<strong>卡住了？随时问。</strong>"wrapper 之外的函数调用不记录"、retry 次数对不上、wraps 判分不过——直接在对话里贴报错和你的输入输出。
+<strong>卡住了？随时问。</strong>哈希存了下标却先存后查导致重复用元素、滑窗左边界跳错、二分死循环、栈没判空——直接在对话里贴代码和失败用例。
 </div>
 
 <div class="lesson-nav">
-  <a href="0009-stdlib.html">← 第 9 课 · 标准库实战</a>
+  <a href="0016-nano-agent.html">← 第 16 课 · 综合实战：Nano Agent</a>
+  <a href="0006-review-drill.html">R1★ 复盘场 · 22 题语言地基</a>
   <a href="0000-course-outline.html">课程大纲</a>
-  <a href="0011-generators.html">第 11 课 · 生成器与流式输出 →</a>
+  <a href="0000-course-outline.html">完成 · 回到大纲 ↑</a>
 </div>
 
 <footer class="doc-footer">
-  <p id="cite-1">[1] 官方库参考 · <a href="https://docs.python.org/zh-cn/3.15/library/functools.html">functools</a>（wraps、缓存）与 <a href="https://docs.python.org/zh-cn/3.15/glossary.html#term-decorator">术语表 · decorator</a></p>
-  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
+  <p id="cite-1">[1] 官方文档 · <a href="https://docs.python.org/zh-cn/3.15/library/heapq.html">heapq — 堆队列算法</a> / <a href="https://docs.python.org/zh-cn/3.15/library/bisect.html">bisect — 数组二分查找算法</a></p>
+  <p id="cite-2">[2] 官方文档 · <a href="https://docs.python.org/zh-cn/3.15/library/collections.html">collections — 容器数据类型</a>（Counter / deque 是算法题的常用底座）</p>
 </footer>
 </main>
 
-<script type="text/x-python" id="prelude-0010">
-LOGBOOK = []
-TOOLS = {}
-
-
-def echo(x):
-    return x
+<script type="text/x-python" id="prelude-0017">
+import bisect
+import heapq
 </script>
 
-<script type="text/x-python" id="tests-0010">
+<script type="text/x-python" id="tests-0017">
 import json as _json
-import functools
-import inspect
+import heapq
 
 def _t(name, fn):
     try:
@@ -664,58 +771,46 @@ def _t(name, fn):
 def _eq(actual, expected):
     assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
 
-if "log_calls" in globals():
-    def _t1():
-        LOGBOOK.clear()
-        w = log_calls(echo)
-        assert callable(w), "log_calls 应返回包装函数"
-        assert w("hi") == "hi", f"包装函数应透传返回值，实际 {w('hi')!r}"
-        assert LOGBOOK == [("echo", ("hi",))], f"应记录 (函数名, 参数元组)，实际 {LOGBOOK!r}"
-        assert w.__name__ == "echo", "用 functools.wraps 保住原函数名"
-        w("yo")
-        assert len(LOGBOOK) == 2, f"每次调用都要记录，实际 {len(LOGBOOK)} 条"
-    _t("任务1 · @log（记录 + 透传 + wraps）", _t1)
+if "two_sum" in globals():
+    _t("任务1 · 基本用例", lambda: _eq(two_sum([2, 7, 11, 15], 9), [0, 1]))
+    _t("任务1 · 中间两数", lambda: _eq(two_sum([3, 2, 4], 6), [1, 2]))
+    _t("任务1 · 重复值", lambda: _eq(two_sum([3, 3], 6), [0, 1]))
+    _t("任务1 · 无解", lambda: _eq(two_sum([1, 2], 99), []))
 else:
-    print("MISSING|log_calls（任务 1 还没定义）")
+    print("MISSING|two_sum（任务 1 还没定义）")
 
-if "retry" in globals():
-    def _t2():
-        calls = []
-        def flaky():
-            calls.append(1)
-            if len(calls) < 3:
-                raise RuntimeError("还没好")
-            return "ok"
-        wrapped = retry(3)(flaky)
-        assert callable(wrapped), "retry(times) 应返回装饰器（工厂第一层产物）"
-        r = wrapped()
-        assert r == "ok", f"第三次应成功返回 ok，实际 {r!r}"
-        assert len(calls) == 3, f"应恰好调用 3 次，实际 {len(calls)}"
-        def always_bad():
-            calls.append(1)
-            raise ValueError("炸")
-        try:
-            retry(2)(always_bad)()
-            assert False, "全失败应把最后一次异常原样抛出去"
-        except ValueError:
-            pass
-        assert len(calls) == 5, f"times=2 应只试 2 次，实际多调了 {len(calls) - 3} 次"
-    _t("任务2 · @retry(times=3) 重试工厂（次数防作弊）", _t2)
+if "longest_unique" in globals():
+    _t("任务2 · abcabcbb", lambda: _eq(longest_unique("abcabcbb"), 3))
+    _t("任务2 · 全相同", lambda: _eq(longest_unique("bbbbb"), 1))
+    _t("任务2 · 空串", lambda: _eq(longest_unique(""), 0))
+    _t("任务2 · pwwkew", lambda: _eq(longest_unique("pwwkew"), 3))
 else:
-    print("MISSING|retry（任务 2 还没定义）")
+    print("MISSING|longest_unique（任务 2 还没定义）")
 
-if "tool" in globals():
-    def _t3():
-        TOOLS.clear()
-        def search(query):
-            return ["hit: " + query]
-        r = tool(search)
-        assert r is search, "@tool 应返回原函数本身（注册不改变行为）"
-        assert "search" in TOOLS, f"应按函数名注册进 TOOLS，实际 {list(TOOLS)}"
-        assert TOOLS["search"]("py") == ["hit: py"], "注册表里的工具应可正常调用"
-    _t("任务3 · @tool 注册模式", _t3)
+if "lower_bound" in globals():
+    _t("任务3 · 命中", lambda: _eq(lower_bound([1, 3, 5, 7], 5), 2))
+    _t("任务3 · 未命中插中间", lambda: _eq(lower_bound([1, 3, 5, 7], 4), 2))
+    _t("任务3 · 小于全部", lambda: _eq(lower_bound([1, 3, 5, 7], 0), 0))
+    _t("任务3 · 大于全部", lambda: _eq(lower_bound([1, 3, 5, 7], 99), 4))
+    _t("任务3 · 空列表", lambda: _eq(lower_bound([], 1), 0))
 else:
-    print("MISSING|tool（任务 3 还没定义）")
+    print("MISSING|lower_bound（任务 3 还没定义）")
+
+if "valid_parens" in globals():
+    _t("任务4 · 三种括号", lambda: _eq(valid_parens("()[]{}"), True))
+    _t("任务4 · 交错合法", lambda: _eq(valid_parens("([{}])"), True))
+    _t("任务4 · 类型不匹配", lambda: _eq(valid_parens("(]"), False))
+    _t("任务4 · 多余左括号", lambda: _eq(valid_parens("("), False))
+    _t("任务4 · 空串", lambda: _eq(valid_parens(""), True))
+else:
+    print("MISSING|valid_parens（任务 4 还没定义）")
+
+if "top_k" in globals():
+    _t("任务5 · 前2大", lambda: _eq(top_k([3, 1, 5, 2], 2), [5, 3]))
+    _t("任务5 · k 超过长度", lambda: _eq(top_k([1, 2], 5), [2, 1]))
+    _t("任务5 · k<=0", lambda: _eq(top_k([1, 2], 0), []))
+else:
+    print("MISSING|top_k（任务 5 还没定义）")
 </script>
 
 <script>
@@ -926,16 +1021,10 @@ else:
 </script>
 
 <script type="text/x-python" id="review-env">
-import functools
-
-def greet(name):
-    """打招呼（文档串留着验证 wraps）"""
-    return "你好, " + name
-
-w = functools.wraps(greet)(lambda *a, **k: greet(*a, **k))
+from collections import Counter
 </script>
 <script>
-window.REVIEW = [{"id": "r1", "mode": "code", "name": "shout", "task": "① 装饰器默写：<code>shout(fn)</code>——调用 fn 后把字符串结果 <code>.upper()</code> 返回（写三段式，并用 <code>functools.wraps</code> 保住名字）", "starter": "import functools\n\n\ndef shout(fn):\n    \"\"\"调用 fn，结果 .upper() 后返回\"\"\"\n    ...", "ref": "import functools\n\ndef shout(fn):\n    @functools.wraps(fn)\n    def wrapper(*args, **kwargs):\n        return fn(*args, **kwargs).upper()\n    return wrapper", "tind": "        _w = _fn(lambda: \"hi\")\n        assert _w() == \"HI\", f\"实际 {_w()!r}\"\n        assert _w.__name__ == \"<lambda>\", \"要用 functools.wraps 保住原函数名\""}, {"id": "r2", "mode": "code", "name": "repeat", "task": "② 工厂默写：<code>repeat(times)</code>——装饰器工厂，装饰后的函数每次调用返回 <code>[结果] * times</code>", "starter": "def repeat(times):\n    \"\"\"工厂三层：times → 装饰器 → 包装；调用返回 [结果] * times\"\"\"\n    ...", "ref": "def repeat(times):\n    def deco(fn):\n        def wrapper(*args, **kwargs):\n            return [fn(*args, **kwargs)] * times\n        return wrapper\n    return deco", "tind": "        _d = _fn(3)\n        assert callable(_d), \"repeat(times) 应返回装饰器\"\n        _g = _d(lambda: \"x\")\n        assert _g() == [\"x\", \"x\", \"x\"], f\"实际 {_g()!r}\"\n        _g2 = _fn(2)(lambda: 7)\n        assert _g2() == [7, 7], f\"times=2 应重复 2 次，实际 {_g2()!r}\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：包装函数 <code>w</code>（判分环境已预置，wraps 自 <code>greet</code>）的真名是什么——写出取它 <code>__name__</code> 的表达式", "starter": "w.__name__", "ref": "w.__name__   # \"greet\"——wraps 把原函数身份拷给了包装函数", "tind": "        assert _val == \"greet\", f\"实际 {_val!r}\""}];
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）", "starter": "from collections import Counter\n\n\ndef word_counts(text):\n    \"\"\"Counter(text.split()) 再 dict(...)\"\"\"\n    ...", "ref": "from collections import Counter\n\ndef word_counts(text):\n    return dict(Counter(text.split()))", "tind": "        assert _fn(\"a b a\") == {\"a\": 2, \"b\": 1}, f\"实际 {_fn('a b a')!r}\"\n        assert _fn(\"\") == {}, \"空串应返回空 dict\"\n        assert _fn(\"x  x  x\") == {\"x\": 3}, \"多空格 split 自动处理\""}, {"id": "r2", "mode": "code", "name": "extract_dates", "task": "② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", ...)</code>）", "starter": "import re\n\n\ndef extract_dates(lines):\n    \"\"\"把 lines 连成一个文本，findall 找 r\"\\d{4}-\\d{2}-\\d{2}\" \"\"\"\n    ...", "ref": "import re\n\ndef extract_dates(lines):\n    return re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", \"\\n\".join(lines))", "tind": "        assert _fn([\"x 2026-01-02 y\", \"no date\", \"2025-12-31\"]) == [\"2026-01-02\", \"2025-12-31\"], f\"实际 {_fn(['x 2026-01-02'])!r}\"\n        assert _fn([]) == []\n        assert _fn([\"bad 20-01-01\"]) == [], \"三位年份不算日期\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：用 Counter 统计字符串 <code>\"abracadabra\"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）", "starter": "sorted(Counter(\"abracadabra\").items())[:2]", "ref": "sorted(Counter(\"abracadabra\").items())[:2]   # [(\"a\", 5), (\"b\", 2)]", "tind": "        assert _val == [(\"a\", 5), (\"b\", 2)], f\"实际 {_val!r}\""}];
 </script>
 <script>
 /* review.js — 间隔复习在线评判引擎（Pyodide）
@@ -1275,6 +1364,16 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "shout", "task": "① 装�
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1423,9 +1522,18 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "shout", "task": "① 装�
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：10 装饰器与回调</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html" aria-current="page"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：17 算法手写套路</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html" aria-current="page"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>练习场 · 11 题异步 asyncio 训练（第 8 课配套）</title>
+<title>练习场 · 8 题测试与自测训练（第 10 课）</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -370,9 +370,21 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-no { flex: 0 0 2.2rem; font-family: "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--ink-soft); }
 .drill-task { flex: 1; }
 .drill-data { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .5rem .8rem; font-family: "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--ink-soft); }
-.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
+.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; color: var(--ink); }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
+
+.drill-opts { margin: .7rem 0 .3rem; display: grid; gap: .45rem; }
+.drill-opt { display: flex; gap: .6rem; align-items: baseline; padding: .55rem .85rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; transition: border-color .15s; }
+.drill-opt:hover { border-color: var(--accent); }
+.drill-opt input[type=radio] { accent-color: var(--accent); flex: none; margin-top: .15rem; }
+.opt-letter { font-weight: 700; color: var(--accent); flex: none; font-family: "SF Mono", Menlo, monospace; }
+.opt-text { line-height: 1.6; font-size: .92rem; }
+.drill.solved .drill-opt { opacity: .7; }
+.drill-opt.is-right { background: var(--ok-bg); border-color: var(--ok); }
+.drill-opt.is-right .opt-letter { color: var(--ok); }
+.drill-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); }
+.drill-opt.is-wrong .opt-letter { color: var(--bad); }
 .drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
@@ -400,23 +412,21 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <body>
 <main>
 
-<h1>练习场 · 11 题异步 asyncio 训练</h1>
-<p class="meta">第 8 课配套 · 协程基础 / 并发 gather / 超时与重试 / 异步生成器 / 综合 · 自动判分（测试内含 await）</p>
-<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>async def 协程函数</strong>——点"检查"会真实运行你的协程并跑断言；B 类题带<strong>计时防作弊</strong>：该并发的题顺序 await 会因总耗时超标当场现形；#5 考 asyncio.wait 先到先得。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
-<div class="callout" id="data-preview">
-<strong>数据一览</strong>：判分环境已预置 <code>slow_ok / echo / double / inc</code> 四个协程工具（见代码顶部），可直接调用。
-</div>
-<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="pfill"></div></div><div class="progress-text" id="ptext">已完成 0 / 11</div></div>
+<h1>练习场 · 8 题测试与自测训练</h1>
+<p class="meta">第 10 课配套 · pytest 断言 / raises / 参数化 / fixture / 迷你测试工具 · 自动判分</p>
+<div class="callout win"><strong>玩法</strong>：本场把"会写测试"拆成两层：pytest 的概念（断言、raises、参数化、fixture）和能自己手写的迷你测试工具（执行用例、断言异常、浮点断言）。选择题直接点选；代码题真实运行并跑断言。<code>Ctrl/Cmd+Enter</code> 快捷检查。</div>
+<div class="callout" id="data-preview"><strong>数据一览</strong>：本练习场<strong>无需预置数据</strong>——用例列表、异常类型都由函数入参传入，方便在浏览器运行时直接验证。</div>
+<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="pfill"></div></div><div class="progress-text" id="ptext">已完成 0 / 8</div></div>
 <div class="drill-toolbar"><button class="drill-btn" id="btn-checkall">检查全部（已填的）</button><button class="drill-btn ghost" id="btn-reset">重置进度</button><span class="rt-note" id="rt-status"></span></div>
-<h2 class="drill-cat" data-cat="A">A · 协程基础（async def 与 await）<span class="cat-done" data-range="1-3">第 1–3 题 · 0/3</span></h2>
+<h2 class="drill-cat" data-cat="A">A · pytest 断言与 raises<span class="cat-done" data-range="1-3">第 1–3 题 · 0/3</span></h2>
 
 <div class="drill" id="d-1" data-n="1" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#01</span><div class="drill-task">调用 <code>hello()</code>（一个 <code>async def</code> 函数）但不 <code>await</code>，会得到什么？</div></div>
-  <div class="drill-ex">例：<code>c = hello()</code> → <code>type(c)</code> 是 <code>coroutine</code>；<code>await c</code> 才得到 <code>"hello"</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-1" value="0"><span class="opt-letter">A</span><span class="opt-text">字符串 <code>"hello"</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-1" value="1"><span class="opt-letter">B</span><span class="opt-text">一个协程对象，函数体尚未执行</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-1" value="2"><span class="opt-letter">C</span><span class="opt-text">一个 <code>Task</code>，已在事件循环中运行</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-1" value="3"><span class="opt-letter">D</span><span class="opt-text">立即抛 <code>RuntimeError</code></span></label>
+  <div class="drill-head"><span class="drill-no">#01</span><div class="drill-task">pytest 里最推荐的断言写法是？</div></div>
+  <div class="drill-ex">例：<code>assert add(2, 3) == 5</code> 失败时 pytest 打印 <code>assert 6 == 5</code> 和变量值。</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-1" value="0"><span class="opt-letter">A</span><span class="opt-text">裸 <code>assert x == y</code>——pytest 会重写断言，失败时自动展开两侧的值</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="1"><span class="opt-letter">B</span><span class="opt-text">必须用 <code>self.assertEqual(x, y)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="2"><span class="opt-letter">C</span><span class="opt-text">用 <code>assert x == y, "fail"</code> 才有效</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="3"><span class="opt-letter">D</span><span class="opt-text">只能比较布尔值</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -427,12 +437,12 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-2" data-n="2" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#02</span><div class="drill-task">判断一个函数是否由 <code>async def</code> 定义，标准库提供的现成函数是？</div></div>
-  <div class="drill-ex">例：<code>inspect.iscoroutinefunction(hello)</code> → <code>True</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-2" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>inspect.isfunction(fn)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-2" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>inspect.iscoroutinefunction(fn)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-2" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>asyncio.iscoroutine(fn)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-2" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>type(fn) is types.CoroutineType</code></span></label>
+  <div class="drill-head"><span class="drill-no">#02</span><div class="drill-task">验证 <code>1 / 0</code> 会抛 <code>ZeroDivisionError</code>，pytest 的正确写法是？</div></div>
+  <div class="drill-ex">例：<code>with pytest.raises(ZeroDivisionError): 1 / 0</code> → 通过；块内不抛异常 → 测试失败。</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-2" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>with pytest.raises(ZeroDivisionError): 1 / 0</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>assert 1 / 0 == ZeroDivisionError</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>try: 1 / 0</code> 就够了</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>pytest.raises(1 / 0)</code></span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -443,13 +453,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-3" data-n="3" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#03</span><div class="drill-task">协程对象：<code>coro_of(x)</code> 调用 <code>echo(x)</code> 但<strong>不要 await</strong>——直接返回协程对象（这是新手最大的坑：不 await 不会执行）</div></div>
-  <div class="drill-ex">例：<code>coro_of("hi")</code> 返回的是一个<strong>协程对象</strong>（还没执行）——判分会检查它是 coroutine</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> coro_of(x):
-    <span class="tk-str">"""调用 echo(x) 但不要 await——返回协程对象本身"""</span>
-    ...  <span class="tk-com"># 直接调用、不要 await</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def coro_of(x):
-    &quot;&quot;&quot;调用 echo(x) 但不要 await——返回协程对象本身&quot;&quot;&quot;
-    ...  # 直接调用、不要 await</textarea></div>
+  <div class="drill-head"><span class="drill-no">#03</span><div class="drill-task">手写异常断言：<code>expect_raises(exc_type, fn)</code>——调用 <code>fn()</code>，若抛出 <code>exc_type</code>（含子类）就返回该异常对象，否则返回 <code>None</code>。</div></div>
+  <div class="drill-ex">例：<code>expect_raises(ZeroDivisionError, lambda: 1/0)</code> → 异常对象；<code>expect_raises(ValueError, lambda: 1)</code> → <code>None</code>。</div>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">def expect_raises(exc_type, fn):
+    """try/except 捕获后 return e；没抛返回 None"""
+    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">def expect_raises(exc_type, fn):
+    """try/except 捕获后 return e；没抛返回 None"""
+    ...</textarea></div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -458,16 +468,16 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
   <pre class="drill-ansbox" hidden></pre>
 </div>
 
-<h2 class="drill-cat" data-cat="B">B · 并发 gather（含计时防作弊）<span class="cat-done" data-range="4-6">第 4–6 题 · 0/3</span></h2>
+<h2 class="drill-cat" data-cat="B">B · 参数化与 fixture<span class="cat-done" data-range="4-5">第 4–5 题 · 0/2</span></h2>
 
 <div class="drill" id="d-4" data-n="4" data-cat="B">
-  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task">并发两个：<code>async def gather_two()</code> <strong>并发</strong>执行 <code>slow_ok("a")</code>、<code>slow_ok("b")</code>（各睡 0.05s）。测试会计时：总耗时必须接近 0.05s 而不是 0.1s——两个任务不许一个等完另一个再等下一个</div></div>
-  <div class="drill-ex">例：两个各睡 0.05s 的任务并发起跑，总耗时 ≈ 0.05s，返回 <code>["ok-a", "ok-b"]</code>；顺序 await 会拖到 0.1s</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> gather_two():
-    <span class="tk-str">"""并发起跑两个 slow_ok，收集结果列表"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">async def gather_two():
-    &quot;&quot;&quot;并发起跑两个 slow_ok，收集结果列表&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task"><code>@pytest.mark.parametrize("x", [1, 2, 3])</code> 相比在测试里写 <code>for x in [1, 2, 3]</code> 循环断言，优势是？</div></div>
+  <div class="drill-ex">例：参数化 3 组数据 → 报告显示 <code>test_x[1]</code>、<code>test_x[2]</code>、<code>test_x[3]</code> 三条。</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-4" value="0"><span class="opt-letter">A</span><span class="opt-text">每组数据生成独立用例，一组失败不影响其他，报告能定位到具体参数</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="1"><span class="opt-letter">B</span><span class="opt-text">执行更快</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="2"><span class="opt-letter">C</span><span class="opt-text">只有循环写法能拿到失败参数</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="3"><span class="opt-letter">D</span><span class="opt-text">两者完全等价，没有区别</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -477,12 +487,30 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-5" data-n="5" data-cat="B">
-  <div class="drill-head"><span class="drill-no">#05</span><div class="drill-task">先到先得：<code>async def race(fa, fb)</code> ——并发起跑两个工厂，<strong>谁先完成返回谁的结果</strong>，别让没完成的那个拖住返回（写法第 8 课第四节刚讲过，凭理解默写）</div></div>
-  <div class="drill-ex">例：一个 0.02s 一个 0.1s → 返回先完成的 <code>"ok-fast"</code>，不等慢的那个</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> race(fa, fb):
-    <span class="tk-str">"""谁先完成返回谁的结果；输的那边别忘了善后"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">async def race(fa, fb):
-    &quot;&quot;&quot;谁先完成返回谁的结果；输的那边别忘了善后&quot;&quot;&quot;
+  <div class="drill-head"><span class="drill-no">#05</span><div class="drill-task">fixture 里 <code>yield</code> 之后的代码什么时候执行？</div></div>
+  <div class="drill-ex">例：<code>@pytest.fixture</code> 里 <code>conn = connect()</code> → <code>yield conn</code> → <code>conn.close()</code>。</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-5" value="0"><span class="opt-letter">A</span><span class="opt-text">该测试结束后——适合清理（关连接、删临时文件），即使测试失败也会执行</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-5" value="1"><span class="opt-letter">B</span><span class="opt-text">yield 之前</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-5" value="2"><span class="opt-letter">C</span><span class="opt-text">永远不会执行</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-5" value="3"><span class="opt-letter">D</span><span class="opt-text">只在测试通过时执行</span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+
+<h2 class="drill-cat" data-cat="C">C · 手写迷你测试工具<span class="cat-done" data-range="6-8">第 6–8 题 · 0/3</span></h2>
+
+<div class="drill" id="d-6" data-n="6" data-cat="C">
+  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">迷你测试执行器：<code>run_cases(fn, cases)</code>——<code>cases</code> 是 <code>[(args, expected), ...]</code>；用 <code>fn(*args) == expected</code> 判通过，抛异常算失败；返回 <code>(passed, failed)</code>。</div></div>
+  <div class="drill-ex">例：<code>run_cases(lambda x: x + 1, [((1,), 2), ((2,), 9)])</code> → <code>(1, 1)</code>。</div>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">def run_cases(fn, cases):
+    """遍历 cases：异常也计失败，别让整个循环崩掉"""
+    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">def run_cases(fn, cases):
+    """遍历 cases：异常也计失败，别让整个循环崩掉"""
     ...</textarea></div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -492,32 +520,14 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
   <pre class="drill-ansbox" hidden></pre>
 </div>
 
-<div class="drill" id="d-6" data-n="6" data-cat="B">
-  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task"><code>asyncio.gather(...)</code> 中哪个参数能让单个任务的异常作为结果返回、而不是炸掉整批？</div></div>
-  <div class="drill-ex">例：<code>await gather(f1(), f2(), return_exceptions=True)</code> → 失败位置是异常对象，其他位置是正常值</div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>return_exceptions=True</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>silent=True</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>catch=True</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>suppress=True</code></span></label>
-  </div>
-  <div class="drill-row">
-    <button class="drill-btn drill-check">检查</button>
-    <button class="drill-btn ghost drill-ans">答案</button>
-    <span class="drill-status"></span>
-  </div>
-  <pre class="drill-ansbox" hidden></pre>
-</div>
-
-<h2 class="drill-cat" data-cat="C">C · 超时与重试<span class="cat-done" data-range="7-8">第 7–8 题 · 0/2</span></h2>
-
 <div class="drill" id="d-7" data-n="7" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#07</span><div class="drill-task">要给一个 <code>await</code> 操作设置超时（超时返回 <code>("timeout", None)</code>），应使用？</div></div>
-  <div class="drill-ex">例：<code>await asyncio.wait_for(slow(), 0.1)</code> → 0.1 秒没完成就抛 <code>TimeoutError</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-7" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>asyncio.wait(..., timeout=seconds)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-7" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>asyncio.wait_for(factory(), seconds)</code> 并捕获 <code>asyncio.TimeoutError</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-7" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>asyncio.sleep(seconds)</code> 后再调用</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-7" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>signal.alarm(seconds)</code></span></label>
-  </div>
+  <div class="drill-head"><span class="drill-no">#07</span><div class="drill-task">浮点断言：<code>assert_close(a, b, tol=1e-9)</code>——<code>abs(a - b) &lt;= tol</code> 返回 <code>True</code>，否则抛 <code>AssertionError</code>（消息里带上两个值）。</div></div>
+  <div class="drill-ex">例：<code>assert_close(0.1 + 0.2, 0.3)</code> → <code>True</code>；<code>assert_close(1.0, 1.1)</code> → 抛 <code>AssertionError</code>。</div>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">def assert_close(a, b, tol=1e-9):
+    """差值超过容差就 raise AssertionError；f-string 把两个值写进消息"""
+    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">def assert_close(a, b, tol=1e-9):
+    """差值超过容差就 raise AssertionError；f-string 把两个值写进消息"""
+    ...</textarea></div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -527,65 +537,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-8" data-n="8" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#08</span><div class="drill-task">异步重试：<code>async def retry_async(factory, times=3)</code> ——await 失败抛 <code>ValueError</code> 就重试，最多 times 次；用尽后原样抛最后一次异常（第 5 课的 retry 异步版）</div></div>
-  <div class="drill-ex">例：前两次抛 ValueError 第三次成功 → 返回 <code>"ok"</code>、共调 3 次；全失败 → 原样抛最后一次的异常</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> retry_async(factory, times=<span class="tk-num">3</span>):
-    <span class="tk-str">"""失败就重试，最多 times 次；全失败把最后一次的异常抛出去"""</span>
-    ...  <span class="tk-com"># 记住"最后一次"的异常</span></pre><textarea class="drill-code" spellcheck="false" rows="6">async def retry_async(factory, times=3):
-    &quot;&quot;&quot;失败就重试，最多 times 次；全失败把最后一次的异常抛出去&quot;&quot;&quot;
-    ...  # 记住&quot;最后一次&quot;的异常</textarea></div>
-  <div class="drill-row">
-    <button class="drill-btn drill-check">检查</button>
-    <button class="drill-btn ghost drill-ans">答案</button>
-    <span class="drill-status"></span>
+  <div class="drill-head"><span class="drill-no">#08</span><div class="drill-task">一个函数内部直接调用 <code>datetime.now()</code> 和真实 HTTP 接口，测试很难稳定。最推荐的重构方式是？</div></div>
+  <div class="drill-ex">例：<code>def report(now=datetime.now, http=fetch)</code> 后，测试传固定时间和假 HTTP。</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-8" value="0"><span class="opt-letter">A</span><span class="opt-text">把时间、网络客户端作为参数传入（或用 fixture 注入），测试传假实现</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-8" value="1"><span class="opt-letter">B</span><span class="opt-text">测试里 sleep 等真实结果</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-8" value="2"><span class="opt-letter">C</span><span class="opt-text">删掉这些调用</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-8" value="3"><span class="opt-letter">D</span><span class="opt-text">只测不依赖时间的分支，假装覆盖率够了</span></label>
   </div>
-  <pre class="drill-ansbox" hidden></pre>
-</div>
-
-<h2 class="drill-cat" data-cat="D">D · 异步循环<span class="cat-done" data-range="9-9">第 9 题 · 0/1</span></h2>
-
-<div class="drill" id="d-9" data-n="9" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#09</span><div class="drill-task">异步循环：<code>async def async_sum(nums)</code> ——for 循环逐个累加返回总和，但<strong>每处理完一个元素都要让出一次控制权</strong>（好让事件循环调度别的任务）</div></div>
-  <div class="drill-ex">例：<code>await async_sum([1, 2, 3])</code> → <code>6</code>；每加完一个数让出一次控制权（空列表 → <code>0</code>）</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> async_sum(nums):
-    <span class="tk-str">"""逐个累加返回总和；每处理完一个元素都让出一次控制权（事件循环才有机会调度别人）"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">async def async_sum(nums):
-    &quot;&quot;&quot;逐个累加返回总和；每处理完一个元素都让出一次控制权（事件循环才有机会调度别人）&quot;&quot;&quot;
-    ...</textarea></div>
-  <div class="drill-row">
-    <button class="drill-btn drill-check">检查</button>
-    <button class="drill-btn ghost drill-ans">答案</button>
-    <span class="drill-status"></span>
-  </div>
-  <pre class="drill-ansbox" hidden></pre>
-</div>
-
-<h2 class="drill-cat" data-cat="E">E · 综合管线<span class="cat-done" data-range="10-11">第 10–11 题 · 0/2</span></h2>
-
-<div class="drill" id="d-10" data-n="10" data-cat="E">
-  <div class="drill-head"><span class="drill-no">#10</span><div class="drill-task">异步管道：<code>async def pipeline(x)</code> ——先 <code>await double(x)</code>，结果再 <code>await inc(...)</code>（判分环境已预置 double/inc）</div></div>
-  <div class="drill-ex">例：<code>await pipeline(3)</code> → <code>7</code>——先 double(3) 得 6，再对 6 做 inc 得 7</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> pipeline(x):
-    <span class="tk-str">"""先 await double(x)，结果再交给 inc（判分环境已预置这两个协程）"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">async def pipeline(x):
-    &quot;&quot;&quot;先 await double(x)，结果再交给 inc（判分环境已预置这两个协程）&quot;&quot;&quot;
-    ...</textarea></div>
-  <div class="drill-row">
-    <button class="drill-btn drill-check">检查</button>
-    <button class="drill-btn ghost drill-ans">答案</button>
-    <span class="drill-status"></span>
-  </div>
-  <pre class="drill-ansbox" hidden></pre>
-</div>
-
-<div class="drill" id="d-11" data-n="11" data-cat="E">
-  <div class="drill-head"><span class="drill-no">#11</span><div class="drill-task">弹性调用：<code>async def resilient(factories)</code> ——按顺序尝试每个工厂，await 抛异常就跳到下一个；任何一个成功返回其结果，全部失败返回 <code>None</code></div></div>
-  <div class="drill-ex">例：第一个工厂炸 → 自动落到第二个并返回其结果；全部炸（或列表为空）→ <code>None</code></div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> resilient(factories):
-    <span class="tk-str">"""按顺序尝试每个工厂，谁成功返回谁的结果；全部失败返回 None"""</span>
-    ...  <span class="tk-com"># 循环结束 return None</span></pre><textarea class="drill-code" spellcheck="false" rows="6">async def resilient(factories):
-    &quot;&quot;&quot;按顺序尝试每个工厂，谁成功返回谁的结果；全部失败返回 None&quot;&quot;&quot;
-    ...  # 循环结束 return None</textarea></div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -595,36 +553,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <footer class="doc-footer">
-  返回：<a href="0008-asyncio.html">第 8 课 · 异步 asyncio</a> · <a href="0007-modules-drill.html">20 题模块与 typing 练习场</a> · <a href="0000-course-outline.html">课程大纲</a>
+  返回：<a href="0010-testing.html">第 10 课 · 测试：pytest 断言与自测</a> · <a href="0009-scripting-drill.html">上一场 · 9★ 脚本工程化练习</a> · <a href="0011-concurrency-drill.html">下一场 · 11★ 并发练习</a> · <a href="0000-course-outline.html">课程大纲</a>
 </footer>
 </main>
 
 <script type="text/x-python" id="env-code">
-import asyncio
-import inspect
-
-async def slow_ok(tag, delay=0.05):
-    await asyncio.sleep(delay)
-    return "ok-" + tag
-
-async def echo(x):
-    return x
-
-async def double(x):
-    await asyncio.sleep(0.01)
-    return x * 2
-
-async def inc(x):
-    await asyncio.sleep(0.01)
-    return x + 1
-
+# 本场无预置数据：测试工具的入参就是数据。
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "name": "coroutine_object", "type": "mc", "task": "调用 `hello()`（一个 `async def` 函数）但不 `await`，会得到什么？", "options": ["字符串 `\"hello\"`", "一个协程对象，函数体尚未执行", "一个 `Task`，已在事件循环中运行", "立即抛 `RuntimeError`"], "correct": 1, "explain": "`async def` 调用只创建协程对象，必须 `await`（或交给事件循环调度）才会执行函数体——这是新手最大的坑。", "ex": "例：`c = hello()` → `type(c)` 是 `coroutine`；`await c` 才得到 `\"hello\"`"}, {"n": 2, "cat": "A", "name": "iscoroutinefunction", "type": "mc", "task": "判断一个函数是否由 `async def` 定义，标准库提供的现成函数是？", "options": ["`inspect.isfunction(fn)`", "`inspect.iscoroutinefunction(fn)`", "`asyncio.iscoroutine(fn)`", "`type(fn) is types.CoroutineType`"], "correct": 1, "explain": "`inspect.iscoroutinefunction` 判断函数本身；`asyncio.iscoroutine` 判断的是协程**对象**，两者对象层级不同。", "ex": "例：`inspect.iscoroutinefunction(hello)` → `True`"}, {"n": 3, "cat": "A", "name": "coro_of", "task": "协程对象：`coro_of(x)` 调用 `echo(x)` 但**不要 await**——直接返回协程对象（这是新手最大的坑：不 await 不会执行）", "starter": "def coro_of(x):\n    \"\"\"调用 echo(x) 但不要 await——返回协程对象本身\"\"\"\n    ...  # 直接调用、不要 await", "ans": "def coro_of(x):\n    return echo(x)", "tind": "        _c = _fn(\"hi\")\n        assert inspect.iscoroutine(_c), \"echo(x) 不 await 应得到协程对象\"\n        _c.close()", "snip": null, "ex": "例：`coro_of(\"hi\")` 返回的是一个**协程对象**（还没执行）——判分会检查它是 coroutine"}, {"n": 4, "cat": "B", "name": "gather_two", "task": "并发两个：`async def gather_two()` **并发**执行 `slow_ok(\"a\")`、`slow_ok(\"b\")`（各睡 0.05s）。测试会计时：总耗时必须接近 0.05s 而不是 0.1s——两个任务不许一个等完另一个再等下一个", "starter": "async def gather_two():\n    \"\"\"并发起跑两个 slow_ok，收集结果列表\"\"\"\n    ...  # 一行", "ans": "async def gather_two():\n    return await asyncio.gather(slow_ok(\"a\"), slow_ok(\"b\"))", "tind": "        import time as _time\n        _t0 = _time.perf_counter()\n        _r = await _fn()\n        _dt = _time.perf_counter() - _t0\n        assert _r == [\"ok-a\", \"ok-b\"], f\"实际 {_r!r}\"\n        assert _dt < 0.09, f\"耗时 {_dt:.2f}s——两个 0.05s 任务应并发（gather），顺序 await 会到 0.1s\"", "snip": null, "ex": "例：两个各睡 0.05s 的任务并发起跑，总耗时 ≈ 0.05s，返回 `[\"ok-a\", \"ok-b\"]`；顺序 await 会拖到 0.1s"}, {"n": 5, "cat": "B", "name": "race", "task": "先到先得：`async def race(fa, fb)`——并发起跑两个工厂，**谁先完成返回谁的结果**，别让没完成的那个拖住返回（写法第 8 课第四节刚讲过，凭理解默写）", "starter": "async def race(fa, fb):\n    \"\"\"谁先完成返回谁的结果；输的那边别忘了善后\"\"\"\n    ...", "ans": "async def race(fa, fb):\n    tasks = [asyncio.create_task(fa()), asyncio.create_task(fb())]\n    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)\n    for t in pending:\n        t.cancel()\n    return next(iter(done)).result()", "tind": "        _r = await _fn(lambda: slow_ok(\"fast\", 0.02), lambda: slow_ok(\"slow\", 0.1))\n        assert _r == \"ok-fast\", f\"应返回先完成者 ok-fast，实际 {_r!r}\"", "snip": null, "ex": "例：一个 0.02s 一个 0.1s → 返回先完成的 `\"ok-fast\"`，不等慢的那个"}, {"n": 6, "cat": "B", "name": "return_exceptions", "type": "mc", "task": "`asyncio.gather(...)` 中哪个参数能让单个任务的异常作为结果返回、而不是炸掉整批？", "options": ["`return_exceptions=True`", "`silent=True`", "`catch=True`", "`suppress=True`"], "correct": 0, "explain": "`return_exceptions=True` 时异常对象会作为对应位置的结果返回，可用 `isinstance(r, BaseException)` 识别。", "ex": "例：`await gather(f1(), f2(), return_exceptions=True)` → 失败位置是异常对象，其他位置是正常值"}, {"n": 7, "cat": "C", "name": "wait_for", "type": "mc", "task": "要给一个 `await` 操作设置超时（超时返回 `(\"timeout\", None)`），应使用？", "options": ["`asyncio.wait(..., timeout=seconds)`", "`asyncio.wait_for(factory(), seconds)` 并捕获 `asyncio.TimeoutError`", "`asyncio.sleep(seconds)` 后再调用", "`signal.alarm(seconds)`"], "correct": 1, "explain": "`wait_for` 超时会取消内部任务并抛 `asyncio.TimeoutError`；`wait` 只等待完成集合、不取消任务，语义不同。", "ex": "例：`await asyncio.wait_for(slow(), 0.1)` → 0.1 秒没完成就抛 `TimeoutError`"}, {"n": 8, "cat": "C", "name": "retry_async", "task": "异步重试：`async def retry_async(factory, times=3)` ——await 失败抛 `ValueError` 就重试，最多 times 次；用尽后原样抛最后一次异常（第 5 课的 retry 异步版）", "starter": "async def retry_async(factory, times=3):\n    \"\"\"失败就重试，最多 times 次；全失败把最后一次的异常抛出去\"\"\"\n    ...  # 记住\"最后一次\"的异常", "ans": "async def retry_async(factory, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return await factory()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        async def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert await _fn(_flaky) == \"ok\", \"第三次应成功\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        async def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            await _fn(_never)\n        except ValueError as e:\n            _err = e\n        assert _err is not None and str(_err) == \"永远失败\", \"用尽后应原样抛最后一次 ValueError\"", "snip": null, "ex": "例：前两次抛 ValueError 第三次成功 → 返回 `\"ok\"`、共调 3 次；全失败 → 原样抛最后一次的异常"}, {"n": 9, "cat": "D", "name": "async_sum", "task": "异步循环：`async def async_sum(nums)` ——for 循环逐个累加返回总和，但**每处理完一个元素都要让出一次控制权**（好让事件循环调度别的任务）", "starter": "async def async_sum(nums):\n    \"\"\"逐个累加返回总和；每处理完一个元素都让出一次控制权（事件循环才有机会调度别人）\"\"\"\n    ...", "ans": "async def async_sum(nums):\n    total = 0\n    for n in nums:\n        await asyncio.sleep(0)\n        total += n\n    return total", "tind": "        assert await _fn([1, 2, 3]) == 6, f\"实际 {await _fn([1, 2, 3])!r}\"\n        assert await _fn([]) == 0\n        assert await _fn([5]) == 5", "snip": null, "ex": "例：`await async_sum([1, 2, 3])` → `6`；每加完一个数让出一次控制权（空列表 → `0`）"}, {"n": 10, "cat": "E", "name": "pipeline", "task": "异步管道：`async def pipeline(x)` ——先 `await double(x)`，结果再 `await inc(...)`（判分环境已预置 double/inc）", "starter": "async def pipeline(x):\n    \"\"\"先 await double(x)，结果再交给 inc（判分环境已预置这两个协程）\"\"\"\n    ...", "ans": "async def pipeline(x):\n    a = await double(x)\n    return await inc(a)", "tind": "        assert await _fn(3) == 7, f\"double(3)=6 再 inc → 7，实际 {await _fn(3)!r}\"\n        assert await _fn(0) == 1", "snip": null, "ex": "例：`await pipeline(3)` → `7`——先 double(3) 得 6，再对 6 做 inc 得 7"}, {"n": 11, "cat": "E", "name": "resilient", "task": "弹性调用：`async def resilient(factories)` ——按顺序尝试每个工厂，await 抛异常就跳到下一个；任何一个成功返回其结果，全部失败返回 `None`", "starter": "async def resilient(factories):\n    \"\"\"按顺序尝试每个工厂，谁成功返回谁的结果；全部失败返回 None\"\"\"\n    ...  # 循环结束 return None", "ans": "async def resilient(factories):\n    for f in factories:\n        try:\n            return await f()\n        except Exception:\n            continue\n    return None", "tind": "        async def _bad():\n            raise ValueError(\"x\")\n        _r = await _fn([_bad, lambda: slow_ok(\"b\", 0)])\n        assert _r == \"ok-b\", f\"第一个失败应落到第二个，实际 {_r!r}\"\n        assert await _fn([_bad]) is None, \"全部失败返回 None\"\n        assert await _fn([]) is None", "snip": null, "ex": "例：第一个工厂炸 → 自动落到第二个并返回其结果；全部炸（或列表为空）→ `None`"}];
+const EX = [{"n": 1, "cat": "A", "name": "pytest_assert", "type": "mc", "task": "pytest 里最推荐的断言写法是？", "options": ["裸 `assert x == y`——pytest 会重写断言，失败时自动展开两侧的值", "必须用 `self.assertEqual(x, y)`", "用 `assert x == y, \"fail\"` 才有效", "只能比较布尔值"], "correct": 0, "explain": "pytest 导入测试模块时会重写 assert，失败信息里直接显示 `x`、`y` 的实际值；不需要 unittest 的 assertXxx 家族。", "ex": "例：`assert add(2, 3) == 5` 失败时 pytest 打印 `assert 6 == 5` 和变量值。"}, {"n": 2, "cat": "A", "name": "pytest_raises", "type": "mc", "task": "验证 `1 / 0` 会抛 `ZeroDivisionError`，pytest 的正确写法是？", "options": ["`with pytest.raises(ZeroDivisionError): 1 / 0`", "`assert 1 / 0 == ZeroDivisionError`", "`try: 1 / 0` 就够了", "`pytest.raises(1 / 0)`"], "correct": 0, "explain": "`pytest.raises` 是上下文管理器：块内没抛指定异常（或抛了别的）都算失败；还能用 `as e` 取异常对象。", "ex": "例：`with pytest.raises(ZeroDivisionError): 1 / 0` → 通过；块内不抛异常 → 测试失败。"}, {"n": 3, "cat": "A", "name": "expect_raises", "task": "手写异常断言：`expect_raises(exc_type, fn)`——调用 `fn()`，若抛出 `exc_type`（含子类）就返回该异常对象，否则返回 `None`。", "starter": "def expect_raises(exc_type, fn):\n    \"\"\"try/except 捕获后 return e；没抛返回 None\"\"\"\n    ...", "ans": "def expect_raises(exc_type, fn):\n    try:\n        fn()\n    except exc_type as e:\n        return e\n    return None", "tind": "        _e = _fn(ZeroDivisionError, lambda: 1 / 0)\n        assert isinstance(_e, ZeroDivisionError), f\"实际 {_e!r}\"\n        assert _fn(ValueError, lambda: 1) is None, \"没抛异常应返回 None\"\n        class _Sub(ValueError):\n            pass\n        def _boom():\n            raise _Sub(\"x\")\n        assert isinstance(_fn(ValueError, _boom), _Sub), \"子类也要被捕获\"", "snip": null, "ex": "例：`expect_raises(ZeroDivisionError, lambda: 1/0)` → 异常对象；`expect_raises(ValueError, lambda: 1)` → `None`。"}, {"n": 4, "cat": "B", "name": "pytest_parametrize", "type": "mc", "task": "`@pytest.mark.parametrize(\"x\", [1, 2, 3])` 相比在测试里写 `for x in [1, 2, 3]` 循环断言，优势是？", "options": ["每组数据生成独立用例，一组失败不影响其他，报告能定位到具体参数", "执行更快", "只有循环写法能拿到失败参数", "两者完全等价，没有区别"], "correct": 0, "explain": "循环断言是 1 个用例，第一组失败后面的就不跑了；参数化展开成 N 个用例，失败信息带参数 id。", "ex": "例：参数化 3 组数据 → 报告显示 `test_x[1]`、`test_x[2]`、`test_x[3]` 三条。"}, {"n": 5, "cat": "B", "name": "fixture_yield", "type": "mc", "task": "fixture 里 `yield` 之后的代码什么时候执行？", "options": ["该测试结束后——适合清理（关连接、删临时文件），即使测试失败也会执行", "yield 之前", "永远不会执行", "只在测试通过时执行"], "correct": 0, "explain": "yield fixture 是生成器：yield 交出资源，测试结束后回到 fixture 执行清理；`tmp_path` 则是 pytest 给每个测试独立建的临时目录。", "ex": "例：`@pytest.fixture` 里 `conn = connect()` → `yield conn` → `conn.close()`。"}, {"n": 6, "cat": "C", "name": "run_cases", "task": "迷你测试执行器：`run_cases(fn, cases)`——`cases` 是 `[(args, expected), ...]`；用 `fn(*args) == expected` 判通过，抛异常算失败；返回 `(passed, failed)`。", "starter": "def run_cases(fn, cases):\n    \"\"\"遍历 cases：异常也计失败，别让整个循环崩掉\"\"\"\n    ...", "ans": "def run_cases(fn, cases):\n    passed = failed = 0\n    for args, expected in cases:\n        try:\n            ok = fn(*args) == expected\n        except Exception:\n            ok = False\n        if ok:\n            passed += 1\n        else:\n            failed += 1\n    return passed, failed", "tind": "        assert _fn(lambda x: x * 2, [((2,), 4), ((3,), 6)]) == (2, 0), \"全对应为 (2, 0)\"\n        assert _fn(lambda x: x, [((1,), 2)]) == (0, 1), \"不相等记失败\"\n        def _boom(x):\n            raise ValueError(\"x\")\n        assert _fn(_boom, [((1,), 1)]) == (0, 1), \"抛异常记失败\"\n        assert _fn(lambda: 1, []) == (0, 0), \"空用例 (0, 0)\"", "snip": null, "ex": "例：`run_cases(lambda x: x + 1, [((1,), 2), ((2,), 9)])` → `(1, 1)`。"}, {"n": 7, "cat": "C", "name": "assert_close", "task": "浮点断言：`assert_close(a, b, tol=1e-9)`——`abs(a - b) <= tol` 返回 `True`，否则抛 `AssertionError`（消息里带上两个值）。", "starter": "def assert_close(a, b, tol=1e-9):\n    \"\"\"差值超过容差就 raise AssertionError；f-string 把两个值写进消息\"\"\"\n    ...", "ans": "def assert_close(a, b, tol=1e-9):\n    if abs(a - b) > tol:\n        raise AssertionError(f\"不相等：{a!r} vs {b!r}\")\n    return True", "tind": "        assert _fn(0.1 + 0.2, 0.3) is True, \"浮点误差应在默认容差内\"\n        try:\n            _fn(1.0, 1.1)\n        except AssertionError as _e:\n            assert \"1.0\" in str(_e), \"报错消息应带实际值\"\n        else:\n            raise AssertionError(\"超出容差应抛 AssertionError\")", "snip": null, "ex": "例：`assert_close(0.1 + 0.2, 0.3)` → `True`；`assert_close(1.0, 1.1)` → 抛 `AssertionError`。"}, {"n": 8, "cat": "C", "name": "testability", "type": "mc", "task": "一个函数内部直接调用 `datetime.now()` 和真实 HTTP 接口，测试很难稳定。最推荐的重构方式是？", "options": ["把时间、网络客户端作为参数传入（或用 fixture 注入），测试传假实现", "测试里 sleep 等真实结果", "删掉这些调用", "只测不依赖时间的分支，假装覆盖率够了"], "correct": 0, "explain": "依赖注入让\"不确定的外部世界\"变成可控入参；pytest 的 monkeypatch/fixture 就是为这种替换而生。", "ex": "例：`def report(now=datetime.now, http=fetch)` 后，测试传固定时间和假 HTTP。"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
-const LS_KEY = 'lesson-0008-drill-progress-v3';
+const LS_KEY = 'lesson-0010-testing-drill-progress';
 let prog = { solved: [], revealed: [], answers: {} };
 try { const raw = localStorage.getItem(LS_KEY); if (raw) prog = Object.assign(prog, JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(prog)); } catch (e) {} }
@@ -657,14 +598,12 @@ function refreshUI() {
         if (radio) radio.checked = true;
       }
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+                ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct].replace(/`/g, '') + '\n\n解析：' + ex.explain.replace(/`/g, '') + '\n\n说明：先自己选完再看。';
       }
     } else {
       if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+                ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
       }
     }
   });
@@ -705,13 +644,17 @@ async function ensurePy() {
 }
 
 async function check(n) {
-  const codeVal = codeEl(n).value;
+  const _ed = codeEl(n); const codeVal = _ed ? _ed.value : '';
   const st = statusEl(n);
   const ex = byN[n];
   if (ex.type === 'mc') {
     const sel = row(n).querySelector('input[type=radio]:checked');
     if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
     prog.answers[n] = +sel.value; save();
+    row(n).querySelectorAll('.drill-opt').forEach(l => l.classList.remove('is-right', 'is-wrong'));
+    row(n).querySelector('.drill-opt:has(input[value="' + ex.correct + '"])').classList.add('is-right');
+    if (+sel.value !== ex.correct) sel.closest('.drill-opt').classList.add('is-wrong');
+
     if (+sel.value === ex.correct) {
       st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
       if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
@@ -769,7 +712,7 @@ EX.forEach(e => {
   el.querySelector('.drill-ans').addEventListener('click', () => {
     const ab = ansbox(e.n);
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
-    else { ab.hidden = !ab.hidden; }
+    ab.hidden = !ab.hidden;
   });
   if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
@@ -988,6 +931,16 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1136,9 +1089,18 @@ refreshUI();
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：8★ 异步练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html" aria-current="page"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：10★ 测试与自测练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html" aria-current="page"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

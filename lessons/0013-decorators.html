@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 9 课 · 标准库实战：json、文件 I/O、re、collections 与 datetime</title>
+<title>第 13 课 · 装饰器与回调：三段式、带参工厂与 @tool 注册模式</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -372,120 +372,135 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </head>
 <body>
 <main>
-<h1>第 9 课 · 标准库实战：json、文件 I/O、re、collections 与 datetime</h1>
+<h1>第 13 课 · 装饰器与回调：三段式、带参工厂与 @tool 注册模式</h1>
 <p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 30 分钟 · 关掉 AI 补全再开始</p>
 
 <div class="callout win">
-<strong>本课的 win</strong>：标准库就是 Python 的 JDK——零第三方依赖完成真实工作。验收标准：写一个日志解析小工具（正则提取 + Counter 统计 + 排序），全程只 import 标准库。
+<strong>本课的 win</strong>：拿下 Agent 工程的第一"魔法"——装饰器。验收标准：手写带参装饰器 <code>@retry(times=3)</code> 和 <code>@log</code>，并理解 <code>@tool</code> 注册表为什么是 Agent 框架的地基。
 </div>
 
-<h2>一、心智模型：batteries included（2 分钟）</h2>
+<h2>一、心智模型：装饰器 ≈ 代理与拦截器（4 分钟）</h2>
 
-<pre><span class="lang-tag">对照 — Java 生态 → Python 标准库（不用装任何东西）</span>Jackson / Gson               →  json
-java.nio.file.Path           →  pathlib.Path
-java.util.regex              →  re（语法几乎同源）
-Guava Multimap / Cache       →  collections / functools
-java.time.LocalDate          →  datetime.date
-JUnit 断言 + 随机数据          →  doctest / random / statistics</pre>
+<p>Java 的注解（<code>@Override</code>/<code>@Transactional</code>）只是贴在代码上的元数据，要靠反射或 AOP 才生效。Python 装饰器<strong>直接就是函数</strong>：接收一个函数、返回一个包装过的新函数，定义即执行。对照：</p>
 
-<h2>二、json：与 Jackson 同职（4 分钟）</h2>
+<pre><span class="lang-tag">对照 — Java → Python</span>Spring @Transactional（AOP 拦截）    →  @log / @retry（装饰器本身就是拦截器）
+动态代理 InvocationHandler          →  包装函数 wrapper（收原函数、返回新函数）
+Servlet Filter 链                   →  装饰器叠放 @a @b f（自下而上包裹）
+注解要反射/AOP 才生效               →  装饰器是普通函数调用，一行魔法都没有
+函数回调（FunctionalInterface 参数）→  函数是一等公民，直接当参数传</pre>
 
-<pre><span class="lang-tag">PYTHON — dumps / loads 一对</span><code><span data-pyhl="1"><span class="tk-kw">import</span> json
-json.dumps({<span class="tk-str">"名字"</span>: <span class="tk-str">"小明"</span>, <span class="tk-str">"scores"</span>: [<span class="tk-num">90</span>, <span class="tk-num">85</span>]})
-<span class="tk-com"># '{"名字": "小明", "scores": [90, 85]}' ← ensure_ascii=False 中文原样（默认会转成 \uXXXX）</span>
-json.dumps(data, indent=<span class="tk-num">2</span>)             <span class="tk-com"># 美化输出</span>
-json.loads(<span class="tk-str">'{"a": 1}'</span>)                 <span class="tk-com"># {'a': 1}  ← 字符串 → 对象</span>
-json.load(f) / json.dump(obj, f)       <span class="tk-com"># 直接读写文件对象（≠ loads/dumps 的 s 版本）</span>
+<p>底层只需要一个事实：<strong>Python 里函数是值</strong>——可以赋给变量、塞进 dict、当参数传。装饰器只是把"包一层再还回去"写成了惯用形式。</p>
 
-<span class="tk-com"># 类型映射：None↔null、True↔true、dict↔object、list↔array</span>
-<span class="tk-com"># 只能序列化基本类型——datetime、自定义类要先转 str/dict（Model.model_dump() 的日常）</span></span></code></pre>
+<h2>二、三段式解剖：@log（5 分钟）</h2>
 
-<h2>三、文件 I/O 与 pathlib：with + encoding 是纪律（5 分钟）</h2>
+<pre><span class="lang-tag">PYTHON — 装饰器三段式</span><code><span data-pyhl="1"><span class="tk-kw">def</span> log(fn):                     <span class="tk-com"># ① 收函数</span>
+    <span class="tk-kw">def</span> wrapper(*args, **kwargs):    <span class="tk-com"># ② 包一层（万能透传签名）</span>
+        <span class="tk-fn">print</span>(f"调用 {fn.__name__} 参数 {args}")
+        <span class="tk-kw">return</span> fn(*args, **kwargs)   <span class="tk-com"># ③ 透传调用、原样返回结果</span>
+    <span class="tk-kw">return</span> wrapper
 
-<pre><span class="lang-tag">PYTHON — 读文件（对比 try-finally-close，with 自动关）</span><code><span data-pyhl="1"><span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"app.log"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:     <span class="tk-com"># encoding 必须显式写！Windows 默认 GBK</span>
-    text = f.read()                              <span class="tk-com"># 一次读全（小文件）</span>
-    <span class="tk-com"># lines = f.readlines()                      # 按行列表</span>
-<span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"out.txt"</span>, <span class="tk-str">"w"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:
-    f.write(<span class="tk-str">"hello\n"</span>)                          <span class="tk-com"># "w" 覆盖写；"a" 追加写</span>
+<span class="tk-dec">@log</span>
+<span class="tk-kw">def</span> add(a, b):
+    <span class="tk-kw">return</span> a + b
 
-<span class="tk-kw">from</span> pathlib <span class="tk-kw">import</span> Path
-p = Path(<span class="tk-str">"src"</span>) / <span class="tk-str">"agent"</span> / <span class="tk-str">"app.py"</span>   <span class="tk-com"># 用 / 拼路径，替代 os.path.join</span>
-p.suffix                               <span class="tk-com"># ".py"        ← 扩展名</span>
-p.parent                               <span class="tk-com"># src/agent</span>
-p.read_text(encoding=<span class="tk-str">"utf-8"</span>)          <span class="tk-com"># 读整个文件（with 的语法糖）</span>
-Path(<span class="tk-str">"."</span>).glob(<span class="tk-str">"*.py"</span>)                 <span class="tk-com"># 模式匹配文件列表</span></span></code></pre>
+<span class="tk-com"># @log 这行 ≈ add = log(add)   ← 语法糖，一行不差</span>
+<span class="tk-com"># add(1, 2) → 先打印，再返回 3</span>
+<span class="tk-com"># *args/**kwargs 是第 3 课的积木：不管原函数什么签名都能接住并原样传下去</span></span></code></pre>
 
-<h2>四、re：正则几乎从 Java 平移（5 分钟）</h2>
+<div class="marginnote">
+装饰器语法与 wraps：<br>
+<a href="../reference/java-to-python-syntax.html">参考 · 速查表 · 装饰器</a>
+</div>
 
-<pre><span class="lang-tag">PYTHON — 四个最常用的入口</span><code><span data-pyhl="1"><span class="tk-kw">import</span> re
-re.search(r"user=(\w+)", line)     <span class="tk-com"># 找第一处；m.group(1) 取分组；找不到 None</span>
-re.<span class="tk-kw">match</span>(r"\d+", line)              <span class="tk-com"># 从头匹配（≠ search 全文找）</span>
-re.findall(r"\d+", <span class="tk-str">"a1b22"</span>)         <span class="tk-com"># ['1', '22'] —— 所有匹配，字符串列表</span>
-re.fullmatch(r"[a-z]+", s)          <span class="tk-com"># 整串匹配（校验格式用这个，别用 match）</span>
-re.sub(r"\d+", <span class="tk-str">"*"</span>, s)              <span class="tk-com"># 替换</span>
+<h2>三、带参装饰器 = 装饰器工厂（三层）（6 分钟）</h2>
 
-<span class="tk-com"># r"..." 原始字符串是正则的标配——免得 \d 写成 \\d</span>
-<span class="tk-com"># \w 字母数字下划线；\d 数字；\S 非空白；( ) 分组 group(1)；[...] 字符集；{m,n} 次数</span></span></code></pre>
+<p><code>@log</code> 直接贴函数名；<code>@retry(times=3)</code> 带了参数——多了一层。规则：<strong>带参装饰器是"造装饰器的工厂"</strong>，三层各管一件事：</p>
 
-<h2>五、collections 与 datetime（5 分钟）</h2>
+<pre><span class="lang-tag">PYTHON — @retry(times=3)：工厂三层</span><code><span data-pyhl="1"><span class="tk-kw">def</span> retry(times):                <span class="tk-com"># 第 1 层：收参数 → 返回真装饰器</span>
+    <span class="tk-kw">def</span> deco(fn):                <span class="tk-com"># 第 2 层：收函数 → 返回包装（同三段式）</span>
+        <span class="tk-kw">def</span> wrapper(*args, **kwargs):   <span class="tk-com"># 第 3 层：干活的包装</span>
+            last = <span class="tk-kw">None</span>
+            <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(times):
+                <span class="tk-kw">try</span>:
+                    <span class="tk-kw">return</span> fn(*args, **kwargs)
+                <span class="tk-kw">except</span> Exception <span class="tk-kw">as</span> e:
+                    last = e     <span class="tk-com"># 失败记住，再试</span>
+            <span class="tk-kw">raise</span> last           <span class="tk-com"># 全失败：把最后一次异常抛出去</span>
+        <span class="tk-kw">return</span> wrapper
+    <span class="tk-kw">return</span> deco
 
-<pre><span class="lang-tag">PYTHON — 三件套 + 日期</span><code><span data-pyhl="1"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter, defaultdict, deque
-c = Counter([<span class="tk-str">"a"</span>, <span class="tk-str">"b"</span>, <span class="tk-str">"a"</span>])
-c[<span class="tk-str">"a"</span>]                       <span class="tk-com"># 2 —— 没有的键返回 0，不炸</span>
-c.most_common(<span class="tk-num">2</span>)             <span class="tk-com"># [('a', 2), ('b', 1)] 排行榜</span>
-d = defaultdict(<span class="tk-fn">list</span>)
-d[<span class="tk-str">"k"</span>].append(<span class="tk-num">1</span>)             <span class="tk-com"># 键不存在自动建空列表（≈ computeIfAbsent）</span>
-q = deque([<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>])
-q.rotate(-<span class="tk-num">1</span>)                 <span class="tk-com"># 循环移动，O(1)（list 做 deque 是 O(n)）</span>
+<span class="tk-dec">@retry</span>(times=<span class="tk-num">3</span>)
+<span class="tk-kw">def</span> call_llm(prompt): ...
 
-<span class="tk-kw">from</span> datetime <span class="tk-kw">import</span> date, timedelta
-date.fromisoformat(<span class="tk-str">"2026-11-26"</span>)          <span class="tk-com"># 解析 ISO 日期（java.time.parse 味道）</span>
-date.fromisoformat(<span class="tk-str">"2026-11-26"</span>) + timedelta(days=<span class="tk-num">5</span>)   <span class="tk-com"># 日期加减</span>
-(d2 - d1).days                            <span class="tk-com"># 相差天数</span>
-date.today().isoformat()                  <span class="tk-com"># 转回字符串</span></span></code></pre>
+<span class="tk-com"># 为什么三层？@retry(times=3) 先执行 retry(3) 得到 deco，再 deco(call_llm) 得到包装</span>
+<span class="tk-com"># 无参装饰器两层，带参三层——数 @ 的"层数"就能读懂任何装饰器</span></span></code></pre>
 
-<h2>六、动手：日志解析小工具（8 分钟）</h2>
+<h2>四、functools.wraps 与 @tool 注册表（4 分钟）</h2>
 
-<p>预置了 6 行仿真日志（时间戳 + 级别 + user + 动作 + 耗时）。三个任务层层递进：<strong>正则解析单行</strong> → <strong>Counter 统计分级</strong> → <strong>筛选 pay 错误并按耗时排序</strong>。全程只用标准库。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+<pre><span class="lang-tag">PYTHON — wraps 保身份；注册表收工具</span><code><span data-pyhl="1"><span class="tk-kw">import</span> functools
 
-<div class="py-lab" data-prelude="prelude-0009" data-tests="tests-0009">
-<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> re
-<span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
+<span class="tk-kw">def</span> log(fn):
+    <span class="tk-dec">@functools.wraps</span>(fn)         <span class="tk-com"># 把 fn 的 __name__/__doc__ 拷给 wrapper</span>
+    <span class="tk-kw">def</span> wrapper(*args, **kwargs):
+        <span class="tk-kw">return</span> fn(*args, **kwargs)
+    <span class="tk-kw">return</span> wrapper
+<span class="tk-com"># 不加 wraps：add.__name__ 变成 "wrapper"——调试器、日志、文档全瞎</span>
 
+TOOLS = {}                       <span class="tk-com"># Agent 工具注册表（function calling 的原型）</span>
 
-<span class="tk-kw">def</span> parse_line(line):
-    <span class="tk-str">"""任务 1：用 re.match(r"(\S+) (\w+) user=(\w+)", line) 解析一行日志，
-    返回 {"time": ..., "level": ..., "user": ...}；不匹配返回 None"""</span>
-    ...  <span class="tk-com"># m = re.match(...)；if m: return 字典；否则 None</span>
+<span class="tk-kw">def</span> tool(fn):
+    TOOLS[fn.__name__] = fn      <span class="tk-com"># 按 name 收进注册表</span>
+    <span class="tk-kw">return</span> fn                    <span class="tk-com"># 原样返回——注册不改变行为</span>
 
+<span class="tk-dec">@tool</span>
+<span class="tk-kw">def</span> get_weather(city):
+    <span class="tk-kw">return</span> f"{city}: 晴"
 
-<span class="tk-kw">def</span> count_by_level(lines):
-    <span class="tk-str">"""任务 2：复用 parse_line，用 Counter 统计每个 level 出现次数，返回 dict"""</span>
-    ...  <span class="tk-com"># 循环 + Counter；解析失败的行跳过</span>
+<span class="tk-com"># get_weather 仍可正常调用；TOOLS 里多了一个可被 Agent 检索的工具</span>
+<span class="tk-com"># 加新工具 = 写新函数 + @tool，主循环零改动——开闭原则</span></span></code></pre>
 
+<p>这就是所有 Agent 框架注册工具的方式（LangChain 的 <code>@tool</code>、OpenAI function calling 的工具清单）。第 16 课综合实战会直接用它。</p>
 
-<span class="tk-kw">def</span> slow_pay_errors(lines):
-    <span class="tk-str">"""任务 3：筛出 level 为 ERROR 且含 action=pay 的行，
-    按 duration_ms 从大到小排序，返回原始行列表（复用 parse_line + re.search）"""</span>
-    ...  <span class="tk-com"># 收集 (ms, line) 再 sort(reverse=True)</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">import re
-from collections import Counter
+<h2>五、动手：@log、@retry(times=3)、@tool（8 分钟）</h2>
+
+<p>三个任务对应三层能力：<strong>三段式 + wraps</strong> → <strong>工厂三层 + 重试</strong> → <strong>注册表</strong>。判分环境预置了 <code>LOGBOOK</code>（记录列表）、<code>TOOLS</code>（注册表）和 <code>echo</code> 示例函数；测试会把装饰器应用到 fresh 函数上，调用次数会被清点。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+
+<div class="py-lab" data-prelude="prelude-0013" data-tests="tests-0013">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> functools
 
 
-def parse_line(line):
-    &quot;&quot;&quot;任务 1：用 re.match(r&quot;(\S+) (\w+) user=(\w+)&quot;, line) 解析一行日志，
-    返回 {&quot;time&quot;: ..., &quot;level&quot;: ..., &quot;user&quot;: ...}；不匹配返回 None&quot;&quot;&quot;
-    ...  # m = re.match(...)；if m: return 字典；否则 None
+<span class="tk-kw">def</span> log_calls(fn):
+    <span class="tk-str">"""任务 1：包装 fn——每次调用先把 (fn 的名字, 位置实参元组) 记进 LOGBOOK（预置列表），
+    再返回 fn 的原结果；用 functools.wraps 保住原函数名"""</span>
+    ...  <span class="tk-com"># 内层包装记得 @functools.wraps(fn)；最后 return 它</span>
 
 
-def count_by_level(lines):
-    &quot;&quot;&quot;任务 2：复用 parse_line，用 Counter 统计每个 level 出现次数，返回 dict&quot;&quot;&quot;
-    ...  # 循环 + Counter；解析失败的行跳过
+<span class="tk-kw">def</span> retry(times):
+    <span class="tk-str">"""任务 2：带参装饰器工厂（三层）——装饰后的函数失败就重试，最多总共试 times 次；
+    全失败把最后一次的异常原样抛出去"""</span>
+    ...  <span class="tk-com"># def deco(fn): def wrapper(...): 循环 try；return deco</span>
 
 
-def slow_pay_errors(lines):
-    &quot;&quot;&quot;任务 3：筛出 level 为 ERROR 且含 action=pay 的行，
-    按 duration_ms 从大到小排序，返回原始行列表（复用 parse_line + re.search）&quot;&quot;&quot;
-    ...  # 收集 (ms, line) 再 sort(reverse=True)</textarea></div>
+<span class="tk-kw">def</span> tool(fn):
+    <span class="tk-str">"""任务 3：注册器——把 fn 按 fn.__name__ 存进 TOOLS（预置 dict），返回 fn 本身"""</span>
+    ...  <span class="tk-com"># 两行：注册 + return fn</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">import functools
+
+
+def log_calls(fn):
+    &quot;&quot;&quot;任务 1：包装 fn——每次调用先把 (fn 的名字, 位置实参元组) 记进 LOGBOOK（预置列表），
+    再返回 fn 的原结果；用 functools.wraps 保住原函数名&quot;&quot;&quot;
+    ...  # 内层包装记得 @functools.wraps(fn)；最后 return 它
+
+
+def retry(times):
+    &quot;&quot;&quot;任务 2：带参装饰器工厂（三层）——装饰后的函数失败就重试，最多总共试 times 次；
+    全失败把最后一次的异常原样抛出去&quot;&quot;&quot;
+    ...  # def deco(fn): def wrapper(...): 循环 try；return deco
+
+
+def tool(fn):
+    &quot;&quot;&quot;任务 3：注册器——把 fn 按 fn.__name__ 存进 TOOLS（预置 dict），返回 fn 本身&quot;&quot;&quot;
+    ...  # 两行：注册 + return fn</textarea></div>
   <div class="py-lab-bar">
     <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
     <button class="py-lab-btn ghost py-lab-reset">重置</button>
@@ -498,80 +513,80 @@ def slow_pay_errors(lines):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code><span class="tk-kw">import</span> re
-<span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
+<pre><code><span class="tk-kw">import</span> functools
 
-<span class="tk-com"># 任务 1 — 正则解析单行</span>
-<span class="tk-kw">def</span> parse_line(line):
-    m = re.<span class="tk-kw">match</span>(r"(\S+) (\w+) user=(\w+)", line)
-    <span class="tk-kw">if</span> <span class="tk-kw">not</span> m:
-        <span class="tk-kw">return</span> <span class="tk-kw">None</span>
-    <span class="tk-kw">return</span> {<span class="tk-str">"time"</span>: m.group(<span class="tk-num">1</span>), <span class="tk-str">"level"</span>: m.group(<span class="tk-num">2</span>), <span class="tk-str">"user"</span>: m.group(<span class="tk-num">3</span>)}
+<span class="tk-com"># 任务 1 — @log：三段式 + wraps</span>
+<span class="tk-kw">def</span> log_calls(fn):
+    <span class="tk-dec">@functools.wraps</span>(fn)
+    <span class="tk-kw">def</span> wrapper(*args, **kwargs):
+        LOGBOOK.append((fn.__name__, args))
+        <span class="tk-kw">return</span> fn(*args, **kwargs)
+    <span class="tk-kw">return</span> wrapper
 
-<span class="tk-com"># 任务 2 — Counter 统计</span>
-<span class="tk-kw">def</span> count_by_level(lines):
-    c = Counter()
-    <span class="tk-kw">for</span> line <span class="tk-kw">in</span> lines:
-        d = parse_line(line)
-        <span class="tk-kw">if</span> d:
-            c[d[<span class="tk-str">"level"</span>]] += <span class="tk-num">1</span>
-    <span class="tk-kw">return</span> <span class="tk-fn">dict</span>(c)
+<span class="tk-com"># 任务 2 — 带参装饰器 = 工厂三层</span>
+<span class="tk-kw">def</span> retry(times):
+    <span class="tk-kw">def</span> deco(fn):
+        <span class="tk-dec">@functools.wraps</span>(fn)
+        <span class="tk-kw">def</span> wrapper(*args, **kwargs):
+            last = <span class="tk-kw">None</span>
+            <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(times):
+                <span class="tk-kw">try</span>:
+                    <span class="tk-kw">return</span> fn(*args, **kwargs)
+                <span class="tk-kw">except</span> Exception <span class="tk-kw">as</span> e:
+                    last = e
+            <span class="tk-kw">raise</span> last
+        <span class="tk-kw">return</span> wrapper
+    <span class="tk-kw">return</span> deco
 
-<span class="tk-com"># 任务 3 — 筛选 + 排序</span>
-<span class="tk-kw">def</span> slow_pay_errors(lines):
-    out = []
-    <span class="tk-kw">for</span> line <span class="tk-kw">in</span> lines:
-        d = parse_line(line)
-        <span class="tk-kw">if</span> d <span class="tk-kw">and</span> d[<span class="tk-str">"level"</span>] == <span class="tk-str">"ERROR"</span> <span class="tk-kw">and</span> <span class="tk-str">"action=pay"</span> <span class="tk-kw">in</span> line:
-            ms = re.search(r"duration_ms=(\d+)", line)
-            out.append((<span class="tk-fn">int</span>(ms.group(<span class="tk-num">1</span>)), line))
-    out.sort(reverse=<span class="tk-kw">True</span>)
-    <span class="tk-kw">return</span> [line <span class="tk-kw">for</span> _, line <span class="tk-kw">in</span> out]</code></pre>
-<p>自评清单：① parse_line 用的是 <code>re.match</code> 还是 <code>search</code>？这里从头匹配，match 就够；② 不匹配的行返回 None 而不是抛异常了吗？③ 排序用 <code>(ms, line)</code> 元组 <code>sort(reverse=True)</code> 时，同行 ms 相同会不会比字符串？想想稳定性。</p>
+<span class="tk-com"># 任务 3 — @tool 注册表（注册不改行为）</span>
+<span class="tk-kw">def</span> tool(fn):
+    TOOLS[fn.__name__] = fn
+    <span class="tk-kw">return</span> fn</code></pre>
+<p>自评清单：① wrapper 是 <code>*args, **kwargs</code> 万能签名吗？记录发生在调用前还是后？② retry 工厂是不是三层？全失败抛的是"最后一次"的异常吗？③ <code>tool</code> 返回的是 fn 本身还是 wrapper——为什么注册器不该改变行为？</p>
 </details>
 
-<h2>七、检索练习：先答后看（关补全）</h2>
-
-<div class="quiz" data-answer="a">
-  <p class="quiz-q">Q1 · <code>c = Counter(["a", "b"])</code>，访问 <code>c["不存在的键"]</code> 会怎样？</p>
-  <button class="quiz-opt" data-key="a">返回 0，不抛异常——Counter 对缺失键宽容</button>
-  <button class="quiz-opt" data-key="b">抛 KeyError——和普通 dict 一样</button>
-  <button class="quiz-opt" data-key="c">返回 None</button>
-  <p class="quiz-explain" hidden>Counter 继承 dict 但重写了缺失键行为：查不到返回 0（计数语义）。普通 dict 查缺失键才抛 KeyError；defaultdict 则会自动建默认值。</p>
-</div>
+<h2>六、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="b">
-  <p class="quiz-q">Q2 · <code>re.findall(r"\d+", "a1b22")</code> 返回什么？</p>
-  <button class="quiz-opt" data-key="a">[1, 22] —— 自动转成数字</button>
-  <button class="quiz-opt" data-key="b">["1", "22"] —— 字符串列表，要自己 int()</button>
-  <button class="quiz-opt" data-key="c">[("1",), ("22",)] —— 元组</button>
-  <p class="quiz-explain" hidden>findall 无分组时返回匹配字符串列表；有分组时返回分组内容列表。要数字得自己转：[int(x) for x in re.findall(...)]。</p>
+  <p class="quiz-q">Q1 · <code>@deco</code> 紧跟 <code>def f(): ...</code>，等价于哪一句？</p>
+  <button class="quiz-opt" data-key="a">deco = f(deco)</button>
+  <button class="quiz-opt" data-key="b">f = deco(f)——把 f 替换成包装后的新函数</button>
+  <button class="quiz-opt" data-key="c">只是标记，运行时不起作用</button>
+  <p class="quiz-explain" hidden>装饰器就是语法糖：@deco def f ≡ f = deco(f)。和 Java 注解的本质区别在这——Python 装饰器是立即执行的普通函数调用，不需要反射或 AOP 框架。</p>
 </div>
 
 <div class="quiz" data-answer="c">
-  <p class="quiz-q">Q3 · 用 <code>with open(path) as f:</code> 读文件最大的好处是？</p>
-  <button class="quiz-opt" data-key="a">读得更快</button>
-  <button class="quiz-opt" data-key="b">不用写 encoding</button>
-  <button class="quiz-opt" data-key="c">无论中途是否抛异常，块结束都自动关闭文件（≈ try-with-resources）</button>
-  <p class="quiz-explain" hidden>with 调用文件的 __enter__/__exit__，异常也保证 close——正是第 5 课"让语言替你写 finally"。另外 encoding 恰恰【要】自己显式写，Windows 默认 GBK 是经典乱码坑。</p>
+  <p class="quiz-q">Q2 · 为什么 <code>@retry(times=3)</code> 要写成三层函数？</p>
+  <button class="quiz-opt" data-key="a">Python 规定装饰器必须三层</button>
+  <button class="quiz-opt" data-key="b">为了性能，层数越多越快</button>
+  <button class="quiz-opt" data-key="c">最外层收参数返回真装饰器（工厂），第二层收函数，第三层干活的包装</button>
+  <p class="quiz-explain" hidden>@retry(times=3) 先执行 retry(3) 得到 deco，再 deco(fn) 得到 wrapper。无参装饰器两层、带参三层——数层数就能读懂任何装饰器。</p>
 </div>
 
-<h2>八、间隔复习（明天开始学习前做）</h2>
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q3 · <code>functools.wraps(fn)</code> 解决什么问题？</p>
+  <button class="quiz-opt" data-key="a">把原函数的 __name__/__doc__ 拷给包装函数，保住身份</button>
+  <button class="quiz-opt" data-key="b">让包装函数跑得更快</button>
+  <button class="quiz-opt" data-key="c">自动捕获异常</button>
+  <p class="quiz-explain" hidden>不加 wraps，fn.__name__ 会变成 "wrapper"——调试器、日志、文档工具全瞎。注册器/框架要靠 __name__ 找函数（比如 @tool 按 name 注册），所以工程装饰器一律带 wraps。</p>
+</div>
+
+<h2>七、间隔复习（明天开始学习前做）</h2>
 
 <p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
 
-<div class="review" data-id="r1" data-mode="code" data-name="word_counts">
-  <p class="review-q">① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
+<div class="review" data-id="r1" data-mode="code" data-name="shout">
+  <p class="review-q">① 装饰器默写：<code>shout(fn)</code>——调用 fn 后把字符串结果 <code>.upper()</code> 返回（写三段式，并用 <code>functools.wraps</code> 保住名字）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> functools
 
 
-<span class="tk-kw">def</span> word_counts(text):
-    <span class="tk-str">"""Counter(text.split()) 再 dict(...)"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">from collections import Counter
+<span class="tk-kw">def</span> shout(fn):
+    <span class="tk-str">"""调用 fn，结果 .upper() 后返回"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">import functools
 
 
-def word_counts(text):
-    &quot;&quot;&quot;Counter(text.split()) 再 dict(...)&quot;&quot;&quot;
+def shout(fn):
+    &quot;&quot;&quot;调用 fn，结果 .upper() 后返回&quot;&quot;&quot;
     ...</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
@@ -581,18 +596,12 @@ def word_counts(text):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<div class="review" data-id="r2" data-mode="code" data-name="extract_dates">
-  <p class="review-q">② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r"\d{4}-\d{2}-\d{2}", ...)</code>）</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> re
-
-
-<span class="tk-kw">def</span> extract_dates(lines):
-    <span class="tk-str">"""把 lines 连成一个文本，findall 找 r"\d{4}-\d{2}-\d{2}" """</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">import re
-
-
-def extract_dates(lines):
-    &quot;&quot;&quot;把 lines 连成一个文本，findall 找 r&quot;\d{4}-\d{2}-\d{2}&quot; &quot;&quot;&quot;
+<div class="review" data-id="r2" data-mode="code" data-name="repeat">
+  <p class="review-q">② 工厂默写：<code>repeat(times)</code>——装饰器工厂，装饰后的函数每次调用返回 <code>[结果] * times</code></p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> repeat(times):
+    <span class="tk-str">"""工厂三层：times → 装饰器 → 包装；调用返回 [结果] * times"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def repeat(times):
+    &quot;&quot;&quot;工厂三层：times → 装饰器 → 包装；调用返回 [结果] * times&quot;&quot;&quot;
     ...</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
@@ -603,8 +612,8 @@ def extract_dates(lines):
 </div>
 
 <div class="review" data-id="r3" data-mode="expr" data-name="">
-  <p class="review-q">③ 表达式默写：用 Counter 统计字符串 <code>"abracadabra"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-fn">sorted</span>(Counter(<span class="tk-str">"abracadabra"</span>).items())[:<span class="tk-num">2</span>]</pre><textarea class="review-code" spellcheck="false" rows="6">sorted(Counter(&quot;abracadabra&quot;).items())[:2]</textarea></div>
+  <p class="review-q">③ 表达式默写：包装函数 <code>w</code>（判分环境已预置，wraps 自 <code>greet</code>）的真名是什么——写出取它 <code>__name__</code> 的表达式</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">w.__name__</pre><textarea class="review-code" spellcheck="false" rows="6">w.__name__</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -613,38 +622,37 @@ def extract_dates(lines):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<p>下一课是<strong>第 10 课 · 装饰器与回调</strong>——带参装饰器（工厂）、functools.wraps、Agent 的 @tool 注册模式，把第 5 课的重试和本课的日志串成 <code>@retry(times=3)</code>。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
+<p>下一课是<strong>第 14 课 · 生成器与流式输出</strong>——yield、迭代器协议、send 双向通信，手写 LLM 的 token 流式输出。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
 
 <div class="callout primary">
-<strong>卡住了？随时问。</strong>正则贪婪匹配多吞了字符、Counter 键值对不上、时区差 8 小时——直接在对话里贴报错和你的输入输出。
+<strong>卡住了？随时问。</strong>"wrapper 之外的函数调用不记录"、retry 次数对不上、wraps 判分不过——直接在对话里贴报错和你的输入输出。
 </div>
 
 <div class="lesson-nav">
-  <a href="0008-asyncio.html">← 第 8 课 · 异步 asyncio</a>
-  <a href="0009-stdlib-drill.html">★ 练习场 · 20 题标准库实战</a>
+  <a href="0012-asyncio.html">← 第 12 课 · 异步 asyncio</a>
   <a href="0000-course-outline.html">课程大纲</a>
-  <a href="0010-decorators.html">第 10 课 · 装饰器与回调 →</a>
+  <a href="0014-generators.html">第 14 课 · 生成器与流式输出 →</a>
 </div>
 
 <footer class="doc-footer">
-  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/inputoutput.html">输入与输出</a>（文件读写）与 <a href="https://docs.python.org/zh-cn/3.15/tutorial/stdlib.html">标准库简介</a>、<a href="https://docs.python.org/zh-cn/3.15/tutorial/stdlib2.html">标准库简介 II</a></p>
-  <p id="cite-2">[2] 官方库参考 · <a href="https://docs.python.org/zh-cn/3.15/library/re.html">re</a>、<a href="https://docs.python.org/zh-cn/3.15/library/collections.html">collections</a>、<a href="https://docs.python.org/zh-cn/3.15/library/datetime.html">datetime</a></p>
+  <p id="cite-1">[1] 官方库参考 · <a href="https://docs.python.org/zh-cn/3.15/library/functools.html">functools</a>（wraps、缓存）与 <a href="https://docs.python.org/zh-cn/3.15/glossary.html#term-decorator">术语表 · decorator</a></p>
+  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
 </footer>
 </main>
 
-<script type="text/x-python" id="prelude-0009">
-LOG_LINES = [
-    "2026-11-26T10:00:01 INFO user=alice action=login",
-    "2026-11-26T10:00:05 ERROR user=bob action=pay duration_ms=1200",
-    "2026-11-26T10:00:09 INFO user=carol action=view",
-    "2026-11-26T10:00:12 ERROR user=alice action=pay duration_ms=800",
-    "2026-11-26T10:00:15 WARN user=dave action=retry",
-    "2026-11-26T10:00:20 ERROR user=erin action=pay duration_ms=2000",
-]
+<script type="text/x-python" id="prelude-0013">
+LOGBOOK = []
+TOOLS = {}
+
+
+def echo(x):
+    return x
 </script>
 
-<script type="text/x-python" id="tests-0009">
+<script type="text/x-python" id="tests-0013">
 import json as _json
+import functools
+import inspect
 
 def _t(name, fn):
     try:
@@ -656,31 +664,58 @@ def _t(name, fn):
 def _eq(actual, expected):
     assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
 
-if "parse_line" in globals():
-    _t("任务1 · 解析 INFO 行", lambda: _eq(parse_line(LOG_LINES[0]), {"time": "2026-11-26T10:00:01", "level": "INFO", "user": "alice"}))
-    _t("任务1 · 解析 ERROR 行", lambda: _eq(parse_line(LOG_LINES[1]), {"time": "2026-11-26T10:00:05", "level": "ERROR", "user": "bob"}))
-    _t("任务1 · 不匹配返回 None", lambda: _eq(parse_line("garbage line"), None))
-    _t("任务1 · 六行全部可解析", lambda: _eq(all(parse_line(l) for l in LOG_LINES), True))
+if "log_calls" in globals():
+    def _t1():
+        LOGBOOK.clear()
+        w = log_calls(echo)
+        assert callable(w), "log_calls 应返回包装函数"
+        assert w("hi") == "hi", f"包装函数应透传返回值，实际 {w('hi')!r}"
+        assert LOGBOOK == [("echo", ("hi",))], f"应记录 (函数名, 参数元组)，实际 {LOGBOOK!r}"
+        assert w.__name__ == "echo", "用 functools.wraps 保住原函数名"
+        w("yo")
+        assert len(LOGBOOK) == 2, f"每次调用都要记录，实际 {len(LOGBOOK)} 条"
+    _t("任务1 · @log（记录 + 透传 + wraps）", _t1)
 else:
-    print("MISSING|parse_line（任务 1 还没定义）")
+    print("MISSING|log_calls（任务 1 还没定义）")
 
-if "count_by_level" in globals():
-    _t("任务2 · 统计分级", lambda: _eq(count_by_level(LOG_LINES), {"INFO": 2, "ERROR": 3, "WARN": 1}))
-    _t("任务2 · 全不匹配为空", lambda: _eq(count_by_level(["x", "y"]), {}))
+if "retry" in globals():
+    def _t2():
+        calls = []
+        def flaky():
+            calls.append(1)
+            if len(calls) < 3:
+                raise RuntimeError("还没好")
+            return "ok"
+        wrapped = retry(3)(flaky)
+        assert callable(wrapped), "retry(times) 应返回装饰器（工厂第一层产物）"
+        r = wrapped()
+        assert r == "ok", f"第三次应成功返回 ok，实际 {r!r}"
+        assert len(calls) == 3, f"应恰好调用 3 次，实际 {len(calls)}"
+        def always_bad():
+            calls.append(1)
+            raise ValueError("炸")
+        try:
+            retry(2)(always_bad)()
+            assert False, "全失败应把最后一次异常原样抛出去"
+        except ValueError:
+            pass
+        assert len(calls) == 5, f"times=2 应只试 2 次，实际多调了 {len(calls) - 3} 次"
+    _t("任务2 · @retry(times=3) 重试工厂（次数防作弊）", _t2)
 else:
-    print("MISSING|count_by_level（任务 2 还没定义）")
+    print("MISSING|retry（任务 2 还没定义）")
 
-if "slow_pay_errors" in globals():
-    def _sorted_desc():
-        r = slow_pay_errors(LOG_LINES)
-        assert len(r) == 3, f"应筛出 3 条 pay 错误，实际 {len(r)}"
-        assert r[0] == LOG_LINES[5], "第一条应是 2000ms 的 erin 行"
-        assert r[1] == LOG_LINES[1], "第二条应是 1200ms 的 bob 行"
-        assert r[2] == LOG_LINES[3], "第三条应是 800ms 的 alice 行"
-    _t("任务3 · pay 错误按耗时降序", _sorted_desc)
-    _t("任务3 · 无匹配返回空", lambda: _eq(slow_pay_errors([LOG_LINES[0]]), []))
+if "tool" in globals():
+    def _t3():
+        TOOLS.clear()
+        def search(query):
+            return ["hit: " + query]
+        r = tool(search)
+        assert r is search, "@tool 应返回原函数本身（注册不改变行为）"
+        assert "search" in TOOLS, f"应按函数名注册进 TOOLS，实际 {list(TOOLS)}"
+        assert TOOLS["search"]("py") == ["hit: py"], "注册表里的工具应可正常调用"
+    _t("任务3 · @tool 注册模式", _t3)
 else:
-    print("MISSING|slow_pay_errors（任务 3 还没定义）")
+    print("MISSING|tool（任务 3 还没定义）")
 </script>
 
 <script>
@@ -891,10 +926,16 @@ else:
 </script>
 
 <script type="text/x-python" id="review-env">
-from collections import Counter
+import functools
+
+def greet(name):
+    """打招呼（文档串留着验证 wraps）"""
+    return "你好, " + name
+
+w = functools.wraps(greet)(lambda *a, **k: greet(*a, **k))
 </script>
 <script>
-window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）", "starter": "from collections import Counter\n\n\ndef word_counts(text):\n    \"\"\"Counter(text.split()) 再 dict(...)\"\"\"\n    ...", "ref": "from collections import Counter\n\ndef word_counts(text):\n    return dict(Counter(text.split()))", "tind": "        assert _fn(\"a b a\") == {\"a\": 2, \"b\": 1}, f\"实际 {_fn('a b a')!r}\"\n        assert _fn(\"\") == {}, \"空串应返回空 dict\"\n        assert _fn(\"x  x  x\") == {\"x\": 3}, \"多空格 split 自动处理\""}, {"id": "r2", "mode": "code", "name": "extract_dates", "task": "② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", ...)</code>）", "starter": "import re\n\n\ndef extract_dates(lines):\n    \"\"\"把 lines 连成一个文本，findall 找 r\"\\d{4}-\\d{2}-\\d{2}\" \"\"\"\n    ...", "ref": "import re\n\ndef extract_dates(lines):\n    return re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", \"\\n\".join(lines))", "tind": "        assert _fn([\"x 2026-01-02 y\", \"no date\", \"2025-12-31\"]) == [\"2026-01-02\", \"2025-12-31\"], f\"实际 {_fn(['x 2026-01-02'])!r}\"\n        assert _fn([]) == []\n        assert _fn([\"bad 20-01-01\"]) == [], \"三位年份不算日期\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：用 Counter 统计字符串 <code>\"abracadabra\"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）", "starter": "sorted(Counter(\"abracadabra\").items())[:2]", "ref": "sorted(Counter(\"abracadabra\").items())[:2]   # [(\"a\", 5), (\"b\", 2)]", "tind": "        assert _val == [(\"a\", 5), (\"b\", 2)], f\"实际 {_val!r}\""}];
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "shout", "task": "① 装饰器默写：<code>shout(fn)</code>——调用 fn 后把字符串结果 <code>.upper()</code> 返回（写三段式，并用 <code>functools.wraps</code> 保住名字）", "starter": "import functools\n\n\ndef shout(fn):\n    \"\"\"调用 fn，结果 .upper() 后返回\"\"\"\n    ...", "ref": "import functools\n\ndef shout(fn):\n    @functools.wraps(fn)\n    def wrapper(*args, **kwargs):\n        return fn(*args, **kwargs).upper()\n    return wrapper", "tind": "        _w = _fn(lambda: \"hi\")\n        assert _w() == \"HI\", f\"实际 {_w()!r}\"\n        assert _w.__name__ == \"<lambda>\", \"要用 functools.wraps 保住原函数名\""}, {"id": "r2", "mode": "code", "name": "repeat", "task": "② 工厂默写：<code>repeat(times)</code>——装饰器工厂，装饰后的函数每次调用返回 <code>[结果] * times</code>", "starter": "def repeat(times):\n    \"\"\"工厂三层：times → 装饰器 → 包装；调用返回 [结果] * times\"\"\"\n    ...", "ref": "def repeat(times):\n    def deco(fn):\n        def wrapper(*args, **kwargs):\n            return [fn(*args, **kwargs)] * times\n        return wrapper\n    return deco", "tind": "        _d = _fn(3)\n        assert callable(_d), \"repeat(times) 应返回装饰器\"\n        _g = _d(lambda: \"x\")\n        assert _g() == [\"x\", \"x\", \"x\"], f\"实际 {_g()!r}\"\n        _g2 = _fn(2)(lambda: 7)\n        assert _g2() == [7, 7], f\"times=2 应重复 2 次，实际 {_g2()!r}\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：包装函数 <code>w</code>（判分环境已预置，wraps 自 <code>greet</code>）的真名是什么——写出取它 <code>__name__</code> 的表达式", "starter": "w.__name__", "ref": "w.__name__   # \"greet\"——wraps 把原函数身份拷给了包装函数", "tind": "        assert _val == \"greet\", f\"实际 {_val!r}\""}];
 </script>
 <script>
 /* review.js — 间隔复习在线评判引擎（Pyodide）
@@ -1234,6 +1275,16 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1382,9 +1433,18 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "�
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：9 标准库实战</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html" aria-current="page"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：13 装饰器与回调</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html" aria-current="page"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */
