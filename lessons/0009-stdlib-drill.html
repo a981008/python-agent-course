@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +372,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
@@ -326,6 +381,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-status.info { color: var(--ink-soft); }
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -333,7 +401,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h1>练习场 · 20 题标准库实战训练</h1>
 <p class="meta">第 9 课配套 · json / 文件与 pathlib / 正则 / collections / datetime · 自动判分</p>
-<div class="callout win"><strong>玩法</strong>：写的是<strong>完整函数</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；文件题会真实写进运行环境的临时目录（#5 测覆盖写、#8 测追加不覆盖）；#10 考 fullmatch 边界长度。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>完整函数</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；文件题会真实写进运行环境的临时目录（#5 测覆盖写、#8 测追加不覆盖）；#10 考 fullmatch 边界长度。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>：本练习场<strong>无需预置数据</strong>——每题函数的入参就是数据；文件题使用 <code>/tmp/pylab_*.txt</code> 临时路径。
 </div>
@@ -448,19 +516,13 @@ def merge_json(sa, sb):
 </div>
 
 <div class="drill" id="d-6" data-n="6" data-cat="B">
-  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">pathlib 后缀：<code>ext_of(path)</code> 返回 <code>PurePosixPath(path).suffix</code>——"a/b/c.txt" → ".txt"；无后缀 → ""</div></div>
-  <div class="drill-ex">例：<code>ext_of("a/b/c.txt")</code> → <code>".txt"</code>；<code>ext_of("README")</code> → <code>""</code>；<code>ext_of("a.tar.gz")</code> → <code>".gz"</code></div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">from</span> pathlib <span class="tk-kw">import</span> PurePosixPath
-
-
-<span class="tk-kw">def</span> ext_of(path):
-    <span class="tk-str">""".suffix 就是扩展名（含点）"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">from pathlib import PurePosixPath
-
-
-def ext_of(path):
-    &quot;&quot;&quot;.suffix 就是扩展名（含点）&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">用 <code>pathlib</code> 取路径 <code>"/a/b/c.txt"</code> 的后缀，正确写法是？</div></div>
+  <div class="drill-ex">例：<code>PurePosixPath("a/b/c.txt").suffix</code> → <code>".txt"</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>path.split(".")[-1]</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>PurePosixPath(path).suffix</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>os.path.basename(path)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>PurePosixPath(path).stem</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -644,19 +706,13 @@ def group_by_len(words):
 </div>
 
 <div class="drill" id="d-15" data-n="15" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">循环左移：<code>rotate_left(items, k)</code> 整体左移 k 位，返回 list（collections 的双端队列自带"旋转"）</div></div>
-  <div class="drill-ex">例：<code>rotate_left([1, 2, 3, 4], 1)</code> → <code>[2, 3, 4, 1]</code>；k 超过长度时自动取模</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> deque
-
-
-<span class="tk-kw">def</span> rotate_left(items, k):
-    <span class="tk-str">"""整体左移 k 位（collections 的双端队列自带"旋转"）"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">from collections import deque
-
-
-def rotate_left(items, k):
-    &quot;&quot;&quot;整体左移 k 位（collections 的双端队列自带&quot;旋转&quot;）&quot;&quot;&quot;
-    ...</textarea></div>
+  <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">要把 <code>[1, 2, 3, 4]</code> 整体<strong>左移</strong> 2 位得到 <code>[3, 4, 1, 2]</code>，用 <code>deque</code> 的正确调用是？</div></div>
+  <div class="drill-ex">例：<code>d = deque([1,2,3,4]); d.rotate(-2)</code> → <code>deque([3,4,1,2])</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>d.rotate(2)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>d.rotate(-2)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>d.reverse()</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>d.popleft()</code> 两次</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -666,13 +722,13 @@ def rotate_left(items, k):
 </div>
 
 <div class="drill" id="d-16" data-n="16" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#16</span><div class="drill-task">保序去重：<code>dedupe_stable(items)</code> 去重且保持首次出现的顺序，返回 list（想想 dict 的键有什么特性）</div></div>
-  <div class="drill-ex">例：<code>dedupe_stable([3, 1, 3, 2])</code> → <code>[3, 1, 2]</code>——只留首次出现，顺序不变</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> dedupe_stable(items):
-    <span class="tk-str">"""去重且保持首次出现的顺序（想想 dict 的键有什么特性）"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def dedupe_stable(items):
-    &quot;&quot;&quot;去重且保持首次出现的顺序（想想 dict 的键有什么特性）&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#16</span><div class="drill-task">#16 <code>dedupe_stable</code> 与第 2 课 #41 答案都是 <code>list(dict.fromkeys(...))</code>。关于这个写法，下面说法正确的是？</div></div>
+  <div class="drill-ex">例：<code>list(dict.fromkeys(["b","a","b","c"]))</code> → <code>["b","a","c"]</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-16" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>dict.fromkeys(items)</code> 用字典键的唯一性去重，且 Python 3.7+ 字典保持插入顺序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>set(items)</code> 也能保持首次出现顺序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>dict.fromkeys</code> 会打乱原有顺序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="3"><span class="opt-letter">D</span><span class="opt-text">这个写法只适用于字符串列表</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -781,7 +837,7 @@ def summarize_levels(lines):
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "name": "to_json", "task": "序列化：`to_json(obj)` 返回 `json.dumps(obj, ensure_ascii=False)`——ensure_ascii=False 让中文原样输出", "starter": "import json\n\n\ndef to_json(obj):\n    \"\"\"dumps 记得 ensure_ascii=False，否则中文会变成转义序列\"\"\"\n    ...  # 一行", "ans": "import json\n\ndef to_json(obj):\n    return json.dumps(obj, ensure_ascii=False)", "tind": "        assert _fn({\"a\": 1}) == '{\"a\": 1}', f\"实际 {_fn({'a': 1})!r}\"\n        assert _fn({\"名字\": \"小明\"}) == '{\"名字\": \"小明\"}', \"中文应原样输出（ensure_ascii=False）\"", "snip": null, "ex": "例：`to_json({\"名字\": \"小明\"})` → `'{\"名字\": \"小明\"}'`——中文原样，不变成转义序列"}, {"n": 2, "cat": "A", "name": "from_json", "task": "反序列化：`from_json(s)` 返回 `json.loads(s)`", "starter": "import json\n\n\ndef from_json(s):\n    \"\"\"loads 字符串 → Python 对象\"\"\"\n    ...  # 一行", "ans": "import json\n\ndef from_json(s):\n    return json.loads(s)", "tind": "        assert _fn('{\"a\": 1}') == {\"a\": 1}, f\"实际 {_fn('{\\\"a\\\": 1}')!r}\"\n        assert _fn('[1, 2]') == [1, 2]\n        assert _fn('null') is None, \"JSON 的 null → None\"", "snip": null, "ex": "例：`from_json('{\"a\": 1}')` → `{\"a\": 1}`；`from_json(\"null\")` → `None`"}, {"n": 3, "cat": "A", "name": "pretty", "task": "美化输出：`pretty(obj)` 返回 `json.dumps(obj, ensure_ascii=False, indent=2)`", "starter": "import json\n\n\ndef pretty(obj):\n    \"\"\"indent=2 缩进美化\"\"\"\n    ...  # 一行", "ans": "import json\n\ndef pretty(obj):\n    return json.dumps(obj, ensure_ascii=False, indent=2)", "tind": "        assert _fn({\"a\": 1}) == '{\\n  \"a\": 1\\n}', f\"实际 {_fn({'a': 1})!r}\"\n        assert _fn({}) == \"{}\"", "snip": null, "ex": "例：`pretty({\"a\": 1})` 的结果是带换行、两格缩进的多行 JSON；`pretty({})` → `\"{}\"`"}, {"n": 4, "cat": "A", "name": "merge_json", "task": "合并 JSON：`merge_json(sa, sb)` 把两个 JSON 字符串各自 loads 成 dict 后合并（后者覆盖同键），返回 dict", "starter": "import json\n\n\ndef merge_json(sa, sb):\n    \"\"\"loads 两个字符串，后者的键覆盖前者\"\"\"\n    ...", "ans": "import json\n\ndef merge_json(sa, sb):\n    a = json.loads(sa)\n    b = json.loads(sb)\n    return {**a, **b}", "tind": "        assert _fn('{\"a\": 1, \"b\": 2}', '{\"b\": 9, \"c\": 3}') == {\"a\": 1, \"b\": 9, \"c\": 3}, f\"实际 {_fn('{\\\"a\\\": 1}', '{}')!r}\"\n        assert _fn('{}', '{}') == {}", "snip": null, "ex": "例：`merge_json('{\"a\": 1, \"b\": 2}', '{\"b\": 9, \"c\": 3}')` → `{\"a\": 1, \"b\": 9, \"c\": 3}`——后者覆盖同键"}, {"n": 5, "cat": "B", "name": "write_then_read", "task": "文件读写：`write_then_read(path, text)` ——把 text 写入 path，再读回**全部内容**返回；写和读都用 `with`，**encoding 必须显式写**。提示：写入是\"覆盖新建\"语义", "starter": "def write_then_read(path, text):\n    \"\"\"写入后读回全部内容；两个方向都用 with，encoding 显式写\"\"\"\n    ...  # 写一个 with、读一个 with", "ans": "def write_then_read(path, text):\n    with open(path, \"w\", encoding=\"utf-8\") as f:\n        f.write(text)\n    with open(path, encoding=\"utf-8\") as f:\n        return f.read()", "tind": "        _p = \"/tmp/pylab_t5_a.txt\"\n        assert _fn(_p, \"你好 py\") == \"你好 py\", \"中文往返不应乱码（encoding 起作用）\"\n        assert _fn(_p, \"second\") == \"second\", \"w 模式覆盖写入\"", "snip": null, "ex": "例：写入 \"你好 py\" → 读回 \"你好 py\"（encoding 不写中文会乱码）；同一个路径再写一次，读到的是**新内容**（覆盖语义）"}, {"n": 6, "cat": "B", "name": "ext_of", "task": "pathlib 后缀：`ext_of(path)` 返回 `PurePosixPath(path).suffix`——\"a/b/c.txt\" → \".txt\"；无后缀 → \"\"", "starter": "from pathlib import PurePosixPath\n\n\ndef ext_of(path):\n    \"\"\".suffix 就是扩展名（含点）\"\"\"\n    ...  # 一行", "ans": "from pathlib import PurePosixPath\n\ndef ext_of(path):\n    return PurePosixPath(path).suffix", "tind": "        assert _fn(\"a/b/c.txt\") == \".txt\", f\"实际 {_fn('a/b/c.txt')!r}\"\n        assert _fn(\"README\") == \"\", \"无后缀返回空串\"\n        assert _fn(\"a.tar.gz\") == \".gz\", \"suffix 只取最后一个\"", "snip": null, "ex": "例：`ext_of(\"a/b/c.txt\")` → `\".txt\"`；`ext_of(\"README\")` → `\"\"`；`ext_of(\"a.tar.gz\")` → `\".gz\"`"}, {"n": 7, "cat": "B", "name": "join_parts", "task": "拼路径：`join_parts(*parts)` 返回 `PurePosixPath(*parts).as_posix()`——用 / 拼接，绝不手写字符串拼接", "starter": "from pathlib import PurePosixPath\n\n\ndef join_parts(*parts):\n    \"\"\"PurePosixPath(\"src\", \"agent\", \"x.py\").as_posix() == \"src/agent/x.py\" \"\"\"\n    ...  # 一行", "ans": "from pathlib import PurePosixPath\n\ndef join_parts(*parts):\n    return PurePosixPath(*parts).as_posix()", "tind": "        assert _fn(\"src\", \"agent\", \"x.py\") == \"src/agent/x.py\", f\"实际 {_fn('src', 'agent')!r}\"\n        assert _fn(\"a\", \"b\", \"c.txt\") == \"a/b/c.txt\"", "snip": null, "ex": "例：`join_parts(\"src\", \"agent\", \"x.py\")` → `\"src/agent/x.py\"`"}, {"n": 8, "cat": "B", "name": "append_log", "task": "追加日志：`append_log(path, line)` ——把 `line + \"\\n\"` **追加**到文件末尾（不许清空已有内容），然后读回全部内容返回；encoding 显式写。提示：open 的模式里有个专管追加的字母", "starter": "def append_log(path, line):\n    \"\"\"追加一行（结尾带换行、不清空已有内容），再读回全部内容；模式里有个专管追加的字母\"\"\"\n    ...", "ans": "def append_log(path, line):\n    with open(path, \"a\", encoding=\"utf-8\") as f:\n        f.write(line + \"\\n\")\n    with open(path, encoding=\"utf-8\") as f:\n        return f.read()", "tind": "        import os as _os\n        _p = \"/tmp/pylab_t8_a.log\"\n        if _os.path.exists(_p):\n            _os.remove(_p)\n        _r1 = _fn(_p, \"L1\")\n        assert _r1 == \"L1\\n\", f\"第一次写入应得 'L1\\\\n'，实际 {_r1!r}\"\n        _r2 = _fn(_p, \"L2\")\n        assert _r2 == \"L1\\nL2\\n\", f\"追加模式不应覆盖：实际 {_r2!r}\"", "snip": null, "ex": "例：写 `\"L1\"` 读回 `\"L1\\n\"`；再写 `\"L2\"` 读回 `\"L1\\nL2\\n\"`——旧内容还在，新行接在后面"}, {"n": 9, "cat": "C", "name": "find_numbers", "task": "提取数字：`find_numbers(s)` 用 `re.findall(r\"\\d+\", s)` 找出所有连续数字，**转成 int 列表**返回", "starter": "import re\n\n\ndef find_numbers(s):\n    r\"\"\"找出串里所有连续数字并转成 int 列表（re 里有个\"找全部\"的函数）\"\"\"\n    ...", "ans": "import re\n\ndef find_numbers(s):\n    return [int(x) for x in re.findall(r\"\\d+\", s)]", "tind": "        assert _fn(\"a12b3\") == [12, 3], f\"实际 {_fn('a12b3')!r}\"\n        assert _fn(\"abc\") == []\n        assert _fn(\"007\") == [7], \"int('007') == 7\"", "snip": null, "ex": "例：`find_numbers(\"订单12号，3件\")` → `[12, 3]`；没有数字 → `[]`"}, {"n": 10, "cat": "C", "name": "is_valid_tag", "task": "格式校验：`is_valid_tag(s)` 用 `re.fullmatch(r\"[a-z][a-z0-9_]{1,15}\", s)` 校验——小写字母开头、总长 2~16，合法返回 True", "starter": "import re\n\n\ndef is_valid_tag(s):\n    \"\"\"fullmatch 整串匹配；匹配对象非 None 即合法\"\"\"\n    ...  # 一行", "ans": "import re\n\ndef is_valid_tag(s):\n    return re.fullmatch(r\"[a-z][a-z0-9_]{1,15}\", s) is not None", "tind": "        assert _fn(\"ab\") is True, f\"实际 {_fn('ab')!r}\"\n        assert _fn(\"a1_2\") is True\n        assert _fn(\"a\") is False, \"总长至少 2\"\n        assert _fn(\"A_bc\") is False, \"必须小写字母开头\"\n        assert _fn(\"a\" + \"b\" * 16) is False, \"总长超过 16 不合法\"\n        assert _fn(\"a\" + \"b\" * 15) is True", "snip": null, "ex": "例：`is_valid_tag(\"a1_2\")` → `True`；`is_valid_tag(\"A_bc\")` → `False`（必须小写字母开头）；单字符 `\"a\"` 也 False（太短）"}, {"n": 11, "cat": "C", "name": "parse_user", "task": "提取字段：`parse_user(line)` 用 `re.search(r\"user=(\\w+)\", line)` 提取用户名；找不到返回 `None`", "starter": "import re\n\n\ndef parse_user(line):\n    \"\"\"search 到的匹配对象里取出第 1 个捕获组，就是用户名\"\"\"\n    ...  # if m: return ... else None", "ans": "import re\n\ndef parse_user(line):\n    m = re.search(r\"user=(\\w+)\", line)\n    if m:\n        return m.group(1)\n    return None", "tind": "        assert _fn(\"INFO user=alice action=login\") == \"alice\", f\"实际 {_fn('INFO user=alice')!r}\"\n        assert _fn(\"user=bob_2\") == \"bob_2\", \"\\\\w 匹配字母数字下划线\"\n        assert _fn(\"no user here\") is None", "snip": null, "ex": "例：`parse_user(\"INFO user=alice action=login\")` → `\"alice\"`；日志里没有 user= → `None`"}, {"n": 12, "cat": "C", "name": "mask_emails", "task": "脱敏：`mask_emails(s)` 用 `re.sub(r\"[A-Za-z0-9._]+@\", \"***@\", s)` 把邮箱名替换成 ***，域名保留", "starter": "import re\n\n\ndef mask_emails(s):\n    \"\"\"把所有邮箱替换成 ***（re 的\"替换\"函数）\"\"\"\n    ...  # 一行", "ans": "import re\n\ndef mask_emails(s):\n    return re.sub(r\"[A-Za-z0-9._]+@\", \"***@\", s)", "tind": "        assert _fn(\"hi alice@x.com\") == \"hi ***@x.com\", f\"实际 {_fn('hi alice@x.com')!r}\"\n        assert _fn(\"a@b.co c@d.io\") == \"***@b.co ***@d.io\", \"多个邮箱都要替换\"\n        assert _fn(\"no email\") == \"no email\"", "snip": null, "ex": "例：`mask_emails(\"hi alice@x.com\")` → `\"hi ***@x.com\"`——用户名打码、域名保留"}, {"n": 13, "cat": "D", "name": "top2", "task": "计数排行：`top2(words)` 返回出现最多的前两名 `[(词, 次数), ...]`（collections 里有现成的\"排前 k 名\"方法）", "starter": "from collections import Counter\n\n\ndef top2(words):\n    \"\"\"频次最高的前两个（Counter 有现成方法）\"\"\"\n    ...  # 一行", "ans": "from collections import Counter\n\ndef top2(words):\n    return Counter(words).most_common(2)", "tind": "        assert _fn([\"a\", \"b\", \"a\", \"c\", \"b\", \"a\"]) == [(\"a\", 3), (\"b\", 2)], f\"实际 {_fn(['a', 'b', 'a'])!r}\"\n        assert _fn([\"x\", \"y\"]) == [(\"x\", 1), (\"y\", 1)], \"并列时按出现顺序\"\n        assert _fn([\"a\"]) == [(\"a\", 1)]\n        assert _fn([]) == []", "snip": null, "ex": "例：`top2([\"b\", \"a\", \"b\", \"b\"])` → `[(\"b\", 3), (\"a\", 1)]`——按出现次数从高到低取前两名"}, {"n": 14, "cat": "D", "name": "group_by_len", "task": "分组：`group_by_len(words)` 按单词长度分组，返回 `{长度: 排序后的列表}`。提示：collections 里有\"键不存在时自动建组\"的 dict 子类很省事", "starter": "from collections import defaultdict\n\n\ndef group_by_len(words):\n    \"\"\"按长度分组、组内排序后返回（collections 有\"键不存在自动建组\"的帮手）\"\"\"\n    ...", "ans": "from collections import defaultdict\n\ndef group_by_len(words):\n    d = defaultdict(list)\n    for w in words:\n        d[len(w)].append(w)\n    return {k: sorted(v) for k, v in d.items()}", "tind": "        assert _fn([\"bb\", \"a\", \"ccc\", \"dd\"]) == {2: [\"bb\", \"dd\"], 1: [\"a\"], 3: [\"ccc\"]}, f\"实际 {_fn(['bb', 'a'])!r}\"\n        assert _fn([]) == {}", "snip": null, "ex": "例：`group_by_len([\"bb\", \"a\", \"dd\"])` → `{2: [\"bb\", \"dd\"], 1: [\"a\"]}`——组内要排好序"}, {"n": 15, "cat": "D", "name": "rotate_left", "task": "循环左移：`rotate_left(items, k)` 整体左移 k 位，返回 list（collections 的双端队列自带\"旋转\"）", "starter": "from collections import deque\n\n\ndef rotate_left(items, k):\n    \"\"\"整体左移 k 位（collections 的双端队列自带\"旋转\"）\"\"\"\n    ...", "ans": "from collections import deque\n\ndef rotate_left(items, k):\n    d = deque(items)\n    d.rotate(-k)\n    return list(d)", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [3, 4, 5, 1, 2], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2, 3], 0) == [1, 2, 3]\n        assert _fn([1, 2], 5) == [2, 1], \"k 超过长度时 deque 自动取模处理\"", "snip": null, "ex": "例：`rotate_left([1, 2, 3, 4], 1)` → `[2, 3, 4, 1]`；k 超过长度时自动取模"}, {"n": 16, "cat": "D", "name": "dedupe_stable", "task": "保序去重：`dedupe_stable(items)` 去重且保持首次出现的顺序，返回 list（想想 dict 的键有什么特性）", "starter": "def dedupe_stable(items):\n    \"\"\"去重且保持首次出现的顺序（想想 dict 的键有什么特性）\"\"\"\n    ...  # 一行", "ans": "def dedupe_stable(items):\n    return list(dict.fromkeys(items))", "tind": "        assert _fn([1, 2, 1, 3, 2]) == [1, 2, 3], f\"实际 {_fn([1, 2, 1, 3, 2])!r}\"\n        assert _fn([\"a\", \"a\"]) == [\"a\"]\n        assert _fn([]) == []", "snip": null, "ex": "例：`dedupe_stable([3, 1, 3, 2])` → `[3, 1, 2]`——只留首次出现，顺序不变"}, {"n": 17, "cat": "E", "name": "days_between", "task": "日期差：`days_between(d1, d2)` ——`date.fromisoformat` 解析两个 ISO 日期，返回相差天数（绝对值）", "starter": "from datetime import date\n\n\ndef days_between(d1, d2):\n    \"\"\"两个 ISO 日期相减取天数差，结果要非负\"\"\"\n    ...", "ans": "from datetime import date\n\ndef days_between(d1, d2):\n    delta = date.fromisoformat(d2) - date.fromisoformat(d1)\n    return abs(delta.days)", "tind": "        assert _fn(\"2026-01-01\", \"2026-01-10\") == 9, f\"实际 {_fn('2026-01-01', '2026-01-10')!r}\"\n        assert _fn(\"2026-01-10\", \"2026-01-01\") == 9, \"反向也应为正（abs）\"\n        assert _fn(\"2026-03-01\", \"2026-03-01\") == 0", "snip": null, "ex": "例：`days_between(\"2026-01-01\", \"2026-01-10\")` → `9`；两个日期反着传也返回 9"}, {"n": 18, "cat": "E", "name": "shift_date", "task": "日期平移：`shift_date(iso, n)` ——`date.fromisoformat(iso) + timedelta(days=n)`，再 `isoformat()` 转回字符串", "starter": "from datetime import date, timedelta\n\n\ndef shift_date(iso, n):\n    \"\"\"日期加 n 天后转回 ISO 字符串\"\"\"\n    ...", "ans": "from datetime import date, timedelta\n\ndef shift_date(iso, n):\n    return (date.fromisoformat(iso) + timedelta(days=n)).isoformat()", "tind": "        assert _fn(\"2026-11-26\", 5) == \"2026-12-01\", f\"跨月：实际 {_fn('2026-11-26', 5)!r}\"\n        assert _fn(\"2026-01-01\", -1) == \"2025-12-31\", \"负数前移跨年\"\n        assert _fn(\"2026-02-28\", 1) == \"2026-03-01\", \"平年 2 月 28 加一天到 3 月 1\"", "snip": null, "ex": "例：`shift_date(\"2026-11-26\", 5)` → `\"2026-12-01\"`（跨月没问题）；n 可以是负数"}, {"n": 19, "cat": "E", "name": "parse_log_level", "task": "日志分级：`parse_log_level(line)` ——首词在 {\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"}（已给出 LEVELS 集合）里返回首词，否则返回 `\"UNKNOWN\"`（空行也是 UNKNOWN）", "starter": "LEVELS = {\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"}\n\n\ndef parse_log_level(line):\n    \"\"\"看每行第一个词，判断在不在合法级别里\"\"\"\n    ...", "ans": "LEVELS = {\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"}\n\ndef parse_log_level(line):\n    parts = line.split()\n    if parts and parts[0] in LEVELS:\n        return parts[0]\n    return \"UNKNOWN\"", "tind": "        assert _fn(\"INFO ok\") == \"INFO\", f\"实际 {_fn('INFO ok')!r}\"\n        assert _fn(\"ERROR x\") == \"ERROR\"\n        assert _fn(\"weird stuff\") == \"UNKNOWN\", \"首词不在集合里应返回 UNKNOWN\"\n        assert _fn(\"\") == \"UNKNOWN\", \"空行应返回 UNKNOWN\"", "snip": null, "ex": "例：`parse_log_level(\"ERROR x\")` → `\"ERROR\"`；`parse_log_level(\"weird stuff\")` → `\"UNKNOWN\"`；空行也是 UNKNOWN"}, {"n": 20, "cat": "E", "name": "summarize_levels", "task": "日志统计（综合）：`summarize_levels(lines)` ——统计每行首词出现次数（跳过空行），用 Counter 后转 dict 返回", "starter": "from collections import Counter\n\n\ndef summarize_levels(lines):\n    \"\"\"逐行取第一个词计数，返回普通 dict（Counter 能直接累加）\"\"\"\n    ...", "ans": "from collections import Counter\n\ndef summarize_levels(lines):\n    c = Counter()\n    for line in lines:\n        parts = line.split()\n        if parts:\n            c[parts[0]] += 1\n    return dict(c)", "tind": "        assert _fn([\"INFO a\", \"ERROR b\", \"INFO c\", \"\"]) == {\"INFO\": 2, \"ERROR\": 1}, f\"实际 {_fn(['INFO a', 'ERROR b'])!r}\"\n        assert _fn([]) == {}\n        assert _fn([\"x y\", \"x z\"]) == {\"x\": 2}, \"任意首词都统计\"", "snip": null, "ex": "例：`[\"INFO a\", \"ERROR b\", \"INFO c\", \"\"]` → `{\"INFO\": 2, \"ERROR\": 1}`——空行跳过，返回普通 dict"}];
+const EX = [{"n": 1, "cat": "A", "name": "to_json", "task": "序列化：`to_json(obj)` 返回 `json.dumps(obj, ensure_ascii=False)`——ensure_ascii=False 让中文原样输出", "starter": "import json\n\n\ndef to_json(obj):\n    \"\"\"dumps 记得 ensure_ascii=False，否则中文会变成转义序列\"\"\"\n    ...  # 一行", "ans": "import json\n\ndef to_json(obj):\n    return json.dumps(obj, ensure_ascii=False)", "tind": "        assert _fn({\"a\": 1}) == '{\"a\": 1}', f\"实际 {_fn({'a': 1})!r}\"\n        assert _fn({\"名字\": \"小明\"}) == '{\"名字\": \"小明\"}', \"中文应原样输出（ensure_ascii=False）\"", "snip": null, "ex": "例：`to_json({\"名字\": \"小明\"})` → `'{\"名字\": \"小明\"}'`——中文原样，不变成转义序列"}, {"n": 2, "cat": "A", "name": "from_json", "task": "反序列化：`from_json(s)` 返回 `json.loads(s)`", "starter": "import json\n\n\ndef from_json(s):\n    \"\"\"loads 字符串 → Python 对象\"\"\"\n    ...  # 一行", "ans": "import json\n\ndef from_json(s):\n    return json.loads(s)", "tind": "        assert _fn('{\"a\": 1}') == {\"a\": 1}, f\"实际 {_fn('{\\\"a\\\": 1}')!r}\"\n        assert _fn('[1, 2]') == [1, 2]\n        assert _fn('null') is None, \"JSON 的 null → None\"", "snip": null, "ex": "例：`from_json('{\"a\": 1}')` → `{\"a\": 1}`；`from_json(\"null\")` → `None`"}, {"n": 3, "cat": "A", "name": "pretty", "task": "美化输出：`pretty(obj)` 返回 `json.dumps(obj, ensure_ascii=False, indent=2)`", "starter": "import json\n\n\ndef pretty(obj):\n    \"\"\"indent=2 缩进美化\"\"\"\n    ...  # 一行", "ans": "import json\n\ndef pretty(obj):\n    return json.dumps(obj, ensure_ascii=False, indent=2)", "tind": "        assert _fn({\"a\": 1}) == '{\\n  \"a\": 1\\n}', f\"实际 {_fn({'a': 1})!r}\"\n        assert _fn({}) == \"{}\"", "snip": null, "ex": "例：`pretty({\"a\": 1})` 的结果是带换行、两格缩进的多行 JSON；`pretty({})` → `\"{}\"`"}, {"n": 4, "cat": "A", "name": "merge_json", "task": "合并 JSON：`merge_json(sa, sb)` 把两个 JSON 字符串各自 loads 成 dict 后合并（后者覆盖同键），返回 dict", "starter": "import json\n\n\ndef merge_json(sa, sb):\n    \"\"\"loads 两个字符串，后者的键覆盖前者\"\"\"\n    ...", "ans": "import json\n\ndef merge_json(sa, sb):\n    a = json.loads(sa)\n    b = json.loads(sb)\n    return {**a, **b}", "tind": "        assert _fn('{\"a\": 1, \"b\": 2}', '{\"b\": 9, \"c\": 3}') == {\"a\": 1, \"b\": 9, \"c\": 3}, f\"实际 {_fn('{\\\"a\\\": 1}', '{}')!r}\"\n        assert _fn('{}', '{}') == {}", "snip": null, "ex": "例：`merge_json('{\"a\": 1, \"b\": 2}', '{\"b\": 9, \"c\": 3}')` → `{\"a\": 1, \"b\": 9, \"c\": 3}`——后者覆盖同键"}, {"n": 5, "cat": "B", "name": "write_then_read", "task": "文件读写：`write_then_read(path, text)` ——把 text 写入 path，再读回**全部内容**返回；写和读都用 `with`，**encoding 必须显式写**。提示：写入是\"覆盖新建\"语义", "starter": "def write_then_read(path, text):\n    \"\"\"写入后读回全部内容；两个方向都用 with，encoding 显式写\"\"\"\n    ...  # 写一个 with、读一个 with", "ans": "def write_then_read(path, text):\n    with open(path, \"w\", encoding=\"utf-8\") as f:\n        f.write(text)\n    with open(path, encoding=\"utf-8\") as f:\n        return f.read()", "tind": "        _p = \"/tmp/pylab_t5_a.txt\"\n        assert _fn(_p, \"你好 py\") == \"你好 py\", \"中文往返不应乱码（encoding 起作用）\"\n        assert _fn(_p, \"second\") == \"second\", \"w 模式覆盖写入\"", "snip": null, "ex": "例：写入 \"你好 py\" → 读回 \"你好 py\"（encoding 不写中文会乱码）；同一个路径再写一次，读到的是**新内容**（覆盖语义）"}, {"n": 6, "cat": "B", "name": "pathlib_suffix", "type": "mc", "task": "用 `pathlib` 取路径 `\"/a/b/c.txt\"` 的后缀，正确写法是？", "options": ["`path.split(\".\")[-1]`", "`PurePosixPath(path).suffix`", "`os.path.basename(path)`", "`PurePosixPath(path).stem`"], "correct": 1, "explain": "`suffix` 返回含点的后缀 `\".txt\"`；`stem` 返回 `\"c\"`（不含后缀）。手写字符串切分在多点、无后缀、点文件等边界情况容易出错。", "ex": "例：`PurePosixPath(\"a/b/c.txt\").suffix` → `\".txt\"`"}, {"n": 7, "cat": "B", "name": "join_parts", "task": "拼路径：`join_parts(*parts)` 返回 `PurePosixPath(*parts).as_posix()`——用 / 拼接，绝不手写字符串拼接", "starter": "from pathlib import PurePosixPath\n\n\ndef join_parts(*parts):\n    \"\"\"PurePosixPath(\"src\", \"agent\", \"x.py\").as_posix() == \"src/agent/x.py\" \"\"\"\n    ...  # 一行", "ans": "from pathlib import PurePosixPath\n\ndef join_parts(*parts):\n    return PurePosixPath(*parts).as_posix()", "tind": "        assert _fn(\"src\", \"agent\", \"x.py\") == \"src/agent/x.py\", f\"实际 {_fn('src', 'agent')!r}\"\n        assert _fn(\"a\", \"b\", \"c.txt\") == \"a/b/c.txt\"", "snip": null, "ex": "例：`join_parts(\"src\", \"agent\", \"x.py\")` → `\"src/agent/x.py\"`"}, {"n": 8, "cat": "B", "name": "append_log", "task": "追加日志：`append_log(path, line)` ——把 `line + \"\\n\"` **追加**到文件末尾（不许清空已有内容），然后读回全部内容返回；encoding 显式写。提示：open 的模式里有个专管追加的字母", "starter": "def append_log(path, line):\n    \"\"\"追加一行（结尾带换行、不清空已有内容），再读回全部内容；模式里有个专管追加的字母\"\"\"\n    ...", "ans": "def append_log(path, line):\n    with open(path, \"a\", encoding=\"utf-8\") as f:\n        f.write(line + \"\\n\")\n    with open(path, encoding=\"utf-8\") as f:\n        return f.read()", "tind": "        import os as _os\n        _p = \"/tmp/pylab_t8_a.log\"\n        if _os.path.exists(_p):\n            _os.remove(_p)\n        _r1 = _fn(_p, \"L1\")\n        assert _r1 == \"L1\\n\", f\"第一次写入应得 'L1\\\\n'，实际 {_r1!r}\"\n        _r2 = _fn(_p, \"L2\")\n        assert _r2 == \"L1\\nL2\\n\", f\"追加模式不应覆盖：实际 {_r2!r}\"", "snip": null, "ex": "例：写 `\"L1\"` 读回 `\"L1\\n\"`；再写 `\"L2\"` 读回 `\"L1\\nL2\\n\"`——旧内容还在，新行接在后面"}, {"n": 9, "cat": "C", "name": "find_numbers", "task": "提取数字：`find_numbers(s)` 用 `re.findall(r\"\\d+\", s)` 找出所有连续数字，**转成 int 列表**返回", "starter": "import re\n\n\ndef find_numbers(s):\n    r\"\"\"找出串里所有连续数字并转成 int 列表（re 里有个\"找全部\"的函数）\"\"\"\n    ...", "ans": "import re\n\ndef find_numbers(s):\n    return [int(x) for x in re.findall(r\"\\d+\", s)]", "tind": "        assert _fn(\"a12b3\") == [12, 3], f\"实际 {_fn('a12b3')!r}\"\n        assert _fn(\"abc\") == []\n        assert _fn(\"007\") == [7], \"int('007') == 7\"", "snip": null, "ex": "例：`find_numbers(\"订单12号，3件\")` → `[12, 3]`；没有数字 → `[]`"}, {"n": 10, "cat": "C", "name": "is_valid_tag", "task": "格式校验：`is_valid_tag(s)` 用 `re.fullmatch(r\"[a-z][a-z0-9_]{1,15}\", s)` 校验——小写字母开头、总长 2~16，合法返回 True", "starter": "import re\n\n\ndef is_valid_tag(s):\n    \"\"\"fullmatch 整串匹配；匹配对象非 None 即合法\"\"\"\n    ...  # 一行", "ans": "import re\n\ndef is_valid_tag(s):\n    return re.fullmatch(r\"[a-z][a-z0-9_]{1,15}\", s) is not None", "tind": "        assert _fn(\"ab\") is True, f\"实际 {_fn('ab')!r}\"\n        assert _fn(\"a1_2\") is True\n        assert _fn(\"a\") is False, \"总长至少 2\"\n        assert _fn(\"A_bc\") is False, \"必须小写字母开头\"\n        assert _fn(\"a\" + \"b\" * 16) is False, \"总长超过 16 不合法\"\n        assert _fn(\"a\" + \"b\" * 15) is True", "snip": null, "ex": "例：`is_valid_tag(\"a1_2\")` → `True`；`is_valid_tag(\"A_bc\")` → `False`（必须小写字母开头）；单字符 `\"a\"` 也 False（太短）"}, {"n": 11, "cat": "C", "name": "parse_user", "task": "提取字段：`parse_user(line)` 用 `re.search(r\"user=(\\w+)\", line)` 提取用户名；找不到返回 `None`", "starter": "import re\n\n\ndef parse_user(line):\n    \"\"\"search 到的匹配对象里取出第 1 个捕获组，就是用户名\"\"\"\n    ...  # if m: return ... else None", "ans": "import re\n\ndef parse_user(line):\n    m = re.search(r\"user=(\\w+)\", line)\n    if m:\n        return m.group(1)\n    return None", "tind": "        assert _fn(\"INFO user=alice action=login\") == \"alice\", f\"实际 {_fn('INFO user=alice')!r}\"\n        assert _fn(\"user=bob_2\") == \"bob_2\", \"\\\\w 匹配字母数字下划线\"\n        assert _fn(\"no user here\") is None", "snip": null, "ex": "例：`parse_user(\"INFO user=alice action=login\")` → `\"alice\"`；日志里没有 user= → `None`"}, {"n": 12, "cat": "C", "name": "mask_emails", "task": "脱敏：`mask_emails(s)` 用 `re.sub(r\"[A-Za-z0-9._]+@\", \"***@\", s)` 把邮箱名替换成 ***，域名保留", "starter": "import re\n\n\ndef mask_emails(s):\n    \"\"\"把所有邮箱替换成 ***（re 的\"替换\"函数）\"\"\"\n    ...  # 一行", "ans": "import re\n\ndef mask_emails(s):\n    return re.sub(r\"[A-Za-z0-9._]+@\", \"***@\", s)", "tind": "        assert _fn(\"hi alice@x.com\") == \"hi ***@x.com\", f\"实际 {_fn('hi alice@x.com')!r}\"\n        assert _fn(\"a@b.co c@d.io\") == \"***@b.co ***@d.io\", \"多个邮箱都要替换\"\n        assert _fn(\"no email\") == \"no email\"", "snip": null, "ex": "例：`mask_emails(\"hi alice@x.com\")` → `\"hi ***@x.com\"`——用户名打码、域名保留"}, {"n": 13, "cat": "D", "name": "top2", "task": "计数排行：`top2(words)` 返回出现最多的前两名 `[(词, 次数), ...]`（collections 里有现成的\"排前 k 名\"方法）", "starter": "from collections import Counter\n\n\ndef top2(words):\n    \"\"\"频次最高的前两个（Counter 有现成方法）\"\"\"\n    ...  # 一行", "ans": "from collections import Counter\n\ndef top2(words):\n    return Counter(words).most_common(2)", "tind": "        assert _fn([\"a\", \"b\", \"a\", \"c\", \"b\", \"a\"]) == [(\"a\", 3), (\"b\", 2)], f\"实际 {_fn(['a', 'b', 'a'])!r}\"\n        assert _fn([\"x\", \"y\"]) == [(\"x\", 1), (\"y\", 1)], \"并列时按出现顺序\"\n        assert _fn([\"a\"]) == [(\"a\", 1)]\n        assert _fn([]) == []", "snip": null, "ex": "例：`top2([\"b\", \"a\", \"b\", \"b\"])` → `[(\"b\", 3), (\"a\", 1)]`——按出现次数从高到低取前两名"}, {"n": 14, "cat": "D", "name": "group_by_len", "task": "分组：`group_by_len(words)` 按单词长度分组，返回 `{长度: 排序后的列表}`。提示：collections 里有\"键不存在时自动建组\"的 dict 子类很省事", "starter": "from collections import defaultdict\n\n\ndef group_by_len(words):\n    \"\"\"按长度分组、组内排序后返回（collections 有\"键不存在自动建组\"的帮手）\"\"\"\n    ...", "ans": "from collections import defaultdict\n\ndef group_by_len(words):\n    d = defaultdict(list)\n    for w in words:\n        d[len(w)].append(w)\n    return {k: sorted(v) for k, v in d.items()}", "tind": "        assert _fn([\"bb\", \"a\", \"ccc\", \"dd\"]) == {2: [\"bb\", \"dd\"], 1: [\"a\"], 3: [\"ccc\"]}, f\"实际 {_fn(['bb', 'a'])!r}\"\n        assert _fn([]) == {}", "snip": null, "ex": "例：`group_by_len([\"bb\", \"a\", \"dd\"])` → `{2: [\"bb\", \"dd\"], 1: [\"a\"]}`——组内要排好序"}, {"n": 15, "cat": "D", "name": "deque_rotate", "type": "mc", "task": "要把 `[1, 2, 3, 4]` 整体**左移** 2 位得到 `[3, 4, 1, 2]`，用 `deque` 的正确调用是？", "options": ["`d.rotate(2)`", "`d.rotate(-2)`", "`d.reverse()`", "`d.popleft()` 两次"], "correct": 1, "explain": "`deque.rotate(n)` 正数向右移、负数向左移；方向是常见陷阱，适合选择题辨析。", "ex": "例：`d = deque([1,2,3,4]); d.rotate(-2)` → `deque([3,4,1,2])`"}, {"n": 16, "cat": "D", "name": "stable_dedupe", "type": "mc", "task": "#16 `dedupe_stable` 与第 2 课 #41 答案都是 `list(dict.fromkeys(...))`。关于这个写法，下面说法正确的是？", "options": ["`dict.fromkeys(items)` 用字典键的唯一性去重，且 Python 3.7+ 字典保持插入顺序", "`set(items)` 也能保持首次出现顺序", "`dict.fromkeys` 会打乱原有顺序", "这个写法只适用于字符串列表"], "correct": 0, "explain": "字典的键天然唯一，`dict.fromkeys(items)` 借它去重；字典自 3.7 起保证插入顺序，所以用 `list(...)` 转回时顺序就是首次出现的顺序。`set` 不保序。这是 #41（tags 展平后去重）与 #16（直接去重）共用的技巧。", "ex": "例：`list(dict.fromkeys([\"b\",\"a\",\"b\",\"c\"]))` → `[\"b\",\"a\",\"c\"]`"}, {"n": 17, "cat": "E", "name": "days_between", "task": "日期差：`days_between(d1, d2)` ——`date.fromisoformat` 解析两个 ISO 日期，返回相差天数（绝对值）", "starter": "from datetime import date\n\n\ndef days_between(d1, d2):\n    \"\"\"两个 ISO 日期相减取天数差，结果要非负\"\"\"\n    ...", "ans": "from datetime import date\n\ndef days_between(d1, d2):\n    delta = date.fromisoformat(d2) - date.fromisoformat(d1)\n    return abs(delta.days)", "tind": "        assert _fn(\"2026-01-01\", \"2026-01-10\") == 9, f\"实际 {_fn('2026-01-01', '2026-01-10')!r}\"\n        assert _fn(\"2026-01-10\", \"2026-01-01\") == 9, \"反向也应为正（abs）\"\n        assert _fn(\"2026-03-01\", \"2026-03-01\") == 0", "snip": null, "ex": "例：`days_between(\"2026-01-01\", \"2026-01-10\")` → `9`；两个日期反着传也返回 9"}, {"n": 18, "cat": "E", "name": "shift_date", "task": "日期平移：`shift_date(iso, n)` ——`date.fromisoformat(iso) + timedelta(days=n)`，再 `isoformat()` 转回字符串", "starter": "from datetime import date, timedelta\n\n\ndef shift_date(iso, n):\n    \"\"\"日期加 n 天后转回 ISO 字符串\"\"\"\n    ...", "ans": "from datetime import date, timedelta\n\ndef shift_date(iso, n):\n    return (date.fromisoformat(iso) + timedelta(days=n)).isoformat()", "tind": "        assert _fn(\"2026-11-26\", 5) == \"2026-12-01\", f\"跨月：实际 {_fn('2026-11-26', 5)!r}\"\n        assert _fn(\"2026-01-01\", -1) == \"2025-12-31\", \"负数前移跨年\"\n        assert _fn(\"2026-02-28\", 1) == \"2026-03-01\", \"平年 2 月 28 加一天到 3 月 1\"", "snip": null, "ex": "例：`shift_date(\"2026-11-26\", 5)` → `\"2026-12-01\"`（跨月没问题）；n 可以是负数"}, {"n": 19, "cat": "E", "name": "parse_log_level", "task": "日志分级：`parse_log_level(line)` ——首词在 {\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"}（已给出 LEVELS 集合）里返回首词，否则返回 `\"UNKNOWN\"`（空行也是 UNKNOWN）", "starter": "LEVELS = {\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"}\n\n\ndef parse_log_level(line):\n    \"\"\"看每行第一个词，判断在不在合法级别里\"\"\"\n    ...", "ans": "LEVELS = {\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"}\n\ndef parse_log_level(line):\n    parts = line.split()\n    if parts and parts[0] in LEVELS:\n        return parts[0]\n    return \"UNKNOWN\"", "tind": "        assert _fn(\"INFO ok\") == \"INFO\", f\"实际 {_fn('INFO ok')!r}\"\n        assert _fn(\"ERROR x\") == \"ERROR\"\n        assert _fn(\"weird stuff\") == \"UNKNOWN\", \"首词不在集合里应返回 UNKNOWN\"\n        assert _fn(\"\") == \"UNKNOWN\", \"空行应返回 UNKNOWN\"", "snip": null, "ex": "例：`parse_log_level(\"ERROR x\")` → `\"ERROR\"`；`parse_log_level(\"weird stuff\")` → `\"UNKNOWN\"`；空行也是 UNKNOWN"}, {"n": 20, "cat": "E", "name": "summarize_levels", "task": "日志统计（综合）：`summarize_levels(lines)` ——统计每行首词出现次数（跳过空行），用 Counter 后转 dict 返回", "starter": "from collections import Counter\n\n\ndef summarize_levels(lines):\n    \"\"\"逐行取第一个词计数，返回普通 dict（Counter 能直接累加）\"\"\"\n    ...", "ans": "from collections import Counter\n\ndef summarize_levels(lines):\n    c = Counter()\n    for line in lines:\n        parts = line.split()\n        if parts:\n            c[parts[0]] += 1\n    return dict(c)", "tind": "        assert _fn([\"INFO a\", \"ERROR b\", \"INFO c\", \"\"]) == {\"INFO\": 2, \"ERROR\": 1}, f\"实际 {_fn(['INFO a', 'ERROR b'])!r}\"\n        assert _fn([]) == {}\n        assert _fn([\"x y\", \"x z\"]) == {\"x\": 2}, \"任意首词都统计\"", "snip": null, "ex": "例：`[\"INFO a\", \"ERROR b\", \"INFO c\", \"\"]` → `{\"INFO\": 2, \"ERROR\": 1}`——空行跳过，返回普通 dict"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 const LS_KEY = 'lesson-0009-drill-progress';
@@ -806,17 +862,30 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
     }
   });
   const done = prog.solved.length;
-  document.getElementById('pfill').style.width = (done / 20 * 100) + '%';
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
   document.getElementById('ptext').textContent = '已完成 ' + done + ' / 20';
   document.querySelectorAll('.drill-cat').forEach(h => {
     const cat = h.dataset.cat;
@@ -836,6 +905,7 @@ async function ensurePy() {
       rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -853,11 +923,23 @@ async function ensurePy() {
 async function check(n) {
   const codeVal = codeEl(n).value;
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _res = {"ok": False, "msg": ""}
 _lenv = dict(_G)
@@ -878,18 +960,18 @@ ${ex.tind}
 _json.dumps(_res)`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 全部断言通过';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + msg;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => codeEl(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
   if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
   rt.textContent = '批量检查中…';
   let pass = 0;
@@ -905,13 +987,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填代码？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -981,7 +1064,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -1038,6 +1121,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -1076,6 +1160,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -1083,6 +1168,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1090,7 +1176,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1119,6 +1207,91 @@ refreshUI();
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';

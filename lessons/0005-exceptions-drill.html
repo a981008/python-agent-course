@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +372,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
@@ -326,6 +381,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-status.info { color: var(--ink-soft); }
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -333,7 +401,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h1>练习场 · 20 题异常与资源管理训练</h1>
 <p class="meta">第 5 课配套 · try/except / 自定义异常与异常链 / 重试与精确捕获 / with 与 @contextmanager / 综合 · 自动判分</p>
-<div class="callout win"><strong>玩法</strong>：写的是<strong>完整函数或类定义</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；#10 有防作弊测试（吞所有异常重试会当场抓住），#13 有结构检查（漏 <code>@contextmanager</code> 当场现形），#7 验证 <code>from e</code> 原因链真的在。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>完整函数或类定义</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；#10 已改为概念题：辨析精确捕获 ValueError，#13 有结构检查（漏 <code>@contextmanager</code> 当场现形），#7 验证 <code>from e</code> 原因链真的在。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>：判分环境已预置 <code>FakeRes</code> 类（#16 用，见下）；其余题目入参即数据，需要定义异常类的在起始代码里自己定义。
 </div>
@@ -518,13 +586,13 @@ def raise_payment(amount):
 </div>
 
 <div class="drill" id="d-10" data-n="10" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#10</span><div class="drill-task">精确捕获（防作弊）：<code>retry_only(fn, times=3)</code> <strong>只重试 <code>ValueError</code></strong>；其他异常第一次就向外抛——把所有异常都吞了重试会当场抓住</div></div>
-  <div class="drill-ex">例：抛 TypeError 的函数第一次就往外飞、不重试；抛 ValueError 的照常重试——捕获范围只写 ValueError 一种</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> retry_only(fn, times=<span class="tk-num">3</span>):
-    <span class="tk-str">"""except 只写 ValueError；其他异常自然穿透"""</span>
-    ...  <span class="tk-com"># for + try/except ValueError</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def retry_only(fn, times=3):
-    &quot;&quot;&quot;except 只写 ValueError；其他异常自然穿透&quot;&quot;&quot;
-    ...  # for + try/except ValueError</textarea></div>
+  <div class="drill-head"><span class="drill-no">#10</span><div class="drill-task"><code>#9</code>（<code>retry_call</code>）用 <code>except ValueError:</code> 重试；遇到 <code>KeyError</code> 时会怎样？</div></div>
+  <div class="drill-ex">例：<code>retry_only(fn)</code> 中 fn 抛 <code>KeyError</code> → 第一次调用就向外抛出</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-10" value="0"><span class="opt-letter">A</span><span class="opt-text">被吞掉并重试，用尽后抛出 <code>KeyError</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-10" value="1"><span class="opt-letter">B</span><span class="opt-text">立即向外抛出 <code>KeyError</code>，不重试</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-10" value="2"><span class="opt-letter">C</span><span class="opt-text">转成 <code>ValueError</code> 后重试</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-10" value="3"><span class="opt-letter">D</span><span class="opt-text">静默忽略，函数返回 <code>None</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -616,21 +684,13 @@ def audit(ops):
 </div>
 
 <div class="drill" id="d-15" data-n="15" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">yield 的值：<code>give(n)</code>——<code>@contextmanager</code>，with 里 <code>as x</code> 拿到的 x 必须是 n 的 <strong>2 倍</strong>（往 yield 后面交什么值，x 就是什么）</div></div>
-  <div class="drill-ex">例：<code>with give(5) as x</code> 里 x 是 <code>10</code>；<code>with give(0) as x</code> 里 x 是 <code>0</code>——as 拿到的就是管理器交出的那个值</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-com"># 从 contextlib 导入 contextmanager</span>
-
-
-<span class="tk-dec">@contextmanager</span>
-<span class="tk-kw">def</span> give(n):
-    <span class="tk-str">"""as 拿到的 = yield 交出去的值；本题让它拿 n 的 2 倍"""</span>
-    ...  <span class="tk-com"># 一行 yield</span></pre><textarea class="drill-code" spellcheck="false" rows="9"># 从 contextlib 导入 contextmanager
-
-
-@contextmanager
-def give(n):
-    &quot;&quot;&quot;as 拿到的 = yield 交出去的值；本题让它拿 n 的 2 倍&quot;&quot;&quot;
-    ...  # 一行 yield</textarea></div>
+  <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task"><code>@contextmanager</code> 装饰的生成器中，<code>with ... as x</code> 拿到的 <code>x</code> 来自哪里？</div></div>
+  <div class="drill-ex">例：<code>@contextmanager def give(n): yield n * 2</code> → <code>with give(3) as x</code> 时 <code>x == 6</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text">函数的 <code>return</code> 值</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>yield</code> 表达式后面给出的值</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>finally</code> 块的最后一个表达式</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text">永远是 <code>None</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -758,7 +818,7 @@ class FakeRes:
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "name": "safe_div", "task": "安全除法：`safe_div(a, b)` 返回 `a / b`；除零会抛 `ZeroDivisionError`——**用 try/except 捕获并返回 None**（不要用 if 预判）", "starter": "def safe_div(a, b):\n    \"\"\"除零异常要接住——返回 None 而不是崩掉\"\"\"\n    ...  # try / except", "ans": "def safe_div(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None", "tind": "        assert _fn(10, 4) == 2.5, f\"实际 {_fn(10, 4)!r}\"\n        assert _fn(9, 3) == 3.0\n        assert _fn(1, 0) is None, \"除零应返回 None\"", "snip": null, "ex": "例：`safe_div(10, 2)` → `5.0`；`safe_div(1, 0)` 不崩，返回 `None`"}, {"n": 2, "cat": "A", "name": "parse_int", "task": "容错解析：`parse_int(s)` 转成 int；`int(s)` 失败会抛 `ValueError`——捕获后返回 -1", "starter": "def parse_int(s):\n    \"\"\"int(s) 成功返回整数；ValueError 返回 -1\"\"\"\n    ...  # try / except ValueError", "ans": "def parse_int(s):\n    try:\n        return int(s)\n    except ValueError:\n        return -1", "tind": "        assert _fn(\"42\") == 42, f\"实际 {_fn('42')!r}\"\n        assert _fn(\" 7 \") == 7, \"int() 会自动去两侧空白\"\n        assert _fn(\"abc\") == -1\n        assert _fn(\"3.5\") == -1", "snip": null, "ex": "例：`parse_int(\"42\")` → `42`；`parse_int(\"abc\")` → `-1`（`\"3.5\"` 也算失败）"}, {"n": 3, "cat": "A", "name": "classify", "task": "分类执行：`classify(fn)` 调用 `fn()`——成功返回 `(\"ok\", 结果)`；抛 `ValueError` 返回 `(\"error\", 异常消息)`；其他异常**照常向外抛**", "starter": "def classify(fn):\n    \"\"\"try fn() → (\"ok\", 结果)；except ValueError as e → (\"error\", str(e))\"\"\"\n    ...  # try / except", "ans": "def classify(fn):\n    try:\n        return (\"ok\", fn())\n    except ValueError as e:\n        return (\"error\", str(e))", "tind": "        assert _fn(lambda: 1 + 1) == (\"ok\", 2), f\"实际 {_fn(lambda: 1 + 1)!r}\"\n        def _bad():\n            raise ValueError(\"坏输入\")\n        assert _fn(_bad) == (\"error\", \"坏输入\"), \"ValueError 应变成 ('error', 消息)\"\n        def _ugly():\n            raise TypeError(\"别碰我\")\n        try:\n            _fn(_ugly)\n            assert False, \"TypeError 不应被捕获，应向外抛\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：`fn()` 正常 → `(\"ok\", 结果)`；抛 ValueError → `(\"error\", 消息文本)`；抛别的异常不被接住、继续往外飞"}, {"n": 4, "cat": "A", "name": "run_with_cleanup", "task": "必做清理：`run_with_cleanup(fn, log)` 调 `fn()`——成功返回结果；失败返回异常对象本身（不向外抛）。**无论成败最后都 `log.append(\"cleanup\")`**", "starter": "def run_with_cleanup(fn, log):\n    \"\"\"fn() 的结果或异常对象都要；最后无论如何记一条 \"cleanup\"\"\"\n    ...  # try / except / finally", "ans": "def run_with_cleanup(fn, log):\n    result = None\n    try:\n        result = fn()\n    except Exception as e:\n        result = e\n    finally:\n        log.append(\"cleanup\")\n    return result", "tind": "        _log = []\n        assert _fn(lambda: 5, _log) == 5, \"成功应返回结果\"\n        assert _log == [\"cleanup\"], f\"finally 应追加 cleanup，实际 {_log!r}\"\n        def _bad():\n            raise ValueError(\"炸了\")\n        _log2 = []\n        _r = _fn(_bad, _log2)\n        assert isinstance(_r, ValueError), f\"失败应返回异常对象本身，实际 {_r!r}\"\n        assert str(_r) == \"炸了\"\n        assert _log2 == [\"cleanup\"], \"失败路径也要 cleanup（finally）\"", "snip": null, "ex": "例：成功返回结果、失败返回那个异常对象本身；两种结局结束后 log 里都多一条 `\"cleanup\"`"}, {"n": 5, "cat": "B", "name": "checkout", "task": "自定义异常：定义 `EmptyCartError(Exception)`，`checkout(items)` 在 items 为空时 `raise EmptyCartError(\"购物车为空\")`，否则返回商品数量", "starter": "class EmptyCartError(Exception):\n    \"\"\"购物车为空——继承 Exception\"\"\"\n    ...\n\n\ndef checkout(items):\n    \"\"\"空列表抛 EmptyCartError(\"购物车为空\")；否则返回 len(items)\"\"\"\n    ...", "ans": "class EmptyCartError(Exception):\n    pass\n\ndef checkout(items):\n    if not items:\n        raise EmptyCartError(\"购物车为空\")\n    return len(items)", "tind": "        assert _fn([\"书\", \"笔\"]) == 2, f\"实际 {_fn(['书', '笔'])!r}\"\n        _err = None\n        try:\n            _fn([])\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"空列表应抛异常\"\n        assert type(_err).__name__ == \"EmptyCartError\", f\"应抛 EmptyCartError，实际 {type(_err).__name__}\"\n        assert \"购物车为空\" in str(_err)\n        assert any(b.__name__ == \"Exception\" for b in type(_err).__mro__), \"EmptyCartError 应继承 Exception\"", "snip": null, "ex": "例：`checkout([\"书\", \"笔\"])` → `2`；`checkout([])` 抛出自定义异常，消息里含 \"购物车为空\""}, {"n": 6, "cat": "B", "name": "raise_payment", "task": "异常层级：在给出的 `PaymentError` 下定义子类 `InsufficientError`；`raise_payment(amount)` 在 amount < 0 时抛 `InsufficientError(\"金额为负\")`，否则返回 `\"ok\"`", "starter": "class PaymentError(Exception):\n    pass\n\n\nclass InsufficientError(PaymentError):\n    \"\"\"余额不足——继承 PaymentError\"\"\"\n    ...\n\n\ndef raise_payment(amount):\n    \"\"\"amount < 0 抛 InsufficientError(\"金额为负\")；否则返回 \"ok\"\"\"\n    ...", "ans": "class PaymentError(Exception):\n    pass\n\nclass InsufficientError(PaymentError):\n    pass\n\ndef raise_payment(amount):\n    if amount < 0:\n        raise InsufficientError(\"金额为负\")\n    return \"ok\"", "tind": "        assert _fn(100) == \"ok\", f\"实际 {_fn(100)!r}\"\n        assert _fn(0) == \"ok\"\n        _err = None\n        try:\n            _fn(-1)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"负数应抛异常\"\n        assert type(_err).__name__ == \"InsufficientError\", f\"应抛 InsufficientError，实际 {type(_err).__name__}\"\n        assert \"金额为负\" in str(_err)\n        _names = [b.__name__ for b in type(_err).__mro__]\n        assert \"PaymentError\" in _names, \"InsufficientError 应继承 PaymentError\"\n        assert \"Exception\" in _names", "snip": null, "ex": "例：`raise_payment(100)` → `\"ok\"`；`raise_payment(-1)` 抛出子类异常，消息含 \"金额为负\"——且它是 PaymentError 的家族成员"}, {"n": 7, "cat": "B", "name": "chain_demo", "task": "调用 `fn()`——捕获 `ValueError` 后抛出 `RuntimeError(\"失败\")`，**并把原异常挂成\"原因\"**（判分会查 `__cause__`）", "starter": "def chain_demo(fn):\n    \"\"\"换成 RuntimeError，但把原异常挂成\"原因\"（判分查 __cause__）\"\"\"\n    ...  # try / except", "ans": "def chain_demo(fn):\n    try:\n        return fn()\n    except ValueError as e:\n        raise RuntimeError(\"失败\") from e", "tind": "        assert _fn(lambda: 42) == 42, \"无异常应直接返回结果\"\n        def _bad():\n            raise ValueError(\"坏输入\")\n        _err = None\n        try:\n            _fn(_bad)\n        except RuntimeError as e:\n            _err = e\n        assert _err is not None, \"应抛出 RuntimeError\"\n        assert \"失败\" in str(_err), f\"消息应含 '失败'，实际 {str(_err)!r}\"\n        assert isinstance(_err.__cause__, ValueError), \"原因链丢失——raise 时漏了 from e？\"", "snip": null, "ex": "例：`fn()` 正常 → 直接返回结果；`fn()` 抛 ValueError → 换成抛 RuntimeError，且新异常的\"原因\"挂着原来的 ValueError"}, {"n": 8, "cat": "B", "name": "wrap_call", "task": "记录后原样抛：`wrap_call(fn, errors)` 调用 `fn()`——抛异常时把异常对象 append 进 errors，然后**同一个异常继续向外抛**（类型、消息、追溯都不能变，不是造一个新的同类异常）；成功返回结果", "starter": "def wrap_call(fn, errors):\n    \"\"\"先记进 errors，再让同一个异常原样继续往外抛\"\"\"\n    ...  # try / except / bare raise", "ans": "def wrap_call(fn, errors):\n    try:\n        return fn()\n    except Exception as e:\n        errors.append(e)\n        raise", "tind": "        _errors = []\n        assert _fn(lambda: 7, _errors) == 7, \"成功应返回结果\"\n        assert _errors == [], \"成功时不应记录任何东西\"\n        def _bad():\n            raise KeyError(\"缺失\")\n        _err = None\n        try:\n            _fn(_bad, _errors)\n        except KeyError as e:\n            _err = e\n        assert _err is not None, \"裸 raise 应原样抛出 KeyError\"\n        assert str(_err) == \"'缺失'\", f\"消息应原样保留，实际 {str(_err)!r}\"\n        assert len(_errors) == 1 and _errors[0] is _err, \"异常对象应已 append 进 errors\"", "snip": null, "ex": "例：成功 → 返回结果且 errors 原封不动；抛 KeyError → errors 里记下**那个异常对象**，然后同一个异常继续往外飞"}, {"n": 9, "cat": "C", "name": "retry_call", "task": "重试模板：`retry_call(fn, times=3)` 调 `fn()`——抛 `ValueError` 就重试，最多 times 次；用尽后把**最后一次异常原样抛出**", "starter": "def retry_call(fn, times=3):\n    \"\"\"最多试 n 次；全失败就把最后一次的异常抛出去\"\"\"\n    ...  # 记住\"最后一次\"的异常", "ans": "def retry_call(fn, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return fn()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert _fn(_flaky) == \"ok\", \"第三次应成功\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            _fn(_never)\n        except Exception as e:\n            _err = e\n        assert type(_err).__name__ == \"ValueError\", f\"应原样抛 ValueError，实际 {type(_err).__name__}\"\n        assert str(_err) == \"永远失败\", \"抛的应是最后一次异常\"", "snip": null, "ex": "例：前两次失败第三次成功 → 返回 `\"ok\"` 且总共调了 3 次；三次全失败 → 把最后一次的异常原样抛出"}, {"n": 10, "cat": "C", "name": "retry_only", "task": "精确捕获（防作弊）：`retry_only(fn, times=3)` **只重试 `ValueError`**；其他异常第一次就向外抛——把所有异常都吞了重试会当场抓住", "starter": "def retry_only(fn, times=3):\n    \"\"\"except 只写 ValueError；其他异常自然穿透\"\"\"\n    ...  # for + try/except ValueError", "ans": "def retry_only(fn, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return fn()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        def _typo():\n            _calls.append(1)\n            raise TypeError(\"类型不对\")\n        _err = None\n        try:\n            _fn(_typo)\n        except TypeError as e:\n            _err = e\n        assert _err is not None, \"TypeError 应第一次就向外抛\"\n        assert len(_calls) == 1, f\"非 ValueError 不应重试——实际调了 {len(_calls)} 次（把所有异常都吞了吧？）\"\n        _calls2 = []\n        def _flaky():\n            _calls2.append(1)\n            if len(_calls2) < 3:\n                raise ValueError(\"再试\")\n            return \"ok\"\n        assert _fn(_flaky) == \"ok\" and len(_calls2) == 3, \"ValueError 路径仍要正常重试\"", "snip": null, "ex": "例：抛 TypeError 的函数第一次就往外飞、不重试；抛 ValueError 的照常重试——捕获范围只写 ValueError 一种"}, {"n": 11, "cat": "C", "name": "run_attempts", "task": "带次数的结果：`run_attempts(fn, times=3)` 最多调 `fn()` times 次——成功返回 `(结果, 尝试次数)`；一直失败返回 `(最后一次异常, times)`", "starter": "def run_attempts(fn, times=3):\n    \"\"\"成功 return (结果, 第几次)；失败记下异常继续；用尽 return (异常, times)\"\"\"\n    ...  # 循环里 enumerate 或手动计数", "ans": "def run_attempts(fn, times=3):\n    last = None\n    for i in range(1, times + 1):\n        try:\n            return fn(), i\n        except Exception as e:\n            last = e\n    return last, times", "tind": "        _n = [0]\n        def _flaky():\n            _n[0] += 1\n            if _n[0] < 3:\n                raise ValueError(\"再试\")\n            return \"好\"\n        assert _fn(_flaky) == (\"好\", 3), f\"实际 {_fn(lambda: 1)!r}\"\n        def _never():\n            raise ValueError(\"没戏\")\n        _r = _fn(_never)\n        assert isinstance(_r[0], ValueError), \"失败应返回异常对象本身\"\n        assert _r[1] == 3, f\"尝试次数应为 3，实际 {_r[1]!r}\"\n        assert _fn(lambda: 9) == (9, 1), \"一次成功次数应为 1\"", "snip": null, "ex": "例：第 3 次成功 → `(\"结果\", 3)`；一直失败 → `(最后的异常, 3)`；一次就成功 → `(\"结果\", 1)`"}, {"n": 12, "cat": "C", "name": "fallback", "task": "兜底默认值：`fallback(fn, default)` 调 `fn()`——任何异常返回 default，成功返回结果（这里捕 `Exception` 是合理的兜底场景）", "starter": "def fallback(fn, default):\n    \"\"\"try fn()；except Exception 返回 default\"\"\"\n    ...  # try / except", "ans": "def fallback(fn, default):\n    try:\n        return fn()\n    except Exception:\n        return default", "tind": "        assert _fn(lambda: 3, 0) == 3\n        def _bad():\n            raise ValueError(\"x\")\n        assert _fn(_bad, 0) == 0, \"失败应返回 default\"\n        def _ugly():\n            raise TypeError(\"y\")\n        assert _fn(_ugly, \"默认\") == \"默认\", \"任何异常都应兜底\"", "snip": null, "ex": "例：`fn()` 正常 → 结果；抛 ValueError 或 TypeError → 都返回 default（本题捕 Exception 是合理的兜底场景）"}, {"n": 13, "cat": "D", "name": "suppress_error", "task": "吞指定异常：`suppress_error(exc_type)`——`@contextmanager` 装饰，with 内部抛 exc_type 就吞掉，其他异常照常向外抛（结构检查：漏装饰器当场现形）", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef suppress_error(exc_type):\n    \"\"\"with 里指定类型的异常悄悄吞掉，其他照常向外抛\"\"\"\n    ...  # try / yield / except 三件套", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef suppress_error(exc_type):\n    try:\n        yield\n    except exc_type:\n        pass", "tind": "        _cm = _fn(ValueError)\n        assert hasattr(_cm, \"__enter__\") and hasattr(_cm, \"__exit__\"), \"返回的不是上下文管理器——漏了 @contextmanager？\"\n        _ran = False\n        with _fn(ValueError):\n            _ran = True\n        assert _ran, \"无异常时应正常通过\"\n        with _fn(ValueError):\n            raise ValueError(\"吞我\")\n        _err = None\n        try:\n            with _fn(ValueError):\n                raise TypeError(\"别吞我\")\n        except TypeError as e:\n            _err = e\n        assert _err is not None, \"TypeError 不应被吞，应照常向外抛\"", "snip": null, "ex": "例：`with suppress_error(ValueError):` 里抛 ValueError 安然通过；里头抛 TypeError 则照常炸出来"}, {"n": 14, "cat": "D", "name": "audit", "task": "进出都要记录：`audit(ops)`——`@contextmanager` 装饰：进入 with 时 `ops.append(\"enter\")`，退出时（**无论成败**）`ops.append(\"exit\")`，with 内部抛的异常照常向外抛。提示：收尾要\"必达\"，想想 try/finally 的直觉放在哪里", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef audit(ops):\n    \"\"\"进入记 \"enter\"，退出无论成败记 \"exit\"\"\"\n    ...", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef audit(ops):\n    ops.append(\"enter\")\n    try:\n        yield\n    finally:\n        ops.append(\"exit\")", "tind": "        _ops = []\n        with _fn(_ops):\n            pass\n        assert _ops == [\"enter\", \"exit\"], f\"实际 {_ops!r}\"\n        _ops2 = []\n        _raised = False\n        try:\n            with _fn(_ops2):\n                raise ValueError(\"中途炸了\")\n        except ValueError:\n            _raised = True\n        assert _raised, \"audit 只记录不吞异常，内部异常应照常向外抛\"\n        assert _ops2 == [\"enter\", \"exit\"], \"抛异常也要走 exit（finally）\"", "snip": null, "ex": "例：正常进出 ops 记 `[\"enter\", \"exit\"]`；中途抛异常 ops 仍是 `[\"enter\", \"exit\"]`，且异常照常向外抛"}, {"n": 15, "cat": "D", "name": "give", "task": "yield 的值：`give(n)`——`@contextmanager`，with 里 `as x` 拿到的 x 必须是 n 的 **2 倍**（往 yield 后面交什么值，x 就是什么）", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef give(n):\n    \"\"\"as 拿到的 = yield 交出去的值；本题让它拿 n 的 2 倍\"\"\"\n    ...  # 一行 yield", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef give(n):\n    yield n * 2", "tind": "        with _fn(5) as x:\n            assert x == 10, f\"as 拿到的应为 10（n*2），实际 {x!r}\"\n        with _fn(0) as x:\n            assert x == 0", "snip": null, "ex": "例：`with give(5) as x` 里 x 是 `10`；`with give(0) as x` 里 x 是 `0`——as 拿到的就是管理器交出的那个值"}, {"n": 16, "cat": "D", "name": "closing", "task": "资源关闭：`closing(res)`——`@contextmanager`，with 里 `as r` 时 r 就是 res 本身；with 结束后（**无论成败**）res.close() 必须已被调用", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef closing(res):\n    \"\"\"as 拿到 res 本身；结束无论成败都要 res.close()\"\"\"\n    ...", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef closing(res):\n    try:\n        yield res\n    finally:\n        res.close()", "tind": "        r = FakeRes()\n        with _fn(r) as got:\n            assert got is r, \"as 应拿到传入的 res\"\n            assert not r.closed, \"with 内部还没 close\"\n        assert r.closed, \"with 结束应调用 close()\"\n        r2 = FakeRes()\n        _err = None\n        try:\n            with _fn(r2):\n                raise ValueError(\"炸\")\n        except ValueError:\n            _err = True\n        assert _err, \"内部异常应照常向外抛\"\n        assert r2.closed, \"即使抛异常也要 close（finally）\"", "snip": "class FakeRes:\n    def __init__(self):\n        self.closed = False\n    def close(self):\n        self.closed = True", "ex": "例：`with closing(res) as r` 里 `r` 就是 res 本身；无论 with 里成不成功，出来后 `res.closed` 都是 True"}, {"n": 17, "cat": "E", "name": "withdraw", "task": "综合：定义 `InsufficientBalanceError(Exception)`；`withdraw(balance, amount)` 在 amount > balance 时抛 `InsufficientBalanceError(\"余额不足\")`，否则返回扣款后的新余额", "starter": "class InsufficientBalanceError(Exception):\n    \"\"\"余额不足——继承 Exception\"\"\"\n    ...\n\n\ndef withdraw(balance, amount):\n    \"\"\"amount > balance 抛 InsufficientBalanceError(\"余额不足\")；否则返回 balance - amount\"\"\"\n    ...", "ans": "class InsufficientBalanceError(Exception):\n    pass\n\ndef withdraw(balance, amount):\n    if amount > balance:\n        raise InsufficientBalanceError(\"余额不足\")\n    return balance - amount", "tind": "        assert _fn(100, 30) == 70, f\"实际 {_fn(100, 30)!r}\"\n        assert _fn(50, 50) == 0, \"恰好扣完不算不足\"\n        _err = None\n        try:\n            _fn(10, 20)\n        except Exception as e:\n            _err = e\n        assert type(_err).__name__ == \"InsufficientBalanceError\", f\"实际 {type(_err).__name__}\"\n        assert \"余额不足\" in str(_err)\n        assert any(b.__name__ == \"Exception\" for b in type(_err).__mro__), \"InsufficientBalanceError 应继承 Exception\"", "snip": null, "ex": "例：`withdraw(100, 30)` → `70`、`withdraw(50, 50)` → `0`；`withdraw(10, 20)` 抛自定义异常，消息含 \"余额不足\""}, {"n": 18, "cat": "E", "name": "safe_pipeline", "task": "管道兜底：`safe_pipeline(fns)` 依次调用每个函数（无参）——全部成功返回 `(\"ok\", 最后一个结果)`；中途某步抛异常就停止，返回 `(\"fail\", 异常类名)`", "starter": "def safe_pipeline(fns):\n    \"\"\"逐步执行；任何一步失败返回 (\"fail\", 异常类名)\"\"\"\n    ...  # 循环 + try/except", "ans": "def safe_pipeline(fns):\n    result = None\n    for fn in fns:\n        try:\n            result = fn()\n        except Exception as e:\n            return (\"fail\", type(e).__name__)\n    return (\"ok\", result)", "tind": "        assert _fn([lambda: 1, lambda: 2]) == (\"ok\", 2), f\"实际 {_fn([lambda: 1, lambda: 2])!r}\"\n        def _boom():\n            raise ValueError(\"第2步炸\")\n        assert _fn([lambda: 0, _boom, lambda: 9]) == (\"fail\", \"ValueError\"), \"失败要停在出错那步\"\n        assert _fn([]) == (\"ok\", None), \"空管道返回 ('ok', None)\"", "snip": null, "ex": "例：两步都成功 → `(\"ok\", 第二步的结果)`；第一步成功第二步炸 → `(\"fail\", 异常类名)`；空管道 → `(\"ok\", None)`"}, {"n": 19, "cat": "E", "name": "label_exception", "task": "分流处理：`label_exception(fn)` 调 `fn()`——抛 `ValueError` 返回 `\"VE\"`；抛 `KeyError` 返回 `\"KE\"`；**其他异常原样向外抛**；无异常返回 `\"ok\"`", "starter": "def label_exception(fn):\n    \"\"\"两个 except 分支各返回标签；没接住的异常自然穿透\"\"\"\n    ...  # try / except / except / else", "ans": "def label_exception(fn):\n    try:\n        fn()\n    except ValueError:\n        return \"VE\"\n    except KeyError:\n        return \"KE\"\n    else:\n        return \"ok\"", "tind": "        assert _fn(lambda: 1) == \"ok\", \"无异常应返回 'ok'\"\n        def _ve():\n            raise ValueError(\"v\")\n        def _ke():\n            raise KeyError(\"k\")\n        assert _fn(_ve) == \"VE\" and _fn(_ke) == \"KE\"\n        def _ugly():\n            raise TypeError(\"t\")\n        try:\n            _fn(_ugly)\n            assert False, \"其他异常应原样向外抛\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：无异常 → `\"ok\"`；抛 ValueError → `\"VE\"`；抛 KeyError → `\"KE\"`；抛 TypeError → 不接、往外飞"}, {"n": 20, "cat": "E", "name": "logged_run", "task": "记录执行：`logged_run(fn, log)` 调 `fn()`——成功 `log.append(\"ok\")` 并返回结果；异常 `log.append(异常类名)` 后**把异常原样向外抛**", "starter": "def logged_run(fn, log):\n    \"\"\"把异常类名记进日志后，原异常继续向外抛\"\"\"\n    ...  # try / except", "ans": "def logged_run(fn, log):\n    try:\n        result = fn()\n        log.append(\"ok\")\n        return result\n    except Exception as e:\n        log.append(type(e).__name__)\n        raise", "tind": "        _log = []\n        assert _fn(lambda: 3, _log) == 3, \"成功应返回结果\"\n        assert _log == [\"ok\"], f\"实际 {_log!r}\"\n        def _bad():\n            raise ValueError(\"炸\")\n        _log2 = []\n        _err = None\n        try:\n            _fn(_bad, _log2)\n        except ValueError as e:\n            _err = e\n        assert _err is not None and str(_err) == \"炸\", \"异常应原样向外抛\"\n        assert _log2 == [\"ValueError\"], f\"应记录异常类名，实际 {_log2!r}\"", "snip": null, "ex": "例：成功 → log 记 `\"ok\"` 并返回结果；抛 ValueError → log 记 `\"ValueError\"`，异常原样向外抛"}];
+const EX = [{"n": 1, "cat": "A", "name": "safe_div", "task": "安全除法：`safe_div(a, b)` 返回 `a / b`；除零会抛 `ZeroDivisionError`——**用 try/except 捕获并返回 None**（不要用 if 预判）", "starter": "def safe_div(a, b):\n    \"\"\"除零异常要接住——返回 None 而不是崩掉\"\"\"\n    ...  # try / except", "ans": "def safe_div(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None", "tind": "        assert _fn(10, 4) == 2.5, f\"实际 {_fn(10, 4)!r}\"\n        assert _fn(9, 3) == 3.0\n        assert _fn(1, 0) is None, \"除零应返回 None\"", "snip": null, "ex": "例：`safe_div(10, 2)` → `5.0`；`safe_div(1, 0)` 不崩，返回 `None`"}, {"n": 2, "cat": "A", "name": "parse_int", "task": "容错解析：`parse_int(s)` 转成 int；`int(s)` 失败会抛 `ValueError`——捕获后返回 -1", "starter": "def parse_int(s):\n    \"\"\"int(s) 成功返回整数；ValueError 返回 -1\"\"\"\n    ...  # try / except ValueError", "ans": "def parse_int(s):\n    try:\n        return int(s)\n    except ValueError:\n        return -1", "tind": "        assert _fn(\"42\") == 42, f\"实际 {_fn('42')!r}\"\n        assert _fn(\" 7 \") == 7, \"int() 会自动去两侧空白\"\n        assert _fn(\"abc\") == -1\n        assert _fn(\"3.5\") == -1", "snip": null, "ex": "例：`parse_int(\"42\")` → `42`；`parse_int(\"abc\")` → `-1`（`\"3.5\"` 也算失败）"}, {"n": 3, "cat": "A", "name": "classify", "task": "分类执行：`classify(fn)` 调用 `fn()`——成功返回 `(\"ok\", 结果)`；抛 `ValueError` 返回 `(\"error\", 异常消息)`；其他异常**照常向外抛**", "starter": "def classify(fn):\n    \"\"\"try fn() → (\"ok\", 结果)；except ValueError as e → (\"error\", str(e))\"\"\"\n    ...  # try / except", "ans": "def classify(fn):\n    try:\n        return (\"ok\", fn())\n    except ValueError as e:\n        return (\"error\", str(e))", "tind": "        assert _fn(lambda: 1 + 1) == (\"ok\", 2), f\"实际 {_fn(lambda: 1 + 1)!r}\"\n        def _bad():\n            raise ValueError(\"坏输入\")\n        assert _fn(_bad) == (\"error\", \"坏输入\"), \"ValueError 应变成 ('error', 消息)\"\n        def _ugly():\n            raise TypeError(\"别碰我\")\n        try:\n            _fn(_ugly)\n            assert False, \"TypeError 不应被捕获，应向外抛\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：`fn()` 正常 → `(\"ok\", 结果)`；抛 ValueError → `(\"error\", 消息文本)`；抛别的异常不被接住、继续往外飞"}, {"n": 4, "cat": "A", "name": "run_with_cleanup", "task": "必做清理：`run_with_cleanup(fn, log)` 调 `fn()`——成功返回结果；失败返回异常对象本身（不向外抛）。**无论成败最后都 `log.append(\"cleanup\")`**", "starter": "def run_with_cleanup(fn, log):\n    \"\"\"fn() 的结果或异常对象都要；最后无论如何记一条 \"cleanup\"\"\"\n    ...  # try / except / finally", "ans": "def run_with_cleanup(fn, log):\n    result = None\n    try:\n        result = fn()\n    except Exception as e:\n        result = e\n    finally:\n        log.append(\"cleanup\")\n    return result", "tind": "        _log = []\n        assert _fn(lambda: 5, _log) == 5, \"成功应返回结果\"\n        assert _log == [\"cleanup\"], f\"finally 应追加 cleanup，实际 {_log!r}\"\n        def _bad():\n            raise ValueError(\"炸了\")\n        _log2 = []\n        _r = _fn(_bad, _log2)\n        assert isinstance(_r, ValueError), f\"失败应返回异常对象本身，实际 {_r!r}\"\n        assert str(_r) == \"炸了\"\n        assert _log2 == [\"cleanup\"], \"失败路径也要 cleanup（finally）\"", "snip": null, "ex": "例：成功返回结果、失败返回那个异常对象本身；两种结局结束后 log 里都多一条 `\"cleanup\"`"}, {"n": 5, "cat": "B", "name": "checkout", "task": "自定义异常：定义 `EmptyCartError(Exception)`，`checkout(items)` 在 items 为空时 `raise EmptyCartError(\"购物车为空\")`，否则返回商品数量", "starter": "class EmptyCartError(Exception):\n    \"\"\"购物车为空——继承 Exception\"\"\"\n    ...\n\n\ndef checkout(items):\n    \"\"\"空列表抛 EmptyCartError(\"购物车为空\")；否则返回 len(items)\"\"\"\n    ...", "ans": "class EmptyCartError(Exception):\n    pass\n\ndef checkout(items):\n    if not items:\n        raise EmptyCartError(\"购物车为空\")\n    return len(items)", "tind": "        assert _fn([\"书\", \"笔\"]) == 2, f\"实际 {_fn(['书', '笔'])!r}\"\n        _err = None\n        try:\n            _fn([])\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"空列表应抛异常\"\n        assert type(_err).__name__ == \"EmptyCartError\", f\"应抛 EmptyCartError，实际 {type(_err).__name__}\"\n        assert \"购物车为空\" in str(_err)\n        assert any(b.__name__ == \"Exception\" for b in type(_err).__mro__), \"EmptyCartError 应继承 Exception\"", "snip": null, "ex": "例：`checkout([\"书\", \"笔\"])` → `2`；`checkout([])` 抛出自定义异常，消息里含 \"购物车为空\""}, {"n": 6, "cat": "B", "name": "raise_payment", "task": "异常层级：在给出的 `PaymentError` 下定义子类 `InsufficientError`；`raise_payment(amount)` 在 amount < 0 时抛 `InsufficientError(\"金额为负\")`，否则返回 `\"ok\"`", "starter": "class PaymentError(Exception):\n    pass\n\n\nclass InsufficientError(PaymentError):\n    \"\"\"余额不足——继承 PaymentError\"\"\"\n    ...\n\n\ndef raise_payment(amount):\n    \"\"\"amount < 0 抛 InsufficientError(\"金额为负\")；否则返回 \"ok\"\"\"\n    ...", "ans": "class PaymentError(Exception):\n    pass\n\nclass InsufficientError(PaymentError):\n    pass\n\ndef raise_payment(amount):\n    if amount < 0:\n        raise InsufficientError(\"金额为负\")\n    return \"ok\"", "tind": "        assert _fn(100) == \"ok\", f\"实际 {_fn(100)!r}\"\n        assert _fn(0) == \"ok\"\n        _err = None\n        try:\n            _fn(-1)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"负数应抛异常\"\n        assert type(_err).__name__ == \"InsufficientError\", f\"应抛 InsufficientError，实际 {type(_err).__name__}\"\n        assert \"金额为负\" in str(_err)\n        _names = [b.__name__ for b in type(_err).__mro__]\n        assert \"PaymentError\" in _names, \"InsufficientError 应继承 PaymentError\"\n        assert \"Exception\" in _names", "snip": null, "ex": "例：`raise_payment(100)` → `\"ok\"`；`raise_payment(-1)` 抛出子类异常，消息含 \"金额为负\"——且它是 PaymentError 的家族成员"}, {"n": 7, "cat": "B", "name": "chain_demo", "task": "调用 `fn()`——捕获 `ValueError` 后抛出 `RuntimeError(\"失败\")`，**并把原异常挂成\"原因\"**（判分会查 `__cause__`）", "starter": "def chain_demo(fn):\n    \"\"\"换成 RuntimeError，但把原异常挂成\"原因\"（判分查 __cause__）\"\"\"\n    ...  # try / except", "ans": "def chain_demo(fn):\n    try:\n        return fn()\n    except ValueError as e:\n        raise RuntimeError(\"失败\") from e", "tind": "        assert _fn(lambda: 42) == 42, \"无异常应直接返回结果\"\n        def _bad():\n            raise ValueError(\"坏输入\")\n        _err = None\n        try:\n            _fn(_bad)\n        except RuntimeError as e:\n            _err = e\n        assert _err is not None, \"应抛出 RuntimeError\"\n        assert \"失败\" in str(_err), f\"消息应含 '失败'，实际 {str(_err)!r}\"\n        assert isinstance(_err.__cause__, ValueError), \"原因链丢失——raise 时漏了 from e？\"", "snip": null, "ex": "例：`fn()` 正常 → 直接返回结果；`fn()` 抛 ValueError → 换成抛 RuntimeError，且新异常的\"原因\"挂着原来的 ValueError"}, {"n": 8, "cat": "B", "name": "wrap_call", "task": "记录后原样抛：`wrap_call(fn, errors)` 调用 `fn()`——抛异常时把异常对象 append 进 errors，然后**同一个异常继续向外抛**（类型、消息、追溯都不能变，不是造一个新的同类异常）；成功返回结果", "starter": "def wrap_call(fn, errors):\n    \"\"\"先记进 errors，再让同一个异常原样继续往外抛\"\"\"\n    ...  # try / except / bare raise", "ans": "def wrap_call(fn, errors):\n    try:\n        return fn()\n    except Exception as e:\n        errors.append(e)\n        raise", "tind": "        _errors = []\n        assert _fn(lambda: 7, _errors) == 7, \"成功应返回结果\"\n        assert _errors == [], \"成功时不应记录任何东西\"\n        def _bad():\n            raise KeyError(\"缺失\")\n        _err = None\n        try:\n            _fn(_bad, _errors)\n        except KeyError as e:\n            _err = e\n        assert _err is not None, \"裸 raise 应原样抛出 KeyError\"\n        assert str(_err) == \"'缺失'\", f\"消息应原样保留，实际 {str(_err)!r}\"\n        assert len(_errors) == 1 and _errors[0] is _err, \"异常对象应已 append 进 errors\"", "snip": null, "ex": "例：成功 → 返回结果且 errors 原封不动；抛 KeyError → errors 里记下**那个异常对象**，然后同一个异常继续往外飞"}, {"n": 9, "cat": "C", "name": "retry_call", "task": "重试模板：`retry_call(fn, times=3)` 调 `fn()`——抛 `ValueError` 就重试，最多 times 次；用尽后把**最后一次异常原样抛出**", "starter": "def retry_call(fn, times=3):\n    \"\"\"最多试 n 次；全失败就把最后一次的异常抛出去\"\"\"\n    ...  # 记住\"最后一次\"的异常", "ans": "def retry_call(fn, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return fn()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert _fn(_flaky) == \"ok\", \"第三次应成功\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            _fn(_never)\n        except Exception as e:\n            _err = e\n        assert type(_err).__name__ == \"ValueError\", f\"应原样抛 ValueError，实际 {type(_err).__name__}\"\n        assert str(_err) == \"永远失败\", \"抛的应是最后一次异常\"", "snip": null, "ex": "例：前两次失败第三次成功 → 返回 `\"ok\"` 且总共调了 3 次；三次全失败 → 把最后一次的异常原样抛出"}, {"n": 10, "cat": "C", "name": "except_scope", "type": "mc", "task": "`#9`（`retry_call`）用 `except ValueError:` 重试；遇到 `KeyError` 时会怎样？", "options": ["被吞掉并重试，用尽后抛出 `KeyError`", "立即向外抛出 `KeyError`，不重试", "转成 `ValueError` 后重试", "静默忽略，函数返回 `None`"], "correct": 1, "explain": "只捕获 `ValueError`，其他异常不被匹配，直接沿调用栈向外抛——这正是“精确捕获”与 #9 兜底式重试的关键区别。", "ex": "例：`retry_only(fn)` 中 fn 抛 `KeyError` → 第一次调用就向外抛出"}, {"n": 11, "cat": "C", "name": "run_attempts", "task": "带次数的结果：`run_attempts(fn, times=3)` 最多调 `fn()` times 次——成功返回 `(结果, 尝试次数)`；一直失败返回 `(最后一次异常, times)`", "starter": "def run_attempts(fn, times=3):\n    \"\"\"成功 return (结果, 第几次)；失败记下异常继续；用尽 return (异常, times)\"\"\"\n    ...  # 循环里 enumerate 或手动计数", "ans": "def run_attempts(fn, times=3):\n    last = None\n    for i in range(1, times + 1):\n        try:\n            return fn(), i\n        except Exception as e:\n            last = e\n    return last, times", "tind": "        _n = [0]\n        def _flaky():\n            _n[0] += 1\n            if _n[0] < 3:\n                raise ValueError(\"再试\")\n            return \"好\"\n        assert _fn(_flaky) == (\"好\", 3), f\"实际 {_fn(lambda: 1)!r}\"\n        def _never():\n            raise ValueError(\"没戏\")\n        _r = _fn(_never)\n        assert isinstance(_r[0], ValueError), \"失败应返回异常对象本身\"\n        assert _r[1] == 3, f\"尝试次数应为 3，实际 {_r[1]!r}\"\n        assert _fn(lambda: 9) == (9, 1), \"一次成功次数应为 1\"", "snip": null, "ex": "例：第 3 次成功 → `(\"结果\", 3)`；一直失败 → `(最后的异常, 3)`；一次就成功 → `(\"结果\", 1)`"}, {"n": 12, "cat": "C", "name": "fallback", "task": "兜底默认值：`fallback(fn, default)` 调 `fn()`——任何异常返回 default，成功返回结果（这里捕 `Exception` 是合理的兜底场景）", "starter": "def fallback(fn, default):\n    \"\"\"try fn()；except Exception 返回 default\"\"\"\n    ...  # try / except", "ans": "def fallback(fn, default):\n    try:\n        return fn()\n    except Exception:\n        return default", "tind": "        assert _fn(lambda: 3, 0) == 3\n        def _bad():\n            raise ValueError(\"x\")\n        assert _fn(_bad, 0) == 0, \"失败应返回 default\"\n        def _ugly():\n            raise TypeError(\"y\")\n        assert _fn(_ugly, \"默认\") == \"默认\", \"任何异常都应兜底\"", "snip": null, "ex": "例：`fn()` 正常 → 结果；抛 ValueError 或 TypeError → 都返回 default（本题捕 Exception 是合理的兜底场景）"}, {"n": 13, "cat": "D", "name": "suppress_error", "task": "吞指定异常：`suppress_error(exc_type)`——`@contextmanager` 装饰，with 内部抛 exc_type 就吞掉，其他异常照常向外抛（结构检查：漏装饰器当场现形）", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef suppress_error(exc_type):\n    \"\"\"with 里指定类型的异常悄悄吞掉，其他照常向外抛\"\"\"\n    ...  # try / yield / except 三件套", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef suppress_error(exc_type):\n    try:\n        yield\n    except exc_type:\n        pass", "tind": "        _cm = _fn(ValueError)\n        assert hasattr(_cm, \"__enter__\") and hasattr(_cm, \"__exit__\"), \"返回的不是上下文管理器——漏了 @contextmanager？\"\n        _ran = False\n        with _fn(ValueError):\n            _ran = True\n        assert _ran, \"无异常时应正常通过\"\n        with _fn(ValueError):\n            raise ValueError(\"吞我\")\n        _err = None\n        try:\n            with _fn(ValueError):\n                raise TypeError(\"别吞我\")\n        except TypeError as e:\n            _err = e\n        assert _err is not None, \"TypeError 不应被吞，应照常向外抛\"", "snip": null, "ex": "例：`with suppress_error(ValueError):` 里抛 ValueError 安然通过；里头抛 TypeError 则照常炸出来"}, {"n": 14, "cat": "D", "name": "audit", "task": "进出都要记录：`audit(ops)`——`@contextmanager` 装饰：进入 with 时 `ops.append(\"enter\")`，退出时（**无论成败**）`ops.append(\"exit\")`，with 内部抛的异常照常向外抛。提示：收尾要\"必达\"，想想 try/finally 的直觉放在哪里", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef audit(ops):\n    \"\"\"进入记 \"enter\"，退出无论成败记 \"exit\"\"\"\n    ...", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef audit(ops):\n    ops.append(\"enter\")\n    try:\n        yield\n    finally:\n        ops.append(\"exit\")", "tind": "        _ops = []\n        with _fn(_ops):\n            pass\n        assert _ops == [\"enter\", \"exit\"], f\"实际 {_ops!r}\"\n        _ops2 = []\n        _raised = False\n        try:\n            with _fn(_ops2):\n                raise ValueError(\"中途炸了\")\n        except ValueError:\n            _raised = True\n        assert _raised, \"audit 只记录不吞异常，内部异常应照常向外抛\"\n        assert _ops2 == [\"enter\", \"exit\"], \"抛异常也要走 exit（finally）\"", "snip": null, "ex": "例：正常进出 ops 记 `[\"enter\", \"exit\"]`；中途抛异常 ops 仍是 `[\"enter\", \"exit\"]`，且异常照常向外抛"}, {"n": 15, "cat": "D", "name": "yield_value", "type": "mc", "task": "`@contextmanager` 装饰的生成器中，`with ... as x` 拿到的 `x` 来自哪里？", "options": ["函数的 `return` 值", "`yield` 表达式后面给出的值", "`finally` 块的最后一个表达式", "永远是 `None`"], "correct": 1, "explain": "`contextmanager` 把 `yield value` 的 `value` 作为 `as` 的绑定值；`return` 在生成器里只触发 `StopIteration`。", "ex": "例：`@contextmanager def give(n): yield n * 2` → `with give(3) as x` 时 `x == 6`"}, {"n": 16, "cat": "D", "name": "closing", "task": "资源关闭：`closing(res)`——`@contextmanager`，with 里 `as r` 时 r 就是 res 本身；with 结束后（**无论成败**）res.close() 必须已被调用", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef closing(res):\n    \"\"\"as 拿到 res 本身；结束无论成败都要 res.close()\"\"\"\n    ...", "ans": "from contextlib import contextmanager\n\n@contextmanager\ndef closing(res):\n    try:\n        yield res\n    finally:\n        res.close()", "tind": "        r = FakeRes()\n        with _fn(r) as got:\n            assert got is r, \"as 应拿到传入的 res\"\n            assert not r.closed, \"with 内部还没 close\"\n        assert r.closed, \"with 结束应调用 close()\"\n        r2 = FakeRes()\n        _err = None\n        try:\n            with _fn(r2):\n                raise ValueError(\"炸\")\n        except ValueError:\n            _err = True\n        assert _err, \"内部异常应照常向外抛\"\n        assert r2.closed, \"即使抛异常也要 close（finally）\"", "snip": "class FakeRes:\n    def __init__(self):\n        self.closed = False\n    def close(self):\n        self.closed = True", "ex": "例：`with closing(res) as r` 里 `r` 就是 res 本身；无论 with 里成不成功，出来后 `res.closed` 都是 True"}, {"n": 17, "cat": "E", "name": "withdraw", "task": "综合：定义 `InsufficientBalanceError(Exception)`；`withdraw(balance, amount)` 在 amount > balance 时抛 `InsufficientBalanceError(\"余额不足\")`，否则返回扣款后的新余额", "starter": "class InsufficientBalanceError(Exception):\n    \"\"\"余额不足——继承 Exception\"\"\"\n    ...\n\n\ndef withdraw(balance, amount):\n    \"\"\"amount > balance 抛 InsufficientBalanceError(\"余额不足\")；否则返回 balance - amount\"\"\"\n    ...", "ans": "class InsufficientBalanceError(Exception):\n    pass\n\ndef withdraw(balance, amount):\n    if amount > balance:\n        raise InsufficientBalanceError(\"余额不足\")\n    return balance - amount", "tind": "        assert _fn(100, 30) == 70, f\"实际 {_fn(100, 30)!r}\"\n        assert _fn(50, 50) == 0, \"恰好扣完不算不足\"\n        _err = None\n        try:\n            _fn(10, 20)\n        except Exception as e:\n            _err = e\n        assert type(_err).__name__ == \"InsufficientBalanceError\", f\"实际 {type(_err).__name__}\"\n        assert \"余额不足\" in str(_err)\n        assert any(b.__name__ == \"Exception\" for b in type(_err).__mro__), \"InsufficientBalanceError 应继承 Exception\"", "snip": null, "ex": "例：`withdraw(100, 30)` → `70`、`withdraw(50, 50)` → `0`；`withdraw(10, 20)` 抛自定义异常，消息含 \"余额不足\""}, {"n": 18, "cat": "E", "name": "safe_pipeline", "task": "管道兜底：`safe_pipeline(fns)` 依次调用每个函数（无参）——全部成功返回 `(\"ok\", 最后一个结果)`；中途某步抛异常就停止，返回 `(\"fail\", 异常类名)`", "starter": "def safe_pipeline(fns):\n    \"\"\"逐步执行；任何一步失败返回 (\"fail\", 异常类名)\"\"\"\n    ...  # 循环 + try/except", "ans": "def safe_pipeline(fns):\n    result = None\n    for fn in fns:\n        try:\n            result = fn()\n        except Exception as e:\n            return (\"fail\", type(e).__name__)\n    return (\"ok\", result)", "tind": "        assert _fn([lambda: 1, lambda: 2]) == (\"ok\", 2), f\"实际 {_fn([lambda: 1, lambda: 2])!r}\"\n        def _boom():\n            raise ValueError(\"第2步炸\")\n        assert _fn([lambda: 0, _boom, lambda: 9]) == (\"fail\", \"ValueError\"), \"失败要停在出错那步\"\n        assert _fn([]) == (\"ok\", None), \"空管道返回 ('ok', None)\"", "snip": null, "ex": "例：两步都成功 → `(\"ok\", 第二步的结果)`；第一步成功第二步炸 → `(\"fail\", 异常类名)`；空管道 → `(\"ok\", None)`"}, {"n": 19, "cat": "E", "name": "label_exception", "task": "分流处理：`label_exception(fn)` 调 `fn()`——抛 `ValueError` 返回 `\"VE\"`；抛 `KeyError` 返回 `\"KE\"`；**其他异常原样向外抛**；无异常返回 `\"ok\"`", "starter": "def label_exception(fn):\n    \"\"\"两个 except 分支各返回标签；没接住的异常自然穿透\"\"\"\n    ...  # try / except / except / else", "ans": "def label_exception(fn):\n    try:\n        fn()\n    except ValueError:\n        return \"VE\"\n    except KeyError:\n        return \"KE\"\n    else:\n        return \"ok\"", "tind": "        assert _fn(lambda: 1) == \"ok\", \"无异常应返回 'ok'\"\n        def _ve():\n            raise ValueError(\"v\")\n        def _ke():\n            raise KeyError(\"k\")\n        assert _fn(_ve) == \"VE\" and _fn(_ke) == \"KE\"\n        def _ugly():\n            raise TypeError(\"t\")\n        try:\n            _fn(_ugly)\n            assert False, \"其他异常应原样向外抛\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：无异常 → `\"ok\"`；抛 ValueError → `\"VE\"`；抛 KeyError → `\"KE\"`；抛 TypeError → 不接、往外飞"}, {"n": 20, "cat": "E", "name": "logged_run", "task": "记录执行：`logged_run(fn, log)` 调 `fn()`——成功 `log.append(\"ok\")` 并返回结果；异常 `log.append(异常类名)` 后**把异常原样向外抛**", "starter": "def logged_run(fn, log):\n    \"\"\"把异常类名记进日志后，原异常继续向外抛\"\"\"\n    ...  # try / except", "ans": "def logged_run(fn, log):\n    try:\n        result = fn()\n        log.append(\"ok\")\n        return result\n    except Exception as e:\n        log.append(type(e).__name__)\n        raise", "tind": "        _log = []\n        assert _fn(lambda: 3, _log) == 3, \"成功应返回结果\"\n        assert _log == [\"ok\"], f\"实际 {_log!r}\"\n        def _bad():\n            raise ValueError(\"炸\")\n        _log2 = []\n        _err = None\n        try:\n            _fn(_bad, _log2)\n        except ValueError as e:\n            _err = e\n        assert _err is not None and str(_err) == \"炸\", \"异常应原样向外抛\"\n        assert _log2 == [\"ValueError\"], f\"应记录异常类名，实际 {_log2!r}\"", "snip": null, "ex": "例：成功 → log 记 `\"ok\"` 并返回结果；抛 ValueError → log 记 `\"ValueError\"`，异常原样向外抛"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 const LS_KEY = 'lesson-0005-drill-progress';
@@ -783,17 +843,30 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
     }
   });
   const done = prog.solved.length;
-  document.getElementById('pfill').style.width = (done / 20 * 100) + '%';
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
   document.getElementById('ptext').textContent = '已完成 ' + done + ' / 20';
   document.querySelectorAll('.drill-cat').forEach(h => {
     const cat = h.dataset.cat;
@@ -813,6 +886,7 @@ async function ensurePy() {
       rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -830,11 +904,23 @@ async function ensurePy() {
 async function check(n) {
   const codeVal = codeEl(n).value;
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _res = {"ok": False, "msg": ""}
 _lenv = dict(_G)
@@ -855,18 +941,18 @@ ${ex.tind}
 _json.dumps(_res)`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 全部断言通过';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + msg;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => codeEl(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
   if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
   rt.textContent = '批量检查中…';
   let pass = 0;
@@ -882,13 +968,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填代码？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -958,7 +1045,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -1015,6 +1102,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -1053,6 +1141,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -1060,6 +1149,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1067,7 +1157,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1096,6 +1188,91 @@ refreshUI();
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';

@@ -14,6 +14,13 @@
     var opts = quiz.querySelectorAll(".quiz-opt");
     var explain = quiz.querySelector(".quiz-explain");
     var done = false;
+    quiz.setAttribute("role", "radiogroup");
+    var qEl = quiz.querySelector(".quiz-q");
+    if (qEl && !quiz.getAttribute("aria-labelledby")) {
+      if (!qEl.id) qEl.id = "quizq-" + (Math.random() * 1e9 | 0);
+      quiz.setAttribute("aria-labelledby", qEl.id);
+    }
+    opts.forEach(function (b) { b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); });
     opts.forEach(function (btn) {
       btn.addEventListener("click", function () {
         if (done) return;
@@ -25,9 +32,18 @@
         });
         if (key !== answer) btn.classList.add("is-wrong");
         if (explain) explain.hidden = false;
+        opts.forEach(function (b) { b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+        var liveEl = quiz.querySelector(".quiz-live");
+        if (liveEl) liveEl.textContent = (key === answer ? "回答正确。" : "回答错误，正确答案是 " + answer + "。") +
+          (explain ? explain.textContent : "");
         quiz.dispatchEvent(new CustomEvent("quiz:answered", {
           bubbles: true, detail: { correct: key === answer }
         }));
+        if (window.WBProgress) {
+          var allQ = document.querySelectorAll(".quiz");
+          WBProgress.mark({ kind: "quiz", unit: "q" + (Array.prototype.indexOf.call(allQ, quiz) + 1),
+                            total: allQ.length, passed: key === answer });
+        }
       });
     });
   }

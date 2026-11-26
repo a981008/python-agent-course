@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +372,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
@@ -326,6 +381,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-status.info { color: var(--ink-soft); }
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -333,7 +401,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h1>练习场 · 11 题异步 asyncio 训练</h1>
 <p class="meta">第 8 课配套 · 协程基础 / 并发 gather / 超时与重试 / 异步生成器 / 综合 · 自动判分（测试内含 await）</p>
-<div class="callout win"><strong>玩法</strong>：写的是<strong>async def 协程函数</strong>——点"检查"会真实运行你的协程并跑断言；B 类题带<strong>计时防作弊</strong>：该并发的题顺序 await 会因总耗时超标当场现形；#5 考 asyncio.wait 先到先得。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>async def 协程函数</strong>——点"检查"会真实运行你的协程并跑断言；B 类题带<strong>计时防作弊</strong>：该并发的题顺序 await 会因总耗时超标当场现形；#5 考 asyncio.wait 先到先得。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>：判分环境已预置 <code>slow_ok / echo / double / inc</code> 四个协程工具（见代码顶部），可直接调用。
 </div>
@@ -342,13 +410,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <h2 class="drill-cat" data-cat="A">A · 协程基础（async def 与 await）<span class="cat-done" data-range="1-3">第 1–3 题 · 0/3</span></h2>
 
 <div class="drill" id="d-1" data-n="1" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#01</span><div class="drill-task">协程函数：<code>async def hello()</code> 返回字符串 <code>"hello"</code>——调用它的人必须 <code>await</code> 才能拿到值</div></div>
-  <div class="drill-ex">例：<code>await hello()</code> → <code>"hello"</code>；只调用不 await 拿到的只是协程对象，函数体没跑</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> hello():
-    <span class="tk-str">"""async def 定义协程；返回 "hello"——调用后要 await 才执行"""</span>
-    ...  <span class="tk-com"># 一行 return</span></pre><textarea class="drill-code" spellcheck="false" rows="6">async def hello():
-    &quot;&quot;&quot;async def 定义协程；返回 &quot;hello&quot;——调用后要 await 才执行&quot;&quot;&quot;
-    ...  # 一行 return</textarea></div>
+  <div class="drill-head"><span class="drill-no">#01</span><div class="drill-task">调用 <code>hello()</code>（一个 <code>async def</code> 函数）但不 <code>await</code>，会得到什么？</div></div>
+  <div class="drill-ex">例：<code>c = hello()</code> → <code>type(c)</code> 是 <code>coroutine</code>；<code>await c</code> 才得到 <code>"hello"</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-1" value="0"><span class="opt-letter">A</span><span class="opt-text">字符串 <code>"hello"</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="1"><span class="opt-letter">B</span><span class="opt-text">一个协程对象，函数体尚未执行</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="2"><span class="opt-letter">C</span><span class="opt-text">一个 <code>Task</code>，已在事件循环中运行</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="3"><span class="opt-letter">D</span><span class="opt-text">立即抛 <code>RuntimeError</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -358,13 +426,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-2" data-n="2" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#02</span><div class="drill-task">协程函数判定：<code>is_async(fn)</code>——<code>async def</code> 定义的协程函数返回 True，普通函数返回 False（标准库 <code>inspect</code> 有现成的判断函数，第 7 课讲过）</div></div>
-  <div class="drill-ex">例：<code>is_async(slow_ok)</code> → <code>True</code>（协程函数）；传一个普通函数 → <code>False</code>——inspect 里有现成的判断工具</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> is_async(fn):
-    <span class="tk-str">"""inspect 里有判"是不是协程函数"的现成工具"""</span>
-    ...  <span class="tk-com"># 一行 return</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def is_async(fn):
-    &quot;&quot;&quot;inspect 里有判&quot;是不是协程函数&quot;的现成工具&quot;&quot;&quot;
-    ...  # 一行 return</textarea></div>
+  <div class="drill-head"><span class="drill-no">#02</span><div class="drill-task">判断一个函数是否由 <code>async def</code> 定义，标准库提供的现成函数是？</div></div>
+  <div class="drill-ex">例：<code>inspect.iscoroutinefunction(hello)</code> → <code>True</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-2" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>inspect.isfunction(fn)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>inspect.iscoroutinefunction(fn)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>asyncio.iscoroutine(fn)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>type(fn) is types.CoroutineType</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -424,13 +492,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-6" data-n="6" data-cat="B">
-  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">带兜底的并发：<code>async def gather_safe(factories)</code> ——并发跑全部工厂，<strong>单个失败不能炸掉整批</strong>：失败的位置在返回列表里显示为 <code>"err"</code>，正常值原样保留（gather 有个开关能把异常"当结果"收集，第 8 课讲过）</div></div>
-  <div class="drill-ex">例：三个任务里第二个会炸 → 返回 <code>["ok-a", "err", "ok-c"]</code>——炸的位置换成 <code>"err"</code>，其他原样保留</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> gather_safe(factories):
-    <span class="tk-str">"""并发全部工厂，单个失败不炸整批：失败的位置换成 "err"，正常值原样保留（让异常"变成结果之一"的开关，第 8 课讲过）"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">async def gather_safe(factories):
-    &quot;&quot;&quot;并发全部工厂，单个失败不炸整批：失败的位置换成 &quot;err&quot;，正常值原样保留（让异常&quot;变成结果之一&quot;的开关，第 8 课讲过）&quot;&quot;&quot;
-    ...</textarea></div>
+  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task"><code>asyncio.gather(...)</code> 中哪个参数能让单个任务的异常作为结果返回、而不是炸掉整批？</div></div>
+  <div class="drill-ex">例：<code>await gather(f1(), f2(), return_exceptions=True)</code> → 失败位置是异常对象，其他位置是正常值</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>return_exceptions=True</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>silent=True</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>catch=True</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>suppress=True</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -442,13 +510,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <h2 class="drill-cat" data-cat="C">C · 超时与重试<span class="cat-done" data-range="7-8">第 7–8 题 · 0/2</span></h2>
 
 <div class="drill" id="d-7" data-n="7" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#07</span><div class="drill-task">超时控制：<code>async def with_timeout(factory, seconds)</code> ——factory 超过 seconds 秒还没完成就返回 <code>("timeout", None)</code>，按时完成返回 <code>("ok", 结果)</code>（第 8 课的超时工具正是干这个的）</div></div>
-  <div class="drill-ex">例：任务立刻完成限时 0.1s → <code>("ok", 结果)</code>；任务 0.2s 限时 0.05s → <code>("timeout", None)</code></div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> with_timeout(factory, seconds):
-    <span class="tk-str">"""限时 await：超时返回 ("timeout", None)，按时完成返回 ("ok", 结果)（超时工具第 8 课刚讲）"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6">async def with_timeout(factory, seconds):
-    &quot;&quot;&quot;限时 await：超时返回 (&quot;timeout&quot;, None)，按时完成返回 (&quot;ok&quot;, 结果)（超时工具第 8 课刚讲）&quot;&quot;&quot;
-    ...</textarea></div>
+  <div class="drill-head"><span class="drill-no">#07</span><div class="drill-task">要给一个 <code>await</code> 操作设置超时（超时返回 <code>("timeout", None)</code>），应使用？</div></div>
+  <div class="drill-ex">例：<code>await asyncio.wait_for(slow(), 0.1)</code> → 0.1 秒没完成就抛 <code>TimeoutError</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-7" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>asyncio.wait(..., timeout=seconds)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-7" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>asyncio.wait_for(factory(), seconds)</code> 并捕获 <code>asyncio.TimeoutError</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-7" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>asyncio.sleep(seconds)</code> 后再调用</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-7" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>signal.alarm(seconds)</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -552,7 +620,7 @@ async def inc(x):
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "name": "hello", "task": "协程函数：`async def hello()` 返回字符串 `\"hello\"`——调用它的人必须 `await` 才能拿到值", "starter": "async def hello():\n    \"\"\"async def 定义协程；返回 \"hello\"——调用后要 await 才执行\"\"\"\n    ...  # 一行 return", "ans": "async def hello():\n    return \"hello\"", "tind": "        assert inspect.iscoroutinefunction(_fn), \"应该用 async def 定义（协程函数）\"\n        _c = _fn()\n        assert inspect.iscoroutine(_c), \"调用协程函数不 await，得到的是协程对象而不是结果\"\n        _c.close()\n        _r = await _fn()\n        assert _r == \"hello\", f\"await 后应得到 \\\"hello\\\"，实际 {_r!r}\"", "snip": null, "ex": "例：`await hello()` → `\"hello\"`；只调用不 await 拿到的只是协程对象，函数体没跑"}, {"n": 2, "cat": "A", "name": "is_async", "task": "协程函数判定：`is_async(fn)`——`async def` 定义的协程函数返回 True，普通函数返回 False（标准库 `inspect` 有现成的判断函数，第 7 课讲过）", "starter": "def is_async(fn):\n    \"\"\"inspect 里有判\"是不是协程函数\"的现成工具\"\"\"\n    ...  # 一行 return", "ans": "def is_async(fn):\n    return inspect.iscoroutinefunction(fn)", "tind": "        assert _fn(slow_ok) is True, \"slow_ok 是协程函数\"\n        assert _fn(echo) is True\n        assert _fn(lambda: 1) is False, \"普通函数应返回 False\"", "snip": null, "ex": "例：`is_async(slow_ok)` → `True`（协程函数）；传一个普通函数 → `False`——inspect 里有现成的判断工具"}, {"n": 3, "cat": "A", "name": "coro_of", "task": "协程对象：`coro_of(x)` 调用 `echo(x)` 但**不要 await**——直接返回协程对象（这是新手最大的坑：不 await 不会执行）", "starter": "def coro_of(x):\n    \"\"\"调用 echo(x) 但不要 await——返回协程对象本身\"\"\"\n    ...  # 直接调用、不要 await", "ans": "def coro_of(x):\n    return echo(x)", "tind": "        _c = _fn(\"hi\")\n        assert inspect.iscoroutine(_c), \"echo(x) 不 await 应得到协程对象\"\n        _c.close()", "snip": null, "ex": "例：`coro_of(\"hi\")` 返回的是一个**协程对象**（还没执行）——判分会检查它是 coroutine"}, {"n": 4, "cat": "B", "name": "gather_two", "task": "并发两个：`async def gather_two()` **并发**执行 `slow_ok(\"a\")`、`slow_ok(\"b\")`（各睡 0.05s）。测试会计时：总耗时必须接近 0.05s 而不是 0.1s——两个任务不许一个等完另一个再等下一个", "starter": "async def gather_two():\n    \"\"\"并发起跑两个 slow_ok，收集结果列表\"\"\"\n    ...  # 一行", "ans": "async def gather_two():\n    return await asyncio.gather(slow_ok(\"a\"), slow_ok(\"b\"))", "tind": "        import time as _time\n        _t0 = _time.perf_counter()\n        _r = await _fn()\n        _dt = _time.perf_counter() - _t0\n        assert _r == [\"ok-a\", \"ok-b\"], f\"实际 {_r!r}\"\n        assert _dt < 0.09, f\"耗时 {_dt:.2f}s——两个 0.05s 任务应并发（gather），顺序 await 会到 0.1s\"", "snip": null, "ex": "例：两个各睡 0.05s 的任务并发起跑，总耗时 ≈ 0.05s，返回 `[\"ok-a\", \"ok-b\"]`；顺序 await 会拖到 0.1s"}, {"n": 5, "cat": "B", "name": "race", "task": "先到先得：`async def race(fa, fb)`——并发起跑两个工厂，**谁先完成返回谁的结果**，别让没完成的那个拖住返回（写法第 8 课第四节刚讲过，凭理解默写）", "starter": "async def race(fa, fb):\n    \"\"\"谁先完成返回谁的结果；输的那边别忘了善后\"\"\"\n    ...", "ans": "async def race(fa, fb):\n    tasks = [asyncio.create_task(fa()), asyncio.create_task(fb())]\n    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)\n    for t in pending:\n        t.cancel()\n    return next(iter(done)).result()", "tind": "        _r = await _fn(lambda: slow_ok(\"fast\", 0.02), lambda: slow_ok(\"slow\", 0.1))\n        assert _r == \"ok-fast\", f\"应返回先完成者 ok-fast，实际 {_r!r}\"", "snip": null, "ex": "例：一个 0.02s 一个 0.1s → 返回先完成的 `\"ok-fast\"`，不等慢的那个"}, {"n": 6, "cat": "B", "name": "gather_safe", "task": "带兜底的并发：`async def gather_safe(factories)` ——并发跑全部工厂，**单个失败不能炸掉整批**：失败的位置在返回列表里显示为 `\"err\"`，正常值原样保留（gather 有个开关能把异常\"当结果\"收集，第 8 课讲过）", "starter": "async def gather_safe(factories):\n    \"\"\"并发全部工厂，单个失败不炸整批：失败的位置换成 \"err\"，正常值原样保留（让异常\"变成结果之一\"的开关，第 8 课讲过）\"\"\"\n    ...", "ans": "async def gather_safe(factories):\n    rs = await asyncio.gather(*[f() for f in factories], return_exceptions=True)\n    return [r if not isinstance(r, BaseException) else \"err\" for r in rs]", "tind": "        async def _boom():\n            raise ValueError(\"x\")\n        _r = await _fn([lambda: slow_ok(\"a\", 0), _boom, lambda: slow_ok(\"c\", 0)])\n        assert _r == [\"ok-a\", \"err\", \"ok-c\"], f\"实际 {_r!r}\"", "snip": null, "ex": "例：三个任务里第二个会炸 → 返回 `[\"ok-a\", \"err\", \"ok-c\"]`——炸的位置换成 `\"err\"`，其他原样保留"}, {"n": 7, "cat": "C", "name": "with_timeout", "task": "超时控制：`async def with_timeout(factory, seconds)` ——factory 超过 seconds 秒还没完成就返回 `(\"timeout\", None)`，按时完成返回 `(\"ok\", 结果)`（第 8 课的超时工具正是干这个的）", "starter": "async def with_timeout(factory, seconds):\n    \"\"\"限时 await：超时返回 (\"timeout\", None)，按时完成返回 (\"ok\", 结果)（超时工具第 8 课刚讲）\"\"\"\n    ...", "ans": "async def with_timeout(factory, seconds):\n    try:\n        return (\"ok\", await asyncio.wait_for(factory(), seconds))\n    except asyncio.TimeoutError:\n        return (\"timeout\", None)", "tind": "        _r1 = await _fn(lambda: slow_ok(\"a\", 0), 0.1)\n        assert _r1 == (\"ok\", \"ok-a\"), f\"成功应为 ('ok', 结果)，实际 {_r1!r}\"\n        _r2 = await _fn(lambda: slow_ok(\"b\", 0.2), 0.05)\n        assert _r2 == (\"timeout\", None), \"0.2s 的任务限 0.05s 应超时\"", "snip": null, "ex": "例：任务立刻完成限时 0.1s → `(\"ok\", 结果)`；任务 0.2s 限时 0.05s → `(\"timeout\", None)`"}, {"n": 8, "cat": "C", "name": "retry_async", "task": "异步重试：`async def retry_async(factory, times=3)` ——await 失败抛 `ValueError` 就重试，最多 times 次；用尽后原样抛最后一次异常（第 5 课的 retry 异步版）", "starter": "async def retry_async(factory, times=3):\n    \"\"\"失败就重试，最多 times 次；全失败把最后一次的异常抛出去\"\"\"\n    ...  # 记住\"最后一次\"的异常", "ans": "async def retry_async(factory, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return await factory()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        async def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert await _fn(_flaky) == \"ok\", \"第三次应成功\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        async def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            await _fn(_never)\n        except ValueError as e:\n            _err = e\n        assert _err is not None and str(_err) == \"永远失败\", \"用尽后应原样抛最后一次 ValueError\"", "snip": null, "ex": "例：前两次抛 ValueError 第三次成功 → 返回 `\"ok\"`、共调 3 次；全失败 → 原样抛最后一次的异常"}, {"n": 9, "cat": "D", "name": "async_sum", "task": "异步循环：`async def async_sum(nums)` ——for 循环逐个累加返回总和，但**每处理完一个元素都要让出一次控制权**（好让事件循环调度别的任务）", "starter": "async def async_sum(nums):\n    \"\"\"逐个累加返回总和；每处理完一个元素都让出一次控制权（事件循环才有机会调度别人）\"\"\"\n    ...", "ans": "async def async_sum(nums):\n    total = 0\n    for n in nums:\n        await asyncio.sleep(0)\n        total += n\n    return total", "tind": "        assert await _fn([1, 2, 3]) == 6, f\"实际 {await _fn([1, 2, 3])!r}\"\n        assert await _fn([]) == 0\n        assert await _fn([5]) == 5", "snip": null, "ex": "例：`await async_sum([1, 2, 3])` → `6`；每加完一个数让出一次控制权（空列表 → `0`）"}, {"n": 10, "cat": "E", "name": "pipeline", "task": "异步管道：`async def pipeline(x)` ——先 `await double(x)`，结果再 `await inc(...)`（判分环境已预置 double/inc）", "starter": "async def pipeline(x):\n    \"\"\"先 await double(x)，结果再交给 inc（判分环境已预置这两个协程）\"\"\"\n    ...", "ans": "async def pipeline(x):\n    a = await double(x)\n    return await inc(a)", "tind": "        assert await _fn(3) == 7, f\"double(3)=6 再 inc → 7，实际 {await _fn(3)!r}\"\n        assert await _fn(0) == 1", "snip": null, "ex": "例：`await pipeline(3)` → `7`——先 double(3) 得 6，再对 6 做 inc 得 7"}, {"n": 11, "cat": "E", "name": "resilient", "task": "弹性调用：`async def resilient(factories)` ——按顺序尝试每个工厂，await 抛异常就跳到下一个；任何一个成功返回其结果，全部失败返回 `None`", "starter": "async def resilient(factories):\n    \"\"\"按顺序尝试每个工厂，谁成功返回谁的结果；全部失败返回 None\"\"\"\n    ...  # 循环结束 return None", "ans": "async def resilient(factories):\n    for f in factories:\n        try:\n            return await f()\n        except Exception:\n            continue\n    return None", "tind": "        async def _bad():\n            raise ValueError(\"x\")\n        _r = await _fn([_bad, lambda: slow_ok(\"b\", 0)])\n        assert _r == \"ok-b\", f\"第一个失败应落到第二个，实际 {_r!r}\"\n        assert await _fn([_bad]) is None, \"全部失败返回 None\"\n        assert await _fn([]) is None", "snip": null, "ex": "例：第一个工厂炸 → 自动落到第二个并返回其结果；全部炸（或列表为空）→ `None`"}];
+const EX = [{"n": 1, "cat": "A", "name": "coroutine_object", "type": "mc", "task": "调用 `hello()`（一个 `async def` 函数）但不 `await`，会得到什么？", "options": ["字符串 `\"hello\"`", "一个协程对象，函数体尚未执行", "一个 `Task`，已在事件循环中运行", "立即抛 `RuntimeError`"], "correct": 1, "explain": "`async def` 调用只创建协程对象，必须 `await`（或交给事件循环调度）才会执行函数体——这是新手最大的坑。", "ex": "例：`c = hello()` → `type(c)` 是 `coroutine`；`await c` 才得到 `\"hello\"`"}, {"n": 2, "cat": "A", "name": "iscoroutinefunction", "type": "mc", "task": "判断一个函数是否由 `async def` 定义，标准库提供的现成函数是？", "options": ["`inspect.isfunction(fn)`", "`inspect.iscoroutinefunction(fn)`", "`asyncio.iscoroutine(fn)`", "`type(fn) is types.CoroutineType`"], "correct": 1, "explain": "`inspect.iscoroutinefunction` 判断函数本身；`asyncio.iscoroutine` 判断的是协程**对象**，两者对象层级不同。", "ex": "例：`inspect.iscoroutinefunction(hello)` → `True`"}, {"n": 3, "cat": "A", "name": "coro_of", "task": "协程对象：`coro_of(x)` 调用 `echo(x)` 但**不要 await**——直接返回协程对象（这是新手最大的坑：不 await 不会执行）", "starter": "def coro_of(x):\n    \"\"\"调用 echo(x) 但不要 await——返回协程对象本身\"\"\"\n    ...  # 直接调用、不要 await", "ans": "def coro_of(x):\n    return echo(x)", "tind": "        _c = _fn(\"hi\")\n        assert inspect.iscoroutine(_c), \"echo(x) 不 await 应得到协程对象\"\n        _c.close()", "snip": null, "ex": "例：`coro_of(\"hi\")` 返回的是一个**协程对象**（还没执行）——判分会检查它是 coroutine"}, {"n": 4, "cat": "B", "name": "gather_two", "task": "并发两个：`async def gather_two()` **并发**执行 `slow_ok(\"a\")`、`slow_ok(\"b\")`（各睡 0.05s）。测试会计时：总耗时必须接近 0.05s 而不是 0.1s——两个任务不许一个等完另一个再等下一个", "starter": "async def gather_two():\n    \"\"\"并发起跑两个 slow_ok，收集结果列表\"\"\"\n    ...  # 一行", "ans": "async def gather_two():\n    return await asyncio.gather(slow_ok(\"a\"), slow_ok(\"b\"))", "tind": "        import time as _time\n        _t0 = _time.perf_counter()\n        _r = await _fn()\n        _dt = _time.perf_counter() - _t0\n        assert _r == [\"ok-a\", \"ok-b\"], f\"实际 {_r!r}\"\n        assert _dt < 0.09, f\"耗时 {_dt:.2f}s——两个 0.05s 任务应并发（gather），顺序 await 会到 0.1s\"", "snip": null, "ex": "例：两个各睡 0.05s 的任务并发起跑，总耗时 ≈ 0.05s，返回 `[\"ok-a\", \"ok-b\"]`；顺序 await 会拖到 0.1s"}, {"n": 5, "cat": "B", "name": "race", "task": "先到先得：`async def race(fa, fb)`——并发起跑两个工厂，**谁先完成返回谁的结果**，别让没完成的那个拖住返回（写法第 8 课第四节刚讲过，凭理解默写）", "starter": "async def race(fa, fb):\n    \"\"\"谁先完成返回谁的结果；输的那边别忘了善后\"\"\"\n    ...", "ans": "async def race(fa, fb):\n    tasks = [asyncio.create_task(fa()), asyncio.create_task(fb())]\n    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)\n    for t in pending:\n        t.cancel()\n    return next(iter(done)).result()", "tind": "        _r = await _fn(lambda: slow_ok(\"fast\", 0.02), lambda: slow_ok(\"slow\", 0.1))\n        assert _r == \"ok-fast\", f\"应返回先完成者 ok-fast，实际 {_r!r}\"", "snip": null, "ex": "例：一个 0.02s 一个 0.1s → 返回先完成的 `\"ok-fast\"`，不等慢的那个"}, {"n": 6, "cat": "B", "name": "return_exceptions", "type": "mc", "task": "`asyncio.gather(...)` 中哪个参数能让单个任务的异常作为结果返回、而不是炸掉整批？", "options": ["`return_exceptions=True`", "`silent=True`", "`catch=True`", "`suppress=True`"], "correct": 0, "explain": "`return_exceptions=True` 时异常对象会作为对应位置的结果返回，可用 `isinstance(r, BaseException)` 识别。", "ex": "例：`await gather(f1(), f2(), return_exceptions=True)` → 失败位置是异常对象，其他位置是正常值"}, {"n": 7, "cat": "C", "name": "wait_for", "type": "mc", "task": "要给一个 `await` 操作设置超时（超时返回 `(\"timeout\", None)`），应使用？", "options": ["`asyncio.wait(..., timeout=seconds)`", "`asyncio.wait_for(factory(), seconds)` 并捕获 `asyncio.TimeoutError`", "`asyncio.sleep(seconds)` 后再调用", "`signal.alarm(seconds)`"], "correct": 1, "explain": "`wait_for` 超时会取消内部任务并抛 `asyncio.TimeoutError`；`wait` 只等待完成集合、不取消任务，语义不同。", "ex": "例：`await asyncio.wait_for(slow(), 0.1)` → 0.1 秒没完成就抛 `TimeoutError`"}, {"n": 8, "cat": "C", "name": "retry_async", "task": "异步重试：`async def retry_async(factory, times=3)` ——await 失败抛 `ValueError` 就重试，最多 times 次；用尽后原样抛最后一次异常（第 5 课的 retry 异步版）", "starter": "async def retry_async(factory, times=3):\n    \"\"\"失败就重试，最多 times 次；全失败把最后一次的异常抛出去\"\"\"\n    ...  # 记住\"最后一次\"的异常", "ans": "async def retry_async(factory, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return await factory()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        async def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert await _fn(_flaky) == \"ok\", \"第三次应成功\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        async def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            await _fn(_never)\n        except ValueError as e:\n            _err = e\n        assert _err is not None and str(_err) == \"永远失败\", \"用尽后应原样抛最后一次 ValueError\"", "snip": null, "ex": "例：前两次抛 ValueError 第三次成功 → 返回 `\"ok\"`、共调 3 次；全失败 → 原样抛最后一次的异常"}, {"n": 9, "cat": "D", "name": "async_sum", "task": "异步循环：`async def async_sum(nums)` ——for 循环逐个累加返回总和，但**每处理完一个元素都要让出一次控制权**（好让事件循环调度别的任务）", "starter": "async def async_sum(nums):\n    \"\"\"逐个累加返回总和；每处理完一个元素都让出一次控制权（事件循环才有机会调度别人）\"\"\"\n    ...", "ans": "async def async_sum(nums):\n    total = 0\n    for n in nums:\n        await asyncio.sleep(0)\n        total += n\n    return total", "tind": "        assert await _fn([1, 2, 3]) == 6, f\"实际 {await _fn([1, 2, 3])!r}\"\n        assert await _fn([]) == 0\n        assert await _fn([5]) == 5", "snip": null, "ex": "例：`await async_sum([1, 2, 3])` → `6`；每加完一个数让出一次控制权（空列表 → `0`）"}, {"n": 10, "cat": "E", "name": "pipeline", "task": "异步管道：`async def pipeline(x)` ——先 `await double(x)`，结果再 `await inc(...)`（判分环境已预置 double/inc）", "starter": "async def pipeline(x):\n    \"\"\"先 await double(x)，结果再交给 inc（判分环境已预置这两个协程）\"\"\"\n    ...", "ans": "async def pipeline(x):\n    a = await double(x)\n    return await inc(a)", "tind": "        assert await _fn(3) == 7, f\"double(3)=6 再 inc → 7，实际 {await _fn(3)!r}\"\n        assert await _fn(0) == 1", "snip": null, "ex": "例：`await pipeline(3)` → `7`——先 double(3) 得 6，再对 6 做 inc 得 7"}, {"n": 11, "cat": "E", "name": "resilient", "task": "弹性调用：`async def resilient(factories)` ——按顺序尝试每个工厂，await 抛异常就跳到下一个；任何一个成功返回其结果，全部失败返回 `None`", "starter": "async def resilient(factories):\n    \"\"\"按顺序尝试每个工厂，谁成功返回谁的结果；全部失败返回 None\"\"\"\n    ...  # 循环结束 return None", "ans": "async def resilient(factories):\n    for f in factories:\n        try:\n            return await f()\n        except Exception:\n            continue\n    return None", "tind": "        async def _bad():\n            raise ValueError(\"x\")\n        _r = await _fn([_bad, lambda: slow_ok(\"b\", 0)])\n        assert _r == \"ok-b\", f\"第一个失败应落到第二个，实际 {_r!r}\"\n        assert await _fn([_bad]) is None, \"全部失败返回 None\"\n        assert await _fn([]) is None", "snip": null, "ex": "例：第一个工厂炸 → 自动落到第二个并返回其结果；全部炸（或列表为空）→ `None`"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 const LS_KEY = 'lesson-0008-drill-progress-v3';
@@ -577,13 +645,26 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
     }
   });
   const done = prog.solved.length;
@@ -607,6 +688,7 @@ async function ensurePy() {
       rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -624,11 +706,23 @@ async function ensurePy() {
 async function check(n) {
   const codeVal = codeEl(n).value;
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _res = {"ok": False, "msg": ""}
 _lenv = dict(_G)
@@ -649,18 +743,18 @@ ${ex.tind}
 _json.dumps(_res)`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 全部断言通过';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + msg;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => codeEl(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
   if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
   rt.textContent = '批量检查中…';
   let pass = 0;
@@ -676,13 +770,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填代码？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -752,7 +847,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -809,6 +904,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -847,6 +943,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -854,6 +951,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -861,7 +959,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -890,6 +990,91 @@ refreshUI();
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';

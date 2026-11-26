@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -297,6 +352,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 #wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
 #wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
 @media print { #wb-quicknav { display: none; } }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -322,14 +390,14 @@ def call(prompt: str, temperature: float = 0.7) -> ChatModel:
 
 <h2>二、完整签名：五样构件</h2>
 
-<table>
+<div class="table-scroll"><table>
 <tr><th>构件</th><th>语法</th><th>Java 对应</th><th>用途</th></tr>
 <tr><td>默认参数</td><td><code>def f(x, n=3)</code></td><td>重载</td><td>参数可选</td></tr>
 <tr><td>关键字传参</td><td><code>f(data, n=5)</code></td><td>无（Java 按位置）</td><td>调用处自文档化</td></tr>
 <tr><td>仅关键字参数</td><td><code>def f(x, *, n=3)</code></td><td>无</td><td>强制调用可读性（<code>*</code> 之后的参数必须写名字）</td></tr>
 <tr><td>可变位置参数</td><td><code>def f(*args)</code></td><td>varargs <code>T...</code></td><td>接收任意多个位置参数（元组）</td></tr>
 <tr><td>可变关键字参数</td><td><code>def f(**kwargs)</code></td><td>无</td><td>接收任意多个具名参数（dict）</td></tr>
-</table>
+</table></div>
 
 <p><strong>重点坑：可变默认参数。</strong>默认值在<strong>函数定义时创建一次</strong>，不是每次调用时新建——所以 <code>def add(item, items=[])</code> 里所有调用<strong>共享同一个列表</strong>。正确写法用哨兵值：</p>
 
@@ -567,6 +635,13 @@ else:
     var opts = quiz.querySelectorAll(".quiz-opt");
     var explain = quiz.querySelector(".quiz-explain");
     var done = false;
+    quiz.setAttribute("role", "radiogroup");
+    var qEl = quiz.querySelector(".quiz-q");
+    if (qEl && !quiz.getAttribute("aria-labelledby")) {
+      if (!qEl.id) qEl.id = "quizq-" + (Math.random() * 1e9 | 0);
+      quiz.setAttribute("aria-labelledby", qEl.id);
+    }
+    opts.forEach(function (b) { b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); });
     opts.forEach(function (btn) {
       btn.addEventListener("click", function () {
         if (done) return;
@@ -578,9 +653,18 @@ else:
         });
         if (key !== answer) btn.classList.add("is-wrong");
         if (explain) explain.hidden = false;
+        opts.forEach(function (b) { b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+        var liveEl = quiz.querySelector(".quiz-live");
+        if (liveEl) liveEl.textContent = (key === answer ? "回答正确。" : "回答错误，正确答案是 " + answer + "。") +
+          (explain ? explain.textContent : "");
         quiz.dispatchEvent(new CustomEvent("quiz:answered", {
           bubbles: true, detail: { correct: key === answer }
         }));
+        if (window.WBProgress) {
+          var allQ = document.querySelectorAll(".quiz");
+          WBProgress.mark({ kind: "quiz", unit: "q" + (Array.prototype.indexOf.call(allQ, quiz) + 1),
+                            total: allQ.length, passed: key === answer });
+        }
       });
     });
   }
@@ -611,6 +695,7 @@ else:
     return new Promise(function (resolve, reject) {
       var s = document.createElement("script");
       s.src = src;
+      s.integrity = "sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6"; s.crossOrigin = "anonymous";
       s.onload = resolve;
       s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
       document.head.appendChild(s);
@@ -621,7 +706,7 @@ else:
     if (!pyodidePromise) {
       pyodidePromise = loadScript(PYODIDE_URL).then(function () {
         return window.loadPyodide({ indexURL: PYODIDE_INDEX });
-      });
+      }).catch(function (e) { pyodidePromise = null; throw e; });
     }
     return pyodidePromise;
   }
@@ -648,14 +733,18 @@ else:
     });
 
     resetBtn && resetBtn.addEventListener("click", function () {
+      if (editor.value === starter) { status.textContent = "当前已是初始代码"; return; }
+      if (!confirm("重置为初始代码？当前修改将被覆盖（可先按 Ctrl/Cmd+S 保存）。")) return;
       editor.value = starter;
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof editor.__wbClearCode === 'function') editor.__wbClearCode();
       out.hidden = true;
       status.textContent = "已重置为初始代码";
     });
 
     runBtn.addEventListener("click", function () {
       runBtn.disabled = true;
-      status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      status.setAttribute('aria-live','polite'); status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
       out.hidden = false;
       out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
 
@@ -698,13 +787,28 @@ else:
         if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
         out.innerHTML = html;
         status.textContent = "运行完成";
+        var _t = stdoutLines.filter(function (l) { return l.indexOf("TEST|") === 0; });
+        var _m = stdoutLines.some(function (l) { return l.indexOf("MISSING|") === 0; });
+        var _all = _t.length > 0 && !_m && _t.every(function (l) {
+          try { return JSON.parse(l.slice(5)).ok === true; } catch (e) { return false; }
+        });
+        if (window.WBProgress) WBProgress.mark({ kind: 'pylab', passed: _all });
       }).catch(function (err) {
         var msg = (err && (err.message || String(err))) || "未知错误";
         out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
           (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
             ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
             : '');
-        status.textContent = "运行出错";
+        status.setAttribute('aria-live','assertive'); status.textContent = "运行出错";
+        var retry = out.querySelector('button.wb-retry');
+        if (!retry) {
+          retry = document.createElement('button');
+          retry.type = 'button'; retry.className = 'py-lab-btn ghost wb-retry';
+          retry.textContent = '重试加载 Python 运行时';
+          retry.addEventListener('click', function () { runBtn.click(); });
+          out.appendChild(retry);
+        }
+        retry.disabled = false;
       }).finally(function () {
         runBtn.disabled = false;
       });
@@ -746,6 +850,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
       loading = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
         s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
         document.head.appendChild(s);
         s.onload = function () {
           loadPyodide().then(function (py) {
@@ -767,7 +872,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
         '_res = {"ok": False, "msg": ""}\n' +
         'try:\n' +
         '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
-        'except Exception as _e:\n' +
+        'except BaseException as _e:\n' +
         '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
         'else:\n' +
         '    try:\n' +
@@ -806,8 +911,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
     var ta = el.querySelector('.review-code');
     var st = el.querySelector('.review-status');
     var v = ta.value.trim();
-    if (!v) { st.className = 'review-status info'; st.textContent = '先凭记忆写出来，再点检查'; return; }
-    st.className = 'review-status info';
+    if (!v) { st.className = 'review-status info'; st.setAttribute('aria-live', 'polite'); st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info'; st.setAttribute('aria-live', 'polite');
     st.textContent = '判分中…';
     ensurePy().then(function (py) {
       return py.runPythonAsync(buildCode(cfg, v));
@@ -815,15 +920,28 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
       var res = JSON.parse(out);
       if (res.ok) {
         st.className = 'review-status pass';
-        st.textContent = '✓ 通过——这道题已进长期记忆';
+        st.setAttribute('aria-live', 'polite');
+        st.textContent = '✓ 通过——明天再来复核一次更稳';
+        if (window.WBSpaced) WBSpaced.pass(id);
+        if (window.WBProgress) WBProgress.mark({ kind: 'review', unit: id, total: window.REVIEW.length, passed: true });
       } else {
         var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-        st.className = 'review-status fail';
+        st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
         st.textContent = '✗ ' + msg;
       }
     }).catch(function (e) {
-      st.className = 'review-status fail';
-      st.textContent = e.message;
+      st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+      st.textContent = '判分失败：' + ((e && e.message) || String(e));
+      var bar = st.parentNode, retry = el.querySelector('.review-retry');
+      if (!retry && bar) {
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.className = 'review-btn ghost review-retry';
+        retry.textContent = '重试加载 Python 运行时';
+        retry.addEventListener('click', function () {
+          var b = el.querySelector('.review-btn'); if (b) b.click();
+        });
+        bar.appendChild(retry);
+      }
     });
   }
 
@@ -910,7 +1028,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -967,6 +1085,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -1005,6 +1124,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -1012,6 +1132,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1019,7 +1140,9 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1048,6 +1171,91 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';

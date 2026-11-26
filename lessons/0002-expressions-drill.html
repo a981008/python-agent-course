@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +372,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-row { display: flex; gap: .5rem; margin-top: .6rem; align-items: center; flex-wrap: wrap; }
 .drill-in { flex: 1 1 18rem; min-width: 12rem; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .85rem; padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 6px; outline: none; }
 .drill-in:focus { border-color: var(--accent); }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; }
@@ -327,13 +382,26 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
 .drill-data { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .5rem .8rem; font-family: "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
 <main>
 <h1>练习场 · 100 题表达式训练</h1>
 <p class="meta">第 2 课配套 · 列表/字典/集合推导 + 生成器 + 切片 + Stream 翻译 · 每题一条表达式，自动判分</p>
-<div class="callout win"><strong>玩法</strong>：每题在输入框里写<strong>一条表达式</strong>，点"检查"用真实 Python 运行时判分（首次需联网加载运行时，约 10-20 秒）。<code>Ctrl/Cmd+Enter</code> 快捷检查。答案可以看，但<strong>看过答案再写对的，记忆效果减半</strong>——尽量先写。进度自动保存（localStorage）。<br><a href="#data-preview">↓ 先看数据一览</a></div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；每题在输入框里写<strong>一条表达式</strong>，点"检查"用真实 Python 运行时判分（首次需联网加载运行时，约 10-20 秒）。<code>Ctrl/Cmd+Enter</code> 快捷检查。答案可以看，但<strong>看过答案再写对的，记忆效果减半</strong>——尽量先写。进度自动保存（localStorage）。<br><a href="#data-preview">↓ 先看数据一览</a></div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>（所有题目共用这份数据，判分时页面里已预置同名变量）：
 <pre><code>class Order:          # 数据类（@dataclass），字段直接访问，不用 getter
@@ -427,11 +495,14 @@ sentence = &#x27;the quick brown fox jumps over the lazy dog near the river&#x27
   <pre class="drill-ansbox" hidden></pre>
 </div>
 <div class="drill" id="d-6" data-n="6" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#006</span><div class="drill-task">生成 1 到 10（含 10）的列表（提示 range）</div></div>
-  <div class="drill-ex">例（示意数据，判分用页面预置的真实数据）：表达式应得 <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code></div>
+  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">要生成 <code>[1, 2, ..., 10]</code>（含 10），正确的 <code>range</code> 写法是？</div></div>
+  <div class="drill-ex">例：<code>list(range(1, 11))</code> → <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>range(10)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>range(1, 10)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>range(1, 11)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>range(0, 10, 1)</code></span></label>
+  </div>
   <div class="drill-row">
-  <pre class="drill-data" aria-label="本题数据">（本题不依赖共享数据，只用内置 range）</pre>
-      <input class="drill-in" type="text" spellcheck="false" autocomplete="off" placeholder="写一条表达式…">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
     <span class="drill-status"></span>
@@ -1193,11 +1264,14 @@ sentence = &#x27;the quick brown fox jumps over the lazy dog near the river&#x27
   <pre class="drill-ansbox" hidden></pre>
 </div>
 <div class="drill" id="d-60" data-n="60" data-cat="E">
-  <div class="drill-head"><span class="drill-no">#060</span><div class="drill-task"><code>sentence</code> 的词 → {词: 长度}</div></div>
-  <div class="drill-ex">例（示意数据，判分用页面预置的真实数据）：若 <code>sentence = 'the quick fox jumps; the end'</code>，表达式应得 <code>{'the': 3, 'quick': 5, 'fox': 3, 'jumps;': 6, 'end': 3}</code></div>
+  <div class="drill-head"><span class="drill-no">#60</span><div class="drill-task">两道题都产出 <code>{词: 长度}</code>：#47 用 <code>words</code>，本题用 <code>sentence</code>。哪个写法<strong>正确对应本题</strong>？</div></div>
+  <div class="drill-ex">例：<code>sentence = "the cat sat"</code> → <code>{"the": 3, "cat": 3, "sat": 3}</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-60" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>{w: len(w) for w in words}</code>（这是 #47 的写法）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-60" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>{w: len(w) for w in sentence.split()}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-60" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>{w: len(sentence) for w in sentence}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-60" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>{w: len(w) for w in sentence}</code>（按字符迭代）</span></label>
+  </div>
   <div class="drill-row">
-  <pre class="drill-data" aria-label="本题数据">sentence = &#x27;the quick brown fox jumps over the lazy dog near the river&#x27;</pre>
-      <input class="drill-in" type="text" spellcheck="false" autocomplete="off" placeholder="写一条表达式…">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
     <span class="drill-status"></span>
@@ -1472,11 +1546,14 @@ sentence = &#x27;the quick brown fox jumps over the lazy dog near the river&#x27
   <pre class="drill-ansbox" hidden></pre>
 </div>
 <div class="drill" id="d-80" data-n="80" data-cat="H">
-  <div class="drill-head"><span class="drill-no">#080</span><div class="drill-task"><code>nums</code> 反转</div></div>
-  <div class="drill-ex">例（示意数据，判分用页面预置的真实数据）：若 <code>nums = [2, 5, 8]</code>，表达式应得 <code>[8, 5, 2]</code></div>
+  <div class="drill-head"><span class="drill-no">#80</span><div class="drill-task">要反转一个序列，<code>[::-1]</code> 与 <code>reversed()</code> 都常见。下面说法正确的是？</div></div>
+  <div class="drill-ex">例：<code>nums = [1,2,3]</code> → <code>nums[::-1]</code> 是 <code>[3,2,1]</code>，<code>nums</code> 本身仍是 <code>[1,2,3]</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-80" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>nums[::-1]</code> 返回新列表，元素顺序完全颠倒</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-80" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>nums[::-1]</code> 会原地修改 <code>nums</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-80" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>reversed(nums)</code> 直接返回反转后的列表</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-80" value="3"><span class="opt-letter">D</span><span class="opt-text">字符串不支持 <code>[::-1]</code>，只有列表能用</span></label>
+  </div>
   <div class="drill-row">
-  <pre class="drill-data" aria-label="本题数据">nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 0, -2, 8, 15, 7, 4]</pre>
-      <input class="drill-in" type="text" spellcheck="false" autocomplete="off" placeholder="写一条表达式…">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
     <span class="drill-status"></span>
@@ -1484,11 +1561,14 @@ sentence = &#x27;the quick brown fox jumps over the lazy dog near the river&#x27
   <pre class="drill-ansbox" hidden></pre>
 </div>
 <div class="drill" id="d-81" data-n="81" data-cat="H">
-  <div class="drill-head"><span class="drill-no">#081</span><div class="drill-task"><code>nums</code> 隔一个取一个</div></div>
-  <div class="drill-ex">例（示意数据，判分用页面预置的真实数据）：若 <code>nums = [2, 5, 8]</code>，表达式应得 <code>[2, 8]</code></div>
+  <div class="drill-head"><span class="drill-no">#81</span><div class="drill-task">要每隔一个取一个元素（下标 0、2、4…），正确的切片写法是？</div></div>
+  <div class="drill-ex">例：<code>nums = [0,1,2,3,4]</code> → <code>nums[::2]</code> 是 <code>[0,2,4]</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-81" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>nums[1::2]</code>（取下标 1、3、5…）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-81" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>nums[::2]</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-81" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>nums[2:]</code>（从下标 2 开始全取）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-81" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>nums[::3]</code>（每隔两个取一个）</span></label>
+  </div>
   <div class="drill-row">
-  <pre class="drill-data" aria-label="本题数据">nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 0, -2, 8, 15, 7, 4]</pre>
-      <input class="drill-in" type="text" spellcheck="false" autocomplete="off" placeholder="写一条表达式…">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
     <span class="drill-status"></span>
@@ -1867,7 +1947,7 @@ sentence = "the quick brown fox jumps over the lazy dog near the river"
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "task": "把 `nums` 里每个元素乘 2", "ans": "[x * 2 for x in nums]", "exp": "[6, 2, 8, 2, 10, 18, 4, 12, 10, 6, 0, -4, 16, 30, 14, 8]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[4, 10, 16]`"}, {"n": 2, "cat": "A", "task": "求 `nums` 里每个元素的平方", "ans": "[x * x for x in nums]", "exp": "[9, 1, 16, 1, 25, 81, 4, 36, 25, 9, 0, 4, 64, 225, 49, 16]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[4, 25, 64]`"}, {"n": 3, "cat": "A", "task": "把 `words` 全部转成大写", "ans": "[w.upper() for w in words]", "exp": "['PAY', 'ORDER', 'REFUND', 'AGENT', 'TOOL', 'RAG', 'PYTHON', 'MCP', 'MEMORY', 'GRAPH']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['PAY', 'ORDER', 'AGENT']`"}, {"n": 4, "cat": "A", "task": "把 `words` 全部转成小写", "ans": "[w.lower() for w in words]", "exp": "['pay', 'order', 'refund', 'agent', 'tool', 'rag', 'python', 'mcp', 'memory', 'graph']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['pay', 'order', 'agent']`"}, {"n": 5, "cat": "A", "task": "把 `nums` 里每个元素变成字符串", "ans": "[str(x) for x in nums]", "exp": "['3', '1', '4', '1', '5', '9', '2', '6', '5', '3', '0', '-2', '8', '15', '7', '4']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `['2', '5', '8']`"}, {"n": 6, "cat": "A", "task": "生成 1 到 10（含 10）的列表（提示 range）", "ans": "[x for x in range(1, 11)]", "exp": "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", "ex": "例（示意数据，判分用页面预置的真实数据）：表达式应得 `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`"}, {"n": 7, "cat": "A", "task": "把 `nums` 每个元素取负", "ans": "[-x for x in nums]", "exp": "[-3, -1, -4, -1, -5, -9, -2, -6, -5, -3, 0, 2, -8, -15, -7, -4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[-2, -5, -8]`"}, {"n": 8, "cat": "A", "task": "取出 `pairs` 中每个键（解包 k, v）", "ans": "[k for k, v in pairs]", "exp": "['a', 'b', 'c']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `pairs = [('a', 2), ('b', 1)]`，表达式应得 `['a', 'b']`"}, {"n": 9, "cat": "A", "task": "取出 `pairs` 中每个值", "ans": "[v for k, v in pairs]", "exp": "[1, 2, 3]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `pairs = [('a', 2), ('b', 1)]`，表达式应得 `[2, 1]`"}, {"n": 10, "cat": "A", "task": "求 `matrix` 每一行的长度", "ans": "[len(row) for row in matrix]", "exp": "[3, 3, 3]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[3, 3, 3]`"}, {"n": 11, "cat": "A", "task": "`nums` 每个元素加 10", "ans": "[x + 10 for x in nums]", "exp": "[13, 11, 14, 11, 15, 19, 12, 16, 15, 13, 10, 8, 18, 25, 17, 14]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[12, 15, 18]`"}, {"n": 12, "cat": "A", "task": "取出 `prices` 的所有商品名（键）", "ans": "[k for k in prices]", "exp": "['apple', 'milk', 'bread', 'egg', 'tea', 'coffee', 'water', 'cheese']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `['apple', 'milk']`"}, {"n": 13, "cat": "A", "task": "取出 `prices` 的所有价格（值）", "ans": "[v for v in prices.values()]", "exp": "[3.5, 9.9, 6.8, 12.5, 25.0, 15.0, 2.0, 18.5]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `[3.5, 12.0]`"}, {"n": 14, "cat": "A", "task": "取出 `scores` 的所有分数（值）", "ans": "[v for v in scores.values()]", "exp": "[92, 58, 75, 88, 100, 41, 67, 30, 84]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `[92, 40, 67]`"}, {"n": 15, "cat": "B", "task": "`nums` 里的偶数", "ans": "[x for x in nums if x % 2 == 0]", "exp": "[4, 2, 6, 0, -2, 8, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 8]`"}, {"n": 16, "cat": "B", "task": "`nums` 里大于 4 的元素", "ans": "[x for x in nums if x > 4]", "exp": "[5, 9, 6, 5, 8, 15, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[5, 8]`"}, {"n": 17, "cat": "B", "task": "`words` 里长度大于 4 的词", "ans": "[w for w in words if len(w) > 4]", "exp": "['Order', 'refund', 'Agent', 'python', 'Memory', 'Graph']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['Order', 'agent']`"}, {"n": 18, "cat": "B", "task": "`words` 里首字母是大写的词（提示 isupper）", "ans": "[w for w in words if w[0].isupper()]", "exp": "['Order', 'Agent', 'RAG', 'MCP', 'Memory', 'Graph']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['Order']`"}, {"n": 19, "cat": "B", "task": "`orders` 里金额大于 100 的订单号", "ans": "[o.order_id for o in orders if o.amount > 100]", "exp": "['ORD-003', 'ORD-002', 'ORD-005', 'ORD-007', 'ORD-009']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1']`"}, {"n": 20, "cat": "B", "task": "`orders` 里金额 ≥ 150 的金额列表", "ans": "[o.amount for o in orders if o.amount >= 150]", "exp": "[250.0, 150.0, 320.0, 480.0, 150.0]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `[150.0]`"}, {"n": 21, "cat": "B", "task": "`matrix` 每行的第一个元素", "ans": "[row[0] for row in matrix]", "exp": "[1, 4, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 3, 4]`"}, {"n": 22, "cat": "B", "task": "`nums` 里不等于 1 的元素", "ans": "[x for x in nums if x != 1]", "exp": "[3, 4, 5, 9, 2, 6, 5, 3, 0, -2, 8, 15, 7, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 5, 8]`"}, {"n": 23, "cat": "B", "task": "`scores` 里及格（≥60）的人名", "ans": "[k for k, v in scores.items() if v >= 60]", "exp": "['Alice', 'Cara', 'Dan', 'Eve', 'Gina', 'Ivy']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `['Alice', 'Cara']`"}, {"n": 24, "cat": "B", "task": "`sentence` 里长度大于 3 的单词", "ans": "[w for w in sentence.split() if len(w) > 3]", "exp": "['quick', 'brown', 'jumps', 'over', 'lazy', 'near', 'river']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `['quick', 'jumps;']`"}, {"n": 25, "cat": "B", "task": "`nums` 里的奇数", "ans": "[x for x in nums if x % 2 == 1]", "exp": "[3, 1, 1, 5, 9, 5, 3, 15, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[5]`"}, {"n": 26, "cat": "B", "task": "`orders` 里 tags 含 \"vip\" 的订单号", "ans": "[o.order_id for o in orders if \"vip\" in o.tags]", "exp": "['ORD-003', 'ORD-005', 'ORD-007', 'ORD-009']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1']`"}, {"n": 27, "cat": "B", "task": "`text` 里所有非空格字符（列表）", "ans": "[c for c in text if c != \" \"]", "exp": "['H', 'e', 'l', 'l', 'o', ',', 'A', 'g', 'e', 'n', 't', 'W', 'o', 'r', 'l', 'd']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `['G', 'o', ',', 'P', 'y', 't', 'h', 'o', 'n', 'R', 'a', 'p', 'i', 'd']`"}, {"n": 28, "cat": "B", "task": "`prices` 里价格低于 10 的商品名", "ans": "[k for k, v in prices.items() if v < 10]", "exp": "['apple', 'milk', 'bread', 'water']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `['apple']`"}, {"n": 29, "cat": "C", "task": "`nums` 每个元素标成 \"偶\" 或 \"奇\"", "ans": "[\"偶\" if x % 2 == 0 else \"奇\" for x in nums]", "exp": "['奇', '奇', '偶', '奇', '奇', '奇', '偶', '偶', '奇', '奇', '偶', '偶', '偶', '奇', '奇', '偶']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `['偶', '奇', '偶']`"}, {"n": 30, "cat": "C", "task": "`nums` 里 ≥ 5 的变 0，其余不变", "ans": "[0 if x >= 5 else x for x in nums]", "exp": "[3, 1, 4, 1, 0, 0, 2, 0, 0, 3, 0, -2, 0, 0, 0, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 0, 0]`"}, {"n": 31, "cat": "C", "task": "`words` 长度 > 4 的转大写，否则转小写", "ans": "[w.upper() if len(w) > 4 else w.lower() for w in words]", "exp": "['pay', 'ORDER', 'REFUND', 'AGENT', 'tool', 'rag', 'PYTHON', 'mcp', 'MEMORY', 'GRAPH']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['pay', 'ORDER', 'AGENT']`"}, {"n": 32, "cat": "C", "task": "`scores` 的每个分数标 \"及格\"/\"不及格\"", "ans": "[\"及格\" if v >= 60 else \"不及格\" for v in scores.values()]", "exp": "['及格', '不及格', '及格', '及格', '及格', '不及格', '及格', '不及格', '及格']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `['及格', '不及格', '及格']`"}, {"n": 33, "cat": "C", "task": "`nums` 偶数变平方，奇数保持原样", "ans": "[x * x if x % 2 == 0 else x for x in nums]", "exp": "[3, 1, 16, 1, 5, 9, 4, 36, 5, 3, 0, 4, 64, 15, 7, 16]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[4, 5, 64]`"}, {"n": 34, "cat": "C", "task": "`orders` 金额 > 100 给订单号，否则给 \"-\"", "ans": "[o.order_id if o.amount > 100 else \"-\" for o in orders]", "exp": "['ORD-003', '-', 'ORD-002', '-', 'ORD-005', '-', 'ORD-007', '-', 'ORD-009', '-']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1', '-', '-']`"}, {"n": 35, "cat": "C", "task": "`words` 含字母 a（不区分大小写）的转大写，否则原样", "ans": "[w.upper() if \"a\" in w.lower() else w for w in words]", "exp": "['PAY', 'Order', 'refund', 'AGENT', 'tool', 'RAG', 'python', 'MCP', 'Memory', 'GRAPH']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['PAY', 'Order', 'AGENT']`"}, {"n": 36, "cat": "C", "task": "`nums` 每个元素标 \"high\"（>5）或 \"low\"", "ans": "[\"high\" if x > 5 else \"low\" for x in nums]", "exp": "['low', 'low', 'low', 'low', 'low', 'high', 'low', 'high', 'low', 'low', 'low', 'low', 'high', 'high', 'high', 'low']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `['low', 'low', 'high']`"}, {"n": 37, "cat": "D", "task": "把 `matrix` 展平成一维列表", "ans": "[x for row in matrix for x in row]", "exp": "[1, 2, 3, 4, 5, 6, 7, 8, 9]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 0, 1, 3, 1, 2, 4, 6, 5]`"}, {"n": 38, "cat": "D", "task": "`matrix` 每行各元素的平方（仍是二维）", "ans": "[[x * x for x in row] for row in matrix]", "exp": "[[1, 4, 9], [16, 25, 36], [49, 64, 81]]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[[4, 0, 1], [9, 1, 4], [16, 36, 25]]`"}, {"n": 39, "cat": "D", "task": "展平 `matrix`，只保留偶数", "ans": "[x for row in matrix for x in row if x % 2 == 0]", "exp": "[2, 4, 6, 8]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 0, 2, 4, 6]`"}, {"n": 40, "cat": "D", "task": "所有订单的 tags 展平（不去重）", "ans": "[t for o in orders for t in o.tags]", "exp": "['vip', 'paid', 'normal', 'paid', 'mobile', 'paid', 'vip', 'normal', 'mobile', 'vip', 'mobile', 'normal', 'paid', 'vip', 'new']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['vip', 'paid', 'paid', 'new']`"}, {"n": 41, "cat": "D", "task": "所有订单的 tags 展平并去重，保持首次出现顺序（提示 dict.fromkeys）", "ans": "list(dict.fromkeys(t for o in orders for t in o.tags))", "exp": "['vip', 'paid', 'normal', 'mobile', 'new']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['vip', 'paid', 'new']`"}, {"n": 42, "cat": "D", "task": "`words` 每个词的首字母", "ans": "[w[0] for w in words]", "exp": "['p', 'O', 'r', 'A', 't', 'R', 'p', 'M', 'M', 'G']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['p', 'O', 'a']`"}, {"n": 43, "cat": "D", "task": "`matrix` 的转置", "ans": "[[row[i] for row in matrix] for i in range(3)]", "exp": "[[1, 4, 7], [2, 5, 8], [3, 6, 9]]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[[2, 3, 4], [0, 1, 6], [1, 2, 5]]`"}, {"n": 44, "cat": "D", "task": "每个订单的 tag 数量", "ans": "[len(o.tags) for o in orders]", "exp": "[2, 1, 2, 1, 1, 2, 2, 1, 2, 1]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `[2, 1, 1]`"}, {"n": 45, "cat": "D", "task": "`nums` 相邻两数之和（提示 zip(nums, nums[1:])）", "ans": "[x + y for x, y in zip(nums, nums[1:])]", "exp": "[4, 5, 5, 6, 14, 11, 8, 11, 8, 3, -2, 6, 23, 22, 11]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[7, 13]`"}, {"n": 46, "cat": "D", "task": "`matrix` 的对角线元素", "ans": "[matrix[i][i] for i in range(3)]", "exp": "[1, 5, 9]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 1, 5]`"}, {"n": 47, "cat": "E", "task": "`words` → {词: 长度}", "ans": "{w: len(w) for w in words}", "exp": "{'pay': 3, 'Order': 5, 'refund': 6, 'Agent': 5, 'tool': 4, 'RAG': 3, 'python': 6, 'MCP': 3, 'Memory': 6, 'Graph': 5}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'pay': 3, 'Order': 5, 'agent': 5}`"}, {"n": 48, "cat": "E", "task": "`prices` 每个价格翻倍", "ans": "{k: v * 2 for k, v in prices.items()}", "exp": "{'apple': 7.0, 'milk': 19.8, 'bread': 13.6, 'egg': 25.0, 'tea': 50.0, 'coffee': 30.0, 'water': 4.0, 'cheese': 37.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{'apple': 7.0, 'milk': 24.0}`"}, {"n": 49, "cat": "E", "task": "`prices` 只保留价格 < 10 的", "ans": "{k: v for k, v in prices.items() if v < 10}", "exp": "{'apple': 3.5, 'milk': 9.9, 'bread': 6.8, 'water': 2.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{'apple': 3.5}`"}, {"n": 50, "cat": "E", "task": "`scores` 只保留及格（≥60）的", "ans": "{k: v for k, v in scores.items() if v >= 60}", "exp": "{'Alice': 92, 'Cara': 75, 'Dan': 88, 'Eve': 100, 'Gina': 67, 'Ivy': 84}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `{'Alice': 92, 'Cara': 67}`"}, {"n": 51, "cat": "E", "task": "`scores` 键值对调", "ans": "{v: k for k, v in scores.items()}", "exp": "{92: 'Alice', 58: 'Bob', 75: 'Cara', 88: 'Dan', 100: 'Eve', 41: 'Fay', 67: 'Gina', 30: 'Hank', 84: 'Ivy'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `{92: 'Alice', 40: 'Bob', 67: 'Cara'}`"}, {"n": 52, "cat": "E", "task": "`pairs` 转成字典", "ans": "{k: v for k, v in pairs}", "exp": "{'a': 1, 'b': 2, 'c': 3}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `pairs = [('a', 2), ('b', 1)]`，表达式应得 `{'a': 2, 'b': 1}`"}, {"n": 53, "cat": "E", "task": "`orders` → {订单号: 金额}", "ans": "{o.order_id: o.amount for o in orders}", "exp": "{'ORD-003': 250.0, 'ORD-001': 99.9, 'ORD-002': 150.0, 'ORD-004': 100.0, 'ORD-005': 320.0, 'ORD-006': 75.5, 'ORD-007': 480.0, 'ORD-008': 25.0, 'ORD-009': 150.0, 'ORD-010': 0.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': 150.0, 'ORD-2': 60.0, 'ORD-3': 0.0}`"}, {"n": 54, "cat": "E", "task": "`orders` 里金额 > 100 的 → {订单号: 金额}", "ans": "{o.order_id: o.amount for o in orders if o.amount > 100}", "exp": "{'ORD-003': 250.0, 'ORD-002': 150.0, 'ORD-005': 320.0, 'ORD-007': 480.0, 'ORD-009': 150.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': 150.0}`"}, {"n": 55, "cat": "E", "task": "`orders` → {订单号: tag 数}", "ans": "{o.order_id: len(o.tags) for o in orders}", "exp": "{'ORD-003': 2, 'ORD-001': 1, 'ORD-002': 2, 'ORD-004': 1, 'ORD-005': 1, 'ORD-006': 2, 'ORD-007': 2, 'ORD-008': 1, 'ORD-009': 2, 'ORD-010': 1}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': 2, 'ORD-2': 1, 'ORD-3': 1}`"}, {"n": 56, "cat": "E", "task": "`words` → {小写: 原词}", "ans": "{w.lower(): w for w in words}", "exp": "{'pay': 'pay', 'order': 'Order', 'refund': 'refund', 'agent': 'Agent', 'tool': 'tool', 'rag': 'RAG', 'python': 'python', 'mcp': 'MCP', 'memory': 'Memory', 'graph': 'Graph'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'pay': 'pay', 'order': 'Order', 'agent': 'agent'}`"}, {"n": 57, "cat": "E", "task": "`prices` → {商品: \"贵\"（≥10）或 \"便宜\"}", "ans": "{k: \"贵\" if v >= 10 else \"便宜\" for k, v in prices.items()}", "exp": "{'apple': '便宜', 'milk': '便宜', 'bread': '便宜', 'egg': '贵', 'tea': '贵', 'coffee': '贵', 'water': '便宜', 'cheese': '贵'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{'apple': '便宜', 'milk': '贵'}`"}, {"n": 58, "cat": "E", "task": "`words` → {下标: 词}（提示 enumerate）", "ans": "{i: w for i, w in enumerate(words)}", "exp": "{0: 'pay', 1: 'Order', 2: 'refund', 3: 'Agent', 4: 'tool', 5: 'RAG', 6: 'python', 7: 'MCP', 8: 'Memory', 9: 'Graph'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{0: 'pay', 1: 'Order', 2: 'agent'}`"}, {"n": 59, "cat": "E", "task": "`words` → {词: 出现次数}", "ans": "{w: words.count(w) for w in words}", "exp": "{'pay': 1, 'Order': 1, 'refund': 1, 'Agent': 1, 'tool': 1, 'RAG': 1, 'python': 1, 'MCP': 1, 'Memory': 1, 'Graph': 1}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'pay': 1, 'Order': 1, 'agent': 1}`"}, {"n": 60, "cat": "E", "task": "`sentence` 的词 → {词: 长度}", "ans": "{w: len(w) for w in sentence.split()}", "exp": "{'the': 3, 'quick': 5, 'brown': 5, 'fox': 3, 'jumps': 5, 'over': 4, 'lazy': 4, 'dog': 3, 'near': 4, 'river': 5}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `{'the': 3, 'quick': 5, 'fox': 3, 'jumps;': 6, 'end': 3}`"}, {"n": 61, "cat": "F", "task": "`nums` 去重（集合）", "ans": "{x for x in nums}", "exp": "{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 15, -2}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `{8, 2, 5}`"}, {"n": 62, "cat": "F", "task": "`words` 首字母的集合", "ans": "{w[0] for w in words}", "exp": "{'r', 'M', 'O', 'A', 'R', 'p', 't', 'G'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'p', 'a', 'O'}`"}, {"n": 63, "cat": "F", "task": "所有订单 tags 的集合", "ans": "{t for o in orders for t in o.tags}", "exp": "{'vip', 'mobile', 'paid', 'normal', 'new'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'new', 'paid', 'vip'}`"}, {"n": 64, "cat": "F", "task": "`matrix` 所有元素平方的集合", "ans": "{x * x for row in matrix for x in row}", "exp": "{64, 1, 4, 36, 9, 16, 49, 81, 25}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `{0, 1, 4, 36, 9, 16, 25}`"}, {"n": 65, "cat": "F", "task": "`scores` 及格者名字的集合", "ans": "{k for k, v in scores.items() if v >= 60}", "exp": "{'Gina', 'Eve', 'Alice', 'Cara', 'Ivy', 'Dan'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `{'Cara', 'Alice'}`"}, {"n": 66, "cat": "F", "task": "`sentence` 各词首字母的集合", "ans": "{w[0] for w in sentence.split()}", "exp": "{'o', 'j', 'f', 'l', 'r', 'd', 'q', 'b', 'n', 't'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `{'f', 't', 'j', 'e', 'q'}`"}, {"n": 67, "cat": "F", "task": "`nums` 偶数集合", "ans": "{x for x in nums if x % 2 == 0}", "exp": "{0, 2, 4, 6, 8, -2}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `{8, 2}`"}, {"n": 68, "cat": "F", "task": "`prices` 价格取整后的集合", "ans": "{int(v) for v in prices.values()}", "exp": "{2, 3, 6, 9, 12, 15, 18, 25}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{3, 12}`"}, {"n": 69, "cat": "G", "task": "`nums` 每个元素乘 2 后的总和", "ans": "sum(x * 2 for x in nums)", "exp": "142", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `30`"}, {"n": 70, "cat": "G", "task": "`nums` 平方和", "ans": "sum(x * x for x in nums)", "exp": "565", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `93`"}, {"n": 71, "cat": "G", "task": "`orders` 总金额", "ans": "sum(o.amount for o in orders)", "exp": "1650.4", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `210.0`"}, {"n": 72, "cat": "G", "task": "金额 > 100 的订单数", "ans": "sum(1 for o in orders if o.amount > 100)", "exp": "5", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `1`"}, {"n": 73, "cat": "G", "task": "`words` 里最长词的长度", "ans": "max(len(w) for w in words)", "exp": "6", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `5`"}, {"n": 74, "cat": "G", "task": "`nums` 的最大值（生成器写法）", "ans": "max(x for x in nums)", "exp": "15", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `8`"}, {"n": 75, "cat": "G", "task": "`nums` 是否存在偶数", "ans": "any(x % 2 == 0 for x in nums)", "exp": "True", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `True`"}, {"n": 76, "cat": "G", "task": "`scores` 是否全部及格", "ans": "all(v >= 60 for v in scores.values())", "exp": "False", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `False`"}, {"n": 77, "cat": "G", "task": "`matrix` 所有元素之和", "ans": "sum(x for row in matrix for x in row)", "exp": "45", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `24`"}, {"n": 78, "cat": "G", "task": "及格人数", "ans": "sum(1 for v in scores.values() if v >= 60)", "exp": "6", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `2`"}, {"n": 79, "cat": "H", "task": "`nums` 前 3 个", "ans": "nums[:3]", "exp": "[3, 1, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 5, 8]`"}, {"n": 80, "cat": "H", "task": "`nums` 反转", "ans": "nums[::-1]", "exp": "[4, 7, 15, 8, -2, 0, 3, 5, 6, 2, 9, 5, 1, 4, 1, 3]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[8, 5, 2]`"}, {"n": 81, "cat": "H", "task": "`nums` 隔一个取一个", "ans": "nums[::2]", "exp": "[3, 4, 5, 2, 5, 0, 8, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 8]`"}, {"n": 82, "cat": "H", "task": "`text` 前 5 个字符", "ans": "text[:5]", "exp": "'Hello'", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `'Go, P'`"}, {"n": 83, "cat": "H", "task": "`text` 按空白切分成词列表", "ans": "text.split()", "exp": "['Hello,', 'Agent', 'World']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `['Go,', 'Python', 'Rapid']`"}, {"n": 84, "cat": "H", "task": "`text` 转大写", "ans": "text.upper()", "exp": "'HELLO, AGENT WORLD'", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `'GO, PYTHON RAPID'`"}, {"n": 85, "cat": "H", "task": "`text` 每个词的首字母（列表）", "ans": "[w[0] for w in text.split()]", "exp": "['H', 'A', 'W']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `['G', 'P', 'R']`"}, {"n": 86, "cat": "H", "task": "`sentence` 里 \"the\" 出现的次数（用推导数）", "ans": "len([w for w in sentence.split() if w == \"the\"])", "exp": "3", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `2`"}, {"n": 87, "cat": "H", "task": "`words` 按长度升序排序", "ans": "sorted(words, key=len)", "exp": "['pay', 'RAG', 'MCP', 'tool', 'Order', 'Agent', 'Graph', 'refund', 'python', 'Memory']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['pay', 'Order', 'agent']`"}, {"n": 88, "cat": "H", "task": "`nums` 降序排序", "ans": "sorted(nums, reverse=True)", "exp": "[15, 9, 8, 7, 6, 5, 5, 4, 4, 3, 3, 2, 1, 1, 0, -2]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[8, 5, 2]`"}, {"n": 89, "cat": "I", "task": "金额 > 100 的订单号，升序排列（filter+map+sorted）", "ans": "sorted(o.order_id for o in orders if o.amount > 100)", "exp": "['ORD-002', 'ORD-003', 'ORD-005', 'ORD-007', 'ORD-009']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1']`"}, {"n": 90, "cat": "I", "task": "金额 < 100 的 → {订单号: 金额}（Collectors.toMap）", "ans": "{o.order_id: o.amount for o in orders if o.amount < 100}", "exp": "{'ORD-001': 99.9, 'ORD-006': 75.5, 'ORD-008': 25.0, 'ORD-010': 0.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-2': 60.0, 'ORD-3': 0.0}`"}, {"n": 91, "cat": "I", "task": "`words` → [(词, 长度)] 元组列表", "ans": "[(w, len(w)) for w in words]", "exp": "[('pay', 3), ('Order', 5), ('refund', 6), ('Agent', 5), ('tool', 4), ('RAG', 3), ('python', 6), ('MCP', 3), ('Memory', 6), ('Graph', 5)]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `[('pay', 3), ('Order', 5), ('agent', 5)]`"}, {"n": 92, "cat": "I", "task": "价格 ≥ 10 的商品数", "ans": "sum(1 for v in prices.values() if v >= 10)", "exp": "4", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `1`"}, {"n": 93, "cat": "I", "task": "所有订单 tags 的大写形式集合（flatMap+map）", "ans": "{t.upper() for o in orders for t in o.tags}", "exp": "{'MOBILE', 'VIP', 'PAID', 'NEW', 'NORMAL'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'NEW', 'VIP', 'PAID'}`"}, {"n": 94, "cat": "I", "task": "tags 含 \"paid\" 的订单总金额", "ans": "sum(o.amount for o in orders if \"paid\" in o.tags)", "exp": "650.0", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `210.0`"}, {"n": 95, "cat": "I", "task": "`words` 用逗号连成一个字符串", "ans": "\",\".join(words)", "exp": "'pay,Order,refund,Agent,tool,RAG,python,MCP,Memory,Graph'", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `'pay,Order,agent'`"}, {"n": 96, "cat": "I", "task": "`orders` → [\"ORD-003: 250.0\", ...]（f-string）", "ans": "[f\"{o.order_id}: {o.amount}\" for o in orders]", "exp": "['ORD-003: 250.0', 'ORD-001: 99.9', 'ORD-002: 150.0', 'ORD-004: 100.0', 'ORD-005: 320.0', 'ORD-006: 75.5', 'ORD-007: 480.0', 'ORD-008: 25.0', 'ORD-009: 150.0', 'ORD-010: 0.0']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1: 150.0', 'ORD-2: 60.0', 'ORD-3: 0.0']`"}, {"n": 97, "cat": "I", "task": "按金额降序取前 2 的订单号（sorted + lambda + 切片）", "ans": "[o.order_id for o in sorted(orders, key=lambda o: o.amount, reverse=True)[:2]]", "exp": "['ORD-007', 'ORD-005']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1', 'ORD-2']`"}, {"n": 98, "cat": "I", "task": "`orders` → {订单号: 排好序的 tags 列表}", "ans": "{o.order_id: sorted(o.tags) for o in orders}", "exp": "{'ORD-003': ['paid', 'vip'], 'ORD-001': ['normal'], 'ORD-002': ['mobile', 'paid'], 'ORD-004': ['paid'], 'ORD-005': ['vip'], 'ORD-006': ['mobile', 'normal'], 'ORD-007': ['mobile', 'vip'], 'ORD-008': ['normal'], 'ORD-009': ['paid', 'vip'], 'ORD-010': ['new']}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': ['paid', 'vip'], 'ORD-2': ['paid'], 'ORD-3': ['new']}`"}, {"n": 99, "cat": "I", "task": "`orders` 每单标 \"VIP\"（含 vip）/ \"PAID\"（含 paid）/ \"OTHER\"（嵌套条件）", "ans": "[\"VIP\" if \"vip\" in o.tags else \"PAID\" if \"paid\" in o.tags else \"OTHER\" for o in orders]", "exp": "['VIP', 'OTHER', 'PAID', 'PAID', 'VIP', 'OTHER', 'VIP', 'OTHER', 'VIP', 'OTHER']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['VIP', 'PAID', 'OTHER']`"}, {"n": 100, "cat": "I", "task": "金额 > 100 订单的 tag 总数", "ans": "sum(len(o.tags) for o in orders if o.amount > 100)", "exp": "9", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `2`"}];
+const EX = [{"n": 1, "cat": "A", "task": "把 `nums` 里每个元素乘 2", "ans": "[x * 2 for x in nums]", "exp": "[6, 2, 8, 2, 10, 18, 4, 12, 10, 6, 0, -4, 16, 30, 14, 8]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[4, 10, 16]`"}, {"n": 2, "cat": "A", "task": "求 `nums` 里每个元素的平方", "ans": "[x * x for x in nums]", "exp": "[9, 1, 16, 1, 25, 81, 4, 36, 25, 9, 0, 4, 64, 225, 49, 16]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[4, 25, 64]`"}, {"n": 3, "cat": "A", "task": "把 `words` 全部转成大写", "ans": "[w.upper() for w in words]", "exp": "['PAY', 'ORDER', 'REFUND', 'AGENT', 'TOOL', 'RAG', 'PYTHON', 'MCP', 'MEMORY', 'GRAPH']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['PAY', 'ORDER', 'AGENT']`"}, {"n": 4, "cat": "A", "task": "把 `words` 全部转成小写", "ans": "[w.lower() for w in words]", "exp": "['pay', 'order', 'refund', 'agent', 'tool', 'rag', 'python', 'mcp', 'memory', 'graph']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['pay', 'order', 'agent']`"}, {"n": 5, "cat": "A", "task": "把 `nums` 里每个元素变成字符串", "ans": "[str(x) for x in nums]", "exp": "['3', '1', '4', '1', '5', '9', '2', '6', '5', '3', '0', '-2', '8', '15', '7', '4']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `['2', '5', '8']`"}, {"n": 6, "cat": "A", "name": "range_endpoint", "type": "mc", "task": "要生成 `[1, 2, ..., 10]`（含 10），正确的 `range` 写法是？", "options": ["`range(10)`", "`range(1, 10)`", "`range(1, 11)`", "`range(0, 10, 1)`"], "correct": 2, "explain": "`range` 是左闭右开区间，右端点要写 11 才包含 10。A 得到 `0..9`，B 得到 `1..9`，D 与 A 等价。", "ex": "例：`list(range(1, 11))` → `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`"}, {"n": 7, "cat": "A", "task": "把 `nums` 每个元素取负", "ans": "[-x for x in nums]", "exp": "[-3, -1, -4, -1, -5, -9, -2, -6, -5, -3, 0, 2, -8, -15, -7, -4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[-2, -5, -8]`"}, {"n": 8, "cat": "A", "task": "取出 `pairs` 中每个键（解包 k, v）", "ans": "[k for k, v in pairs]", "exp": "['a', 'b', 'c']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `pairs = [('a', 2), ('b', 1)]`，表达式应得 `['a', 'b']`"}, {"n": 9, "cat": "A", "task": "取出 `pairs` 中每个值", "ans": "[v for k, v in pairs]", "exp": "[1, 2, 3]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `pairs = [('a', 2), ('b', 1)]`，表达式应得 `[2, 1]`"}, {"n": 10, "cat": "A", "task": "求 `matrix` 每一行的长度", "ans": "[len(row) for row in matrix]", "exp": "[3, 3, 3]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[3, 3, 3]`"}, {"n": 11, "cat": "A", "task": "`nums` 每个元素加 10", "ans": "[x + 10 for x in nums]", "exp": "[13, 11, 14, 11, 15, 19, 12, 16, 15, 13, 10, 8, 18, 25, 17, 14]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[12, 15, 18]`"}, {"n": 12, "cat": "A", "task": "取出 `prices` 的所有商品名（键）", "ans": "[k for k in prices]", "exp": "['apple', 'milk', 'bread', 'egg', 'tea', 'coffee', 'water', 'cheese']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `['apple', 'milk']`"}, {"n": 13, "cat": "A", "task": "取出 `prices` 的所有价格（值）", "ans": "[v for v in prices.values()]", "exp": "[3.5, 9.9, 6.8, 12.5, 25.0, 15.0, 2.0, 18.5]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `[3.5, 12.0]`"}, {"n": 14, "cat": "A", "task": "取出 `scores` 的所有分数（值）", "ans": "[v for v in scores.values()]", "exp": "[92, 58, 75, 88, 100, 41, 67, 30, 84]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `[92, 40, 67]`"}, {"n": 15, "cat": "B", "task": "`nums` 里的偶数", "ans": "[x for x in nums if x % 2 == 0]", "exp": "[4, 2, 6, 0, -2, 8, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 8]`"}, {"n": 16, "cat": "B", "task": "`nums` 里大于 4 的元素", "ans": "[x for x in nums if x > 4]", "exp": "[5, 9, 6, 5, 8, 15, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[5, 8]`"}, {"n": 17, "cat": "B", "task": "`words` 里长度大于 4 的词", "ans": "[w for w in words if len(w) > 4]", "exp": "['Order', 'refund', 'Agent', 'python', 'Memory', 'Graph']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['Order', 'agent']`"}, {"n": 18, "cat": "B", "task": "`words` 里首字母是大写的词（提示 isupper）", "ans": "[w for w in words if w[0].isupper()]", "exp": "['Order', 'Agent', 'RAG', 'MCP', 'Memory', 'Graph']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['Order']`"}, {"n": 19, "cat": "B", "task": "`orders` 里金额大于 100 的订单号", "ans": "[o.order_id for o in orders if o.amount > 100]", "exp": "['ORD-003', 'ORD-002', 'ORD-005', 'ORD-007', 'ORD-009']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1']`"}, {"n": 20, "cat": "B", "task": "`orders` 里金额 ≥ 150 的金额列表", "ans": "[o.amount for o in orders if o.amount >= 150]", "exp": "[250.0, 150.0, 320.0, 480.0, 150.0]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `[150.0]`"}, {"n": 21, "cat": "B", "task": "`matrix` 每行的第一个元素", "ans": "[row[0] for row in matrix]", "exp": "[1, 4, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 3, 4]`"}, {"n": 22, "cat": "B", "task": "`nums` 里不等于 1 的元素", "ans": "[x for x in nums if x != 1]", "exp": "[3, 4, 5, 9, 2, 6, 5, 3, 0, -2, 8, 15, 7, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 5, 8]`"}, {"n": 23, "cat": "B", "task": "`scores` 里及格（≥60）的人名", "ans": "[k for k, v in scores.items() if v >= 60]", "exp": "['Alice', 'Cara', 'Dan', 'Eve', 'Gina', 'Ivy']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `['Alice', 'Cara']`"}, {"n": 24, "cat": "B", "task": "`sentence` 里长度大于 3 的单词", "ans": "[w for w in sentence.split() if len(w) > 3]", "exp": "['quick', 'brown', 'jumps', 'over', 'lazy', 'near', 'river']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `['quick', 'jumps;']`"}, {"n": 25, "cat": "B", "task": "`nums` 里的奇数", "ans": "[x for x in nums if x % 2 == 1]", "exp": "[3, 1, 1, 5, 9, 5, 3, 15, 7]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[5]`"}, {"n": 26, "cat": "B", "task": "`orders` 里 tags 含 \"vip\" 的订单号", "ans": "[o.order_id for o in orders if \"vip\" in o.tags]", "exp": "['ORD-003', 'ORD-005', 'ORD-007', 'ORD-009']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1']`"}, {"n": 27, "cat": "B", "task": "`text` 里所有非空格字符（列表）", "ans": "[c for c in text if c != \" \"]", "exp": "['H', 'e', 'l', 'l', 'o', ',', 'A', 'g', 'e', 'n', 't', 'W', 'o', 'r', 'l', 'd']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `['G', 'o', ',', 'P', 'y', 't', 'h', 'o', 'n', 'R', 'a', 'p', 'i', 'd']`"}, {"n": 28, "cat": "B", "task": "`prices` 里价格低于 10 的商品名", "ans": "[k for k, v in prices.items() if v < 10]", "exp": "['apple', 'milk', 'bread', 'water']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `['apple']`"}, {"n": 29, "cat": "C", "task": "`nums` 每个元素标成 \"偶\" 或 \"奇\"", "ans": "[\"偶\" if x % 2 == 0 else \"奇\" for x in nums]", "exp": "['奇', '奇', '偶', '奇', '奇', '奇', '偶', '偶', '奇', '奇', '偶', '偶', '偶', '奇', '奇', '偶']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `['偶', '奇', '偶']`"}, {"n": 30, "cat": "C", "task": "`nums` 里 ≥ 5 的变 0，其余不变", "ans": "[0 if x >= 5 else x for x in nums]", "exp": "[3, 1, 4, 1, 0, 0, 2, 0, 0, 3, 0, -2, 0, 0, 0, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 0, 0]`"}, {"n": 31, "cat": "C", "task": "`words` 长度 > 4 的转大写，否则转小写", "ans": "[w.upper() if len(w) > 4 else w.lower() for w in words]", "exp": "['pay', 'ORDER', 'REFUND', 'AGENT', 'tool', 'rag', 'PYTHON', 'mcp', 'MEMORY', 'GRAPH']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['pay', 'ORDER', 'AGENT']`"}, {"n": 32, "cat": "C", "task": "`scores` 的每个分数标 \"及格\"/\"不及格\"", "ans": "[\"及格\" if v >= 60 else \"不及格\" for v in scores.values()]", "exp": "['及格', '不及格', '及格', '及格', '及格', '不及格', '及格', '不及格', '及格']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `['及格', '不及格', '及格']`"}, {"n": 33, "cat": "C", "task": "`nums` 偶数变平方，奇数保持原样", "ans": "[x * x if x % 2 == 0 else x for x in nums]", "exp": "[3, 1, 16, 1, 5, 9, 4, 36, 5, 3, 0, 4, 64, 15, 7, 16]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[4, 5, 64]`"}, {"n": 34, "cat": "C", "task": "`orders` 金额 > 100 给订单号，否则给 \"-\"", "ans": "[o.order_id if o.amount > 100 else \"-\" for o in orders]", "exp": "['ORD-003', '-', 'ORD-002', '-', 'ORD-005', '-', 'ORD-007', '-', 'ORD-009', '-']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1', '-', '-']`"}, {"n": 35, "cat": "C", "task": "`words` 含字母 a（不区分大小写）的转大写，否则原样", "ans": "[w.upper() if \"a\" in w.lower() else w for w in words]", "exp": "['PAY', 'Order', 'refund', 'AGENT', 'tool', 'RAG', 'python', 'MCP', 'Memory', 'GRAPH']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['PAY', 'Order', 'AGENT']`"}, {"n": 36, "cat": "C", "task": "`nums` 每个元素标 \"high\"（>5）或 \"low\"", "ans": "[\"high\" if x > 5 else \"low\" for x in nums]", "exp": "['low', 'low', 'low', 'low', 'low', 'high', 'low', 'high', 'low', 'low', 'low', 'low', 'high', 'high', 'high', 'low']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `['low', 'low', 'high']`"}, {"n": 37, "cat": "D", "task": "把 `matrix` 展平成一维列表", "ans": "[x for row in matrix for x in row]", "exp": "[1, 2, 3, 4, 5, 6, 7, 8, 9]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 0, 1, 3, 1, 2, 4, 6, 5]`"}, {"n": 38, "cat": "D", "task": "`matrix` 每行各元素的平方（仍是二维）", "ans": "[[x * x for x in row] for row in matrix]", "exp": "[[1, 4, 9], [16, 25, 36], [49, 64, 81]]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[[4, 0, 1], [9, 1, 4], [16, 36, 25]]`"}, {"n": 39, "cat": "D", "task": "展平 `matrix`，只保留偶数", "ans": "[x for row in matrix for x in row if x % 2 == 0]", "exp": "[2, 4, 6, 8]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 0, 2, 4, 6]`"}, {"n": 40, "cat": "D", "task": "所有订单的 tags 展平（不去重）", "ans": "[t for o in orders for t in o.tags]", "exp": "['vip', 'paid', 'normal', 'paid', 'mobile', 'paid', 'vip', 'normal', 'mobile', 'vip', 'mobile', 'normal', 'paid', 'vip', 'new']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['vip', 'paid', 'paid', 'new']`"}, {"n": 41, "cat": "D", "task": "所有订单的 tags 展平并去重，保持首次出现顺序（提示 dict.fromkeys）", "ans": "list(dict.fromkeys(t for o in orders for t in o.tags))", "exp": "['vip', 'paid', 'normal', 'mobile', 'new']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['vip', 'paid', 'new']`"}, {"n": 42, "cat": "D", "task": "`words` 每个词的首字母", "ans": "[w[0] for w in words]", "exp": "['p', 'O', 'r', 'A', 't', 'R', 'p', 'M', 'M', 'G']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['p', 'O', 'a']`"}, {"n": 43, "cat": "D", "task": "`matrix` 的转置", "ans": "[[row[i] for row in matrix] for i in range(3)]", "exp": "[[1, 4, 7], [2, 5, 8], [3, 6, 9]]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[[2, 3, 4], [0, 1, 6], [1, 2, 5]]`"}, {"n": 44, "cat": "D", "task": "每个订单的 tag 数量", "ans": "[len(o.tags) for o in orders]", "exp": "[2, 1, 2, 1, 1, 2, 2, 1, 2, 1]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `[2, 1, 1]`"}, {"n": 45, "cat": "D", "task": "`nums` 相邻两数之和（提示 zip(nums, nums[1:])）", "ans": "[x + y for x, y in zip(nums, nums[1:])]", "exp": "[4, 5, 5, 6, 14, 11, 8, 11, 8, 3, -2, 6, 23, 22, 11]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[7, 13]`"}, {"n": 46, "cat": "D", "task": "`matrix` 的对角线元素", "ans": "[matrix[i][i] for i in range(3)]", "exp": "[1, 5, 9]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `[2, 1, 5]`"}, {"n": 47, "cat": "E", "task": "`words` → {词: 长度}", "ans": "{w: len(w) for w in words}", "exp": "{'pay': 3, 'Order': 5, 'refund': 6, 'Agent': 5, 'tool': 4, 'RAG': 3, 'python': 6, 'MCP': 3, 'Memory': 6, 'Graph': 5}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'pay': 3, 'Order': 5, 'agent': 5}`"}, {"n": 48, "cat": "E", "task": "`prices` 每个价格翻倍", "ans": "{k: v * 2 for k, v in prices.items()}", "exp": "{'apple': 7.0, 'milk': 19.8, 'bread': 13.6, 'egg': 25.0, 'tea': 50.0, 'coffee': 30.0, 'water': 4.0, 'cheese': 37.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{'apple': 7.0, 'milk': 24.0}`"}, {"n": 49, "cat": "E", "task": "`prices` 只保留价格 < 10 的", "ans": "{k: v for k, v in prices.items() if v < 10}", "exp": "{'apple': 3.5, 'milk': 9.9, 'bread': 6.8, 'water': 2.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{'apple': 3.5}`"}, {"n": 50, "cat": "E", "task": "`scores` 只保留及格（≥60）的", "ans": "{k: v for k, v in scores.items() if v >= 60}", "exp": "{'Alice': 92, 'Cara': 75, 'Dan': 88, 'Eve': 100, 'Gina': 67, 'Ivy': 84}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `{'Alice': 92, 'Cara': 67}`"}, {"n": 51, "cat": "E", "task": "`scores` 键值对调", "ans": "{v: k for k, v in scores.items()}", "exp": "{92: 'Alice', 58: 'Bob', 75: 'Cara', 88: 'Dan', 100: 'Eve', 41: 'Fay', 67: 'Gina', 30: 'Hank', 84: 'Ivy'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `{92: 'Alice', 40: 'Bob', 67: 'Cara'}`"}, {"n": 52, "cat": "E", "task": "`pairs` 转成字典", "ans": "{k: v for k, v in pairs}", "exp": "{'a': 1, 'b': 2, 'c': 3}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `pairs = [('a', 2), ('b', 1)]`，表达式应得 `{'a': 2, 'b': 1}`"}, {"n": 53, "cat": "E", "task": "`orders` → {订单号: 金额}", "ans": "{o.order_id: o.amount for o in orders}", "exp": "{'ORD-003': 250.0, 'ORD-001': 99.9, 'ORD-002': 150.0, 'ORD-004': 100.0, 'ORD-005': 320.0, 'ORD-006': 75.5, 'ORD-007': 480.0, 'ORD-008': 25.0, 'ORD-009': 150.0, 'ORD-010': 0.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': 150.0, 'ORD-2': 60.0, 'ORD-3': 0.0}`"}, {"n": 54, "cat": "E", "task": "`orders` 里金额 > 100 的 → {订单号: 金额}", "ans": "{o.order_id: o.amount for o in orders if o.amount > 100}", "exp": "{'ORD-003': 250.0, 'ORD-002': 150.0, 'ORD-005': 320.0, 'ORD-007': 480.0, 'ORD-009': 150.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': 150.0}`"}, {"n": 55, "cat": "E", "task": "`orders` → {订单号: tag 数}", "ans": "{o.order_id: len(o.tags) for o in orders}", "exp": "{'ORD-003': 2, 'ORD-001': 1, 'ORD-002': 2, 'ORD-004': 1, 'ORD-005': 1, 'ORD-006': 2, 'ORD-007': 2, 'ORD-008': 1, 'ORD-009': 2, 'ORD-010': 1}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': 2, 'ORD-2': 1, 'ORD-3': 1}`"}, {"n": 56, "cat": "E", "task": "`words` → {小写: 原词}", "ans": "{w.lower(): w for w in words}", "exp": "{'pay': 'pay', 'order': 'Order', 'refund': 'refund', 'agent': 'Agent', 'tool': 'tool', 'rag': 'RAG', 'python': 'python', 'mcp': 'MCP', 'memory': 'Memory', 'graph': 'Graph'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'pay': 'pay', 'order': 'Order', 'agent': 'agent'}`"}, {"n": 57, "cat": "E", "task": "`prices` → {商品: \"贵\"（≥10）或 \"便宜\"}", "ans": "{k: \"贵\" if v >= 10 else \"便宜\" for k, v in prices.items()}", "exp": "{'apple': '便宜', 'milk': '便宜', 'bread': '便宜', 'egg': '贵', 'tea': '贵', 'coffee': '贵', 'water': '便宜', 'cheese': '贵'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{'apple': '便宜', 'milk': '贵'}`"}, {"n": 58, "cat": "E", "task": "`words` → {下标: 词}（提示 enumerate）", "ans": "{i: w for i, w in enumerate(words)}", "exp": "{0: 'pay', 1: 'Order', 2: 'refund', 3: 'Agent', 4: 'tool', 5: 'RAG', 6: 'python', 7: 'MCP', 8: 'Memory', 9: 'Graph'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{0: 'pay', 1: 'Order', 2: 'agent'}`"}, {"n": 59, "cat": "E", "task": "`words` → {词: 出现次数}", "ans": "{w: words.count(w) for w in words}", "exp": "{'pay': 1, 'Order': 1, 'refund': 1, 'Agent': 1, 'tool': 1, 'RAG': 1, 'python': 1, 'MCP': 1, 'Memory': 1, 'Graph': 1}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'pay': 1, 'Order': 1, 'agent': 1}`"}, {"n": 60, "cat": "E", "name": "dict_comp_source", "type": "mc", "task": "两道题都产出 `{词: 长度}`：#47 用 `words`，本题用 `sentence`。哪个写法**正确对应本题**？", "options": ["`{w: len(w) for w in words}`（这是 #47 的写法）", "`{w: len(w) for w in sentence.split()}`", "`{w: len(sentence) for w in sentence}`", "`{w: len(w) for w in sentence}`（按字符迭代）"], "correct": 1, "explain": "`sentence` 是整句字符串，要先 `split()` 切成词列表再遍历；直接遍历 `sentence` 得到的是单个字符。`words` 已经是列表，直接遍历即可——这是 #47 与本题的唯一差别。", "ex": "例：`sentence = \"the cat sat\"` → `{\"the\": 3, \"cat\": 3, \"sat\": 3}`"}, {"n": 61, "cat": "F", "task": "`nums` 去重（集合）", "ans": "{x for x in nums}", "exp": "{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 15, -2}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `{8, 2, 5}`"}, {"n": 62, "cat": "F", "task": "`words` 首字母的集合", "ans": "{w[0] for w in words}", "exp": "{'r', 'M', 'O', 'A', 'R', 'p', 't', 'G'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `{'p', 'a', 'O'}`"}, {"n": 63, "cat": "F", "task": "所有订单 tags 的集合", "ans": "{t for o in orders for t in o.tags}", "exp": "{'vip', 'mobile', 'paid', 'normal', 'new'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'new', 'paid', 'vip'}`"}, {"n": 64, "cat": "F", "task": "`matrix` 所有元素平方的集合", "ans": "{x * x for row in matrix for x in row}", "exp": "{64, 1, 4, 36, 9, 16, 49, 81, 25}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `{0, 1, 4, 36, 9, 16, 25}`"}, {"n": 65, "cat": "F", "task": "`scores` 及格者名字的集合", "ans": "{k for k, v in scores.items() if v >= 60}", "exp": "{'Gina', 'Eve', 'Alice', 'Cara', 'Ivy', 'Dan'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `{'Cara', 'Alice'}`"}, {"n": 66, "cat": "F", "task": "`sentence` 各词首字母的集合", "ans": "{w[0] for w in sentence.split()}", "exp": "{'o', 'j', 'f', 'l', 'r', 'd', 'q', 'b', 'n', 't'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `{'f', 't', 'j', 'e', 'q'}`"}, {"n": 67, "cat": "F", "task": "`nums` 偶数集合", "ans": "{x for x in nums if x % 2 == 0}", "exp": "{0, 2, 4, 6, 8, -2}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `{8, 2}`"}, {"n": 68, "cat": "F", "task": "`prices` 价格取整后的集合", "ans": "{int(v) for v in prices.values()}", "exp": "{2, 3, 6, 9, 12, 15, 18, 25}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `{3, 12}`"}, {"n": 69, "cat": "G", "task": "`nums` 每个元素乘 2 后的总和", "ans": "sum(x * 2 for x in nums)", "exp": "142", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `30`"}, {"n": 70, "cat": "G", "task": "`nums` 平方和", "ans": "sum(x * x for x in nums)", "exp": "565", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `93`"}, {"n": 71, "cat": "G", "task": "`orders` 总金额", "ans": "sum(o.amount for o in orders)", "exp": "1650.4", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `210.0`"}, {"n": 72, "cat": "G", "task": "金额 > 100 的订单数", "ans": "sum(1 for o in orders if o.amount > 100)", "exp": "5", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `1`"}, {"n": 73, "cat": "G", "task": "`words` 里最长词的长度", "ans": "max(len(w) for w in words)", "exp": "6", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `5`"}, {"n": 74, "cat": "G", "task": "`nums` 的最大值（生成器写法）", "ans": "max(x for x in nums)", "exp": "15", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `8`"}, {"n": 75, "cat": "G", "task": "`nums` 是否存在偶数", "ans": "any(x % 2 == 0 for x in nums)", "exp": "True", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `True`"}, {"n": 76, "cat": "G", "task": "`scores` 是否全部及格", "ans": "all(v >= 60 for v in scores.values())", "exp": "False", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `False`"}, {"n": 77, "cat": "G", "task": "`matrix` 所有元素之和", "ans": "sum(x for row in matrix for x in row)", "exp": "45", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `matrix = [[2, 0, 1], [3, 1, 2], [4, 6, 5]]`，表达式应得 `24`"}, {"n": 78, "cat": "G", "task": "及格人数", "ans": "sum(1 for v in scores.values() if v >= 60)", "exp": "6", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `scores = {'Alice': 92, 'Bob': 40, 'Cara': 67}`，表达式应得 `2`"}, {"n": 79, "cat": "H", "task": "`nums` 前 3 个", "ans": "nums[:3]", "exp": "[3, 1, 4]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[2, 5, 8]`"}, {"n": 80, "cat": "H", "name": "reverse_slice", "type": "mc", "task": "要反转一个序列，`[::-1]` 与 `reversed()` 都常见。下面说法正确的是？", "options": ["`nums[::-1]` 返回新列表，元素顺序完全颠倒", "`nums[::-1]` 会原地修改 `nums`", "`reversed(nums)` 直接返回反转后的列表", "字符串不支持 `[::-1]`，只有列表能用"], "correct": 0, "explain": "`[::-1]` 是步长为 -1 的切片，返回**新**序列（列表/字符串/元组都支持），原对象不变；`reversed()` 返回的是迭代器，要 `list(...)` 才是列表。第 6 课 #3 用同一技巧反转字符串。", "ex": "例：`nums = [1,2,3]` → `nums[::-1]` 是 `[3,2,1]`，`nums` 本身仍是 `[1,2,3]`"}, {"n": 81, "cat": "H", "name": "step_slice", "type": "mc", "task": "要每隔一个取一个元素（下标 0、2、4…），正确的切片写法是？", "options": ["`nums[1::2]`（取下标 1、3、5…）", "`nums[::2]`", "`nums[2:]`（从下标 2 开始全取）", "`nums[::3]`（每隔两个取一个）"], "correct": 1, "explain": "`[start:stop:step]` 中 step=2 表示每次跳 2 个，从 0 开始即取偶数下标。`nums[1::2]` 从 1 开始取奇数下标。第 6 课 #2 的 `every_other` 用同一切片，同时支持字符串。", "ex": "例：`nums = [0,1,2,3,4]` → `nums[::2]` 是 `[0,2,4]`"}, {"n": 82, "cat": "H", "task": "`text` 前 5 个字符", "ans": "text[:5]", "exp": "'Hello'", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `'Go, P'`"}, {"n": 83, "cat": "H", "task": "`text` 按空白切分成词列表", "ans": "text.split()", "exp": "['Hello,', 'Agent', 'World']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `['Go,', 'Python', 'Rapid']`"}, {"n": 84, "cat": "H", "task": "`text` 转大写", "ans": "text.upper()", "exp": "'HELLO, AGENT WORLD'", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `'GO, PYTHON RAPID'`"}, {"n": 85, "cat": "H", "task": "`text` 每个词的首字母（列表）", "ans": "[w[0] for w in text.split()]", "exp": "['H', 'A', 'W']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `text = 'Go, Python Rapid'`，表达式应得 `['G', 'P', 'R']`"}, {"n": 86, "cat": "H", "task": "`sentence` 里 \"the\" 出现的次数（用推导数）", "ans": "len([w for w in sentence.split() if w == \"the\"])", "exp": "3", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `sentence = 'the quick fox jumps; the end'`，表达式应得 `2`"}, {"n": 87, "cat": "H", "task": "`words` 按长度升序排序", "ans": "sorted(words, key=len)", "exp": "['pay', 'RAG', 'MCP', 'tool', 'Order', 'Agent', 'Graph', 'refund', 'python', 'Memory']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `['pay', 'Order', 'agent']`"}, {"n": 88, "cat": "H", "task": "`nums` 降序排序", "ans": "sorted(nums, reverse=True)", "exp": "[15, 9, 8, 7, 6, 5, 5, 4, 4, 3, 3, 2, 1, 1, 0, -2]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `nums = [2, 5, 8]`，表达式应得 `[8, 5, 2]`"}, {"n": 89, "cat": "I", "task": "金额 > 100 的订单号，升序排列（filter+map+sorted）", "ans": "sorted(o.order_id for o in orders if o.amount > 100)", "exp": "['ORD-002', 'ORD-003', 'ORD-005', 'ORD-007', 'ORD-009']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1']`"}, {"n": 90, "cat": "I", "task": "金额 < 100 的 → {订单号: 金额}（Collectors.toMap）", "ans": "{o.order_id: o.amount for o in orders if o.amount < 100}", "exp": "{'ORD-001': 99.9, 'ORD-006': 75.5, 'ORD-008': 25.0, 'ORD-010': 0.0}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-2': 60.0, 'ORD-3': 0.0}`"}, {"n": 91, "cat": "I", "task": "`words` → [(词, 长度)] 元组列表", "ans": "[(w, len(w)) for w in words]", "exp": "[('pay', 3), ('Order', 5), ('refund', 6), ('Agent', 5), ('tool', 4), ('RAG', 3), ('python', 6), ('MCP', 3), ('Memory', 6), ('Graph', 5)]", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `[('pay', 3), ('Order', 5), ('agent', 5)]`"}, {"n": 92, "cat": "I", "task": "价格 ≥ 10 的商品数", "ans": "sum(1 for v in prices.values() if v >= 10)", "exp": "4", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `prices = {'apple': 3.5, 'milk': 12.0}`，表达式应得 `1`"}, {"n": 93, "cat": "I", "task": "所有订单 tags 的大写形式集合（flatMap+map）", "ans": "{t.upper() for o in orders for t in o.tags}", "exp": "{'MOBILE', 'VIP', 'PAID', 'NEW', 'NORMAL'}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'NEW', 'VIP', 'PAID'}`"}, {"n": 94, "cat": "I", "task": "tags 含 \"paid\" 的订单总金额", "ans": "sum(o.amount for o in orders if \"paid\" in o.tags)", "exp": "650.0", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `210.0`"}, {"n": 95, "cat": "I", "task": "`words` 用逗号连成一个字符串", "ans": "\",\".join(words)", "exp": "'pay,Order,refund,Agent,tool,RAG,python,MCP,Memory,Graph'", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `words = ['pay', 'Order', 'agent']`，表达式应得 `'pay,Order,agent'`"}, {"n": 96, "cat": "I", "task": "`orders` → [\"ORD-003: 250.0\", ...]（f-string）", "ans": "[f\"{o.order_id}: {o.amount}\" for o in orders]", "exp": "['ORD-003: 250.0', 'ORD-001: 99.9', 'ORD-002: 150.0', 'ORD-004: 100.0', 'ORD-005: 320.0', 'ORD-006: 75.5', 'ORD-007: 480.0', 'ORD-008: 25.0', 'ORD-009: 150.0', 'ORD-010: 0.0']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1: 150.0', 'ORD-2: 60.0', 'ORD-3: 0.0']`"}, {"n": 97, "cat": "I", "task": "按金额降序取前 2 的订单号（sorted + lambda + 切片）", "ans": "[o.order_id for o in sorted(orders, key=lambda o: o.amount, reverse=True)[:2]]", "exp": "['ORD-007', 'ORD-005']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['ORD-1', 'ORD-2']`"}, {"n": 98, "cat": "I", "task": "`orders` → {订单号: 排好序的 tags 列表}", "ans": "{o.order_id: sorted(o.tags) for o in orders}", "exp": "{'ORD-003': ['paid', 'vip'], 'ORD-001': ['normal'], 'ORD-002': ['mobile', 'paid'], 'ORD-004': ['paid'], 'ORD-005': ['vip'], 'ORD-006': ['mobile', 'normal'], 'ORD-007': ['mobile', 'vip'], 'ORD-008': ['normal'], 'ORD-009': ['paid', 'vip'], 'ORD-010': ['new']}", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `{'ORD-1': ['paid', 'vip'], 'ORD-2': ['paid'], 'ORD-3': ['new']}`"}, {"n": 99, "cat": "I", "task": "`orders` 每单标 \"VIP\"（含 vip）/ \"PAID\"（含 paid）/ \"OTHER\"（嵌套条件）", "ans": "[\"VIP\" if \"vip\" in o.tags else \"PAID\" if \"paid\" in o.tags else \"OTHER\" for o in orders]", "exp": "['VIP', 'OTHER', 'PAID', 'PAID', 'VIP', 'OTHER', 'VIP', 'OTHER', 'VIP', 'OTHER']", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `['VIP', 'PAID', 'OTHER']`"}, {"n": 100, "cat": "I", "task": "金额 > 100 订单的 tag 总数", "ans": "sum(len(o.tags) for o in orders if o.amount > 100)", "exp": "9", "ex": "例（示意数据，判分用页面预置的真实数据）：若 `orders = [Order(order_id='ORD-1', amount=150.0, tags=['vip', 'paid']), Order(order_id='ORD-2', amount=60.0, tags=['paid']), Order(order_id='ORD-3', amount=0.0, tags=['new'])]`，表达式应得 `2`"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 /* ---------- 进度持久化 ---------- */
@@ -1894,19 +1974,32 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && input(n).value === '') input(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考答案：' + byN[n].ans + '\n预期结果：' + byN[n].exp;
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && input(n).value === '') input(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考答案：' + ex.ans + '\n预期结果：' + ex.exp;
+      }
     }
   });
   // 进度条 + 分类计数
   const done = prog.solved.length;
-  document.getElementById('pfill').style.width = done + '%';
-  document.getElementById('ptext').textContent = '已完成 ' + done + ' / 100';
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
+  document.getElementById('ptext').textContent = '已完成 ' + done + ' / ' + EX.length;
   document.querySelectorAll('.drill-cat').forEach(h => {
     const cat = h.dataset.cat;
     const total = EX.filter(e => e.cat === cat).length;
@@ -1928,6 +2021,7 @@ async function ensurePy() {
       rtMsg('正在加载 Python 运行时（首次约 10-20 秒）…');
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -1944,11 +2038,23 @@ async function ensurePy() {
 async function check(n) {
   const expr = input(n).value.trim();
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!expr) { st.className = 'drill-status info'; st.textContent = '先写一条表达式'; return; }
   prog.answers[n] = expr; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _e = eval(${JSON.stringify(ex.exp)})
 try:
@@ -1961,18 +2067,18 @@ except Exception as _ex:
 _json.dumps({"ok": _ok, "got": _g})`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 正确';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let got = out.got; if (got.length > 110) got = got.slice(0, 110) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + got;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + got;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => input(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : input(e.n).value.trim());
   if (!filled.length) { rtMsg('没有已填写但未检查的题'); return; }
   rtMsg('批量检查中…');
   let pass = 0;
@@ -1989,13 +2095,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  input(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') input(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填答案？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-in').forEach(i => i.value = '');
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -2064,7 +2171,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -2121,6 +2228,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -2159,6 +2267,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -2166,6 +2275,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -2173,7 +2283,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -2202,6 +2314,91 @@ refreshUI();
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';

@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +372,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
@@ -326,6 +381,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-status.info { color: var(--ink-soft); }
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -333,7 +401,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h1>练习场 · 20 题类与 dataclass 训练</h1>
 <p class="meta">第 4 课配套 · 手写类 / @dataclass / 继承与 super / Protocol / 综合应用 · 自动判分</p>
-<div class="callout win"><strong>玩法</strong>：写的是<strong>完整类定义或函数</strong>——把每题起始代码里的 <code>...</code> 补成实现，按题目要求写字段与方法。点"检查"会真实运行你的代码并跑断言；#15 有协议结构检查（没继承 Protocol 会被抓住），#19 有防作弊测试（没加 <code>*</code> 当场现形）。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。<a href="#data-preview">↓ 先看数据一览</a></div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>完整类定义或函数</strong>——把每题起始代码里的 <code>...</code> 补成实现，按题目要求写字段与方法。点"检查"会真实运行你的代码并跑断言；#15 已改为概念题：考 Protocol + @runtime_checkable，#19 有防作弊测试（没加 <code>*</code> 当场现形）。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。<a href="#data-preview">↓ 先看数据一览</a></div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>（部分题目共用这些预置类与数据；题目下方也会显示本题用到的定义）：
 <pre><code>from dataclasses import dataclass, field
@@ -423,13 +491,13 @@ class FakeModel:
 </div>
 
 <div class="drill" id="d-4" data-n="4" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task">温度换算：<code>Temperature(celsius)</code> 存摄氏度，方法 <code>to_fahrenheit()</code> 返回 <code>celsius*9/5+32</code></div></div>
-  <div class="drill-ex">例：<code>Temperature(25)</code> 的 <code>to_fahrenheit()</code> → <code>77.0</code>；<code>.celsius</code> 属性就是传入的摄氏度</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">class</span> Temperature:
-    <span class="tk-str">"""温度：__init__ 收 celsius（摄氏度）；to_fahrenheit() 转华氏（celsius*9/5+32）"""</span>
-    ...  <span class="tk-com"># __init__ + 一个方法</span></pre><textarea class="drill-code" spellcheck="false" rows="6">class Temperature:
-    &quot;&quot;&quot;温度：__init__ 收 celsius（摄氏度）；to_fahrenheit() 转华氏（celsius*9/5+32）&quot;&quot;&quot;
-    ...  # __init__ + 一个方法</textarea></div>
+  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task">在类里写 <code>to_fahrenheit()</code> 方法，把 <code>self.celsius</code> 转成华氏度。下面哪个实现正确？</div></div>
+  <div class="drill-ex">例：<code>Temperature(100).to_fahrenheit()</code> → <code>212.0</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-4" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>def to_fahrenheit(self): return self.celsius * 9 / 5 + 32</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>def to_fahrenheit(self): return self.celsius * 9 / 5</code>（漏了 +32）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>def to_fahrenheit(celsius): return celsius * 9 / 5 + 32</code>（漏 self）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>def to_fahrenheit(self): return celsius * 9 / 5 + 32</code>（<code>celsius</code> 未定义）</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -666,19 +734,13 @@ class Dog(Animal):
 <h2 class="drill-cat" data-cat="D">D · Protocol 结构化接口<span class="cat-done" data-range="15-17">第 15–17 题 · 0/3</span></h2>
 
 <div class="drill" id="d-15" data-n="15" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">定义协议：把 <code>Tool</code> 改成 Protocol——加 <code>(Protocol)</code> 基类与 <code>@runtime_checkable</code>，声明 <code>run(self, query: str) -&gt; str</code></div></div>
-  <div class="drill-ex">例：改完后，任何<strong>有 run(query) 方法</strong>的类实例都能通过 <code>isinstance(obj, Tool)</code>——哪怕它根本没继承 Tool</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-com"># 从 typing 导入 Protocol 和 runtime_checkable</span>
-
-
-<span class="tk-kw">class</span> Tool:
-    <span class="tk-str">"""把本类改成 Protocol 接口：加 (Protocol) 基类与 @runtime_checkable，声明 run(self, query: str) -&gt; str"""</span>
-    ...</pre><textarea class="drill-code" spellcheck="false" rows="6"># 从 typing 导入 Protocol 和 runtime_checkable
-
-
-class Tool:
-    &quot;&quot;&quot;把本类改成 Protocol 接口：加 (Protocol) 基类与 @runtime_checkable，声明 run(self, query: str) -&gt; str&quot;&quot;&quot;
-    ...</textarea></div>
+  <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">想定义一个<strong>可在运行时用 <code>isinstance</code> 检查</strong>的结构化协议，正确的定义方式是？</div></div>
+  <div class="drill-ex">例：<code>@runtime_checkable class Tool(Protocol): def run(self, query: str) -&gt; str: ...</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>class Tool: ...</code>（普通基类）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>class Tool(Protocol): ...</code>，并用 <code>@runtime_checkable</code> 装饰</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>class Tool(ABC): ...</code>，并用 <code>@abstractmethod</code> 装饰方法</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>Tool = TypedDict("Tool", {...})</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -707,16 +769,13 @@ class Retriever(Protocol):
 </div>
 
 <div class="drill" id="d-17" data-n="17" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#17</span><div class="drill-task">鸭子类型：<code>run_model(model, prompt)</code>——调用 model 的 complete 方法并返回结果，不用管它是什么类</div></div>
-  <div class="drill-ex">例：传入任何有 complete 方法的对象，<code>run_model(m, "hi")</code> 返回的就是 <code>m.complete("hi")</code> 的结果</div>
-  <pre class="drill-data" aria-label="本题数据">class FakeModel:
-    def complete(self, prompt: str) -&gt; str:
-        return "回答: " + prompt</pre>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> run_model(model, prompt):
-    <span class="tk-str">"""调用 model 的 complete 方法并返回结果——长得像就行"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def run_model(model, prompt):
-    &quot;&quot;&quot;调用 model 的 complete 方法并返回结果——长得像就行&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#17</span><div class="drill-task"><code>run_model(model, prompt)</code> 想接受<strong>任何</strong>有 <code>complete</code> 方法的对象，其核心机制是？</div></div>
+  <div class="drill-ex">例：<code>run_model(FakeModel(), "hi")</code> 只要 <code>FakeModel</code> 有 <code>complete</code> 方法就能工作</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-17" value="0"><span class="opt-letter">A</span><span class="opt-text">必须让 <code>model</code> 继承统一的 <code>Model</code> 基类</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="1"><span class="opt-letter">B</span><span class="opt-text">Python 的鸭子类型——运行时直接查找并调用 <code>model.complete</code>，不检查声明的类型</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="2"><span class="opt-letter">C</span><span class="opt-text">必须用 <code>@runtime_checkable</code> 的 <code>Protocol</code> 才能通过类型检查</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="3"><span class="opt-letter">D</span><span class="opt-text">需要用 <code>isinstance(model, Model)</code> 先判断</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -836,7 +895,7 @@ class FakeModel:
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "task": "计数器：`Counter` 初始 `value` 为 0，`increment(n=1)` 把 value 加 n（默认加 1）", "name": "Counter", "starter": "class Counter:\n    \"\"\"计数器：__init__ 里设 value = 0；increment(n=1) 把 value 加 n（默认加 1）\"\"\"\n    ...  # __init__ + 一个方法", "ans": "class Counter:\n    def __init__(self):\n        self.value = 0\n    def increment(self, n=1):\n        self.value += n", "tind": "        c = _fn()\n        assert c.value == 0, f\"初始 value 应为 0，实际 {c.value!r}\"\n        c.increment()\n        assert c.value == 1, f\"increment() 后应为 1，实际 {c.value!r}\"\n        c.increment(5)\n        assert c.value == 6, f\"increment(5) 后应为 6，实际 {c.value!r}\"", "snip": null, "ex": "例：`c = Counter()` 时 `c.value == 0`；`c.increment(3)` 后 `c.value == 3`；不带参的 `increment()` 一次加 1"}, {"n": 2, "cat": "A", "task": "长方形：`Rectangle(width, height)`，方法 `area()` 面积、`perimeter()` 周长", "name": "Rectangle", "starter": "class Rectangle:\n    \"\"\"长方形：__init__ 收 width/height；area() 面积；perimeter() 周长\"\"\"\n    ...  # __init__ + 两个方法", "ans": "class Rectangle:\n    def __init__(self, width, height):\n        self.width = width\n        self.height = height\n    def area(self):\n        return self.width * self.height\n    def perimeter(self):\n        return 2 * (self.width + self.height)", "tind": "        r = _fn(3, 4)\n        assert r.area() == 12, f\"面积期望 12，实际 {r.area()!r}\"\n        assert r.perimeter() == 14, f\"周长期望 14，实际 {r.perimeter()!r}\"\n        assert _fn(2, 2).area() == 4", "snip": null, "ex": "例：`Rectangle(3, 5)` 的 `area()` → `15`、`perimeter()` → `16`"}, {"n": 3, "cat": "A", "task": "可读打印：`Point2D(x, y)` 的 `__repr__` 返回 `Point(x, y)`，如 `Point(3, 4)`", "name": "Point2D", "starter": "class Point2D:\n    \"\"\"二维点：__init__ 收 x/y；__repr__ 返回 \"Point(x, y)\"，如 Point(3, 4)\"\"\"\n    ...  # __init__ + __repr__", "ans": "class Point2D:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __repr__(self):\n        return f\"Point({self.x}, {self.y})\"", "tind": "        p = _fn(3, 4)\n        assert (p.x, p.y) == (3, 4)\n        assert repr(_fn(3, 4)) == \"Point(3, 4)\", f\"实际 repr {repr(_fn(3, 4))!r}\"\n        assert str(_fn(0, 0)) == \"Point(0, 0)\"", "snip": null, "ex": "例：`repr(Point2D(1, 2))` → `\"Point(1, 2)\"`——print 出来就是这个格式"}, {"n": 4, "cat": "A", "task": "温度换算：`Temperature(celsius)` 存摄氏度，方法 `to_fahrenheit()` 返回 `celsius*9/5+32`", "name": "Temperature", "starter": "class Temperature:\n    \"\"\"温度：__init__ 收 celsius（摄氏度）；to_fahrenheit() 转华氏（celsius*9/5+32）\"\"\"\n    ...  # __init__ + 一个方法", "ans": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius\n    def to_fahrenheit(self):\n        return self.celsius * 9 / 5 + 32", "tind": "        assert _fn(100).to_fahrenheit() == 212.0, f\"实际 {_fn(100).to_fahrenheit()!r}\"\n        assert _fn(0).to_fahrenheit() == 32.0\n        assert _fn(37).celsius == 37, \"celsius 属性应保存传入值\"", "snip": null, "ex": "例：`Temperature(25)` 的 `to_fahrenheit()` → `77.0`；`.celsius` 属性就是传入的摄氏度"}, {"n": 5, "cat": "A", "task": "栈：`Stack` 用 `push(x)` 压入、`pop()` 弹出并返回栈顶；空栈 pop 抛 `IndexError`", "name": "Stack", "starter": "class Stack:\n    \"\"\"栈：push(x) 压入；pop() 弹出并返回栈顶；空栈 pop 抛 IndexError\"\"\"\n    ...  # __init__ + 两个方法", "ans": "class Stack:\n    def __init__(self):\n        self.items = []\n    def push(self, x):\n        self.items.append(x)\n    def pop(self):\n        if not self.items:\n            raise IndexError(\"栈为空\")\n        return self.items.pop()", "tind": "        s = _fn()\n        s.push(1)\n        s.push(2)\n        v1 = s.pop()\n        assert v1 == 2, f\"后进先出：应先弹出 2，实际 {v1!r}\"\n        v2 = s.pop()\n        assert v2 == 1, f\"应再弹出 1，实际 {v2!r}\"\n        try:\n            s.pop()\n            assert False, \"空栈 pop 应抛 IndexError\"\n        except IndexError:\n            pass", "snip": null, "ex": "例：push(1)、push(2) 后 pop() 得 2、再 pop() 得 1（后进先出）；空栈再 pop 要抛 IndexError"}, {"n": 6, "cat": "B", "task": "第一个 dataclass：`Product(name, price)`——自动获得 `__init__`/`__repr__`/`__eq__`", "name": "Product", "starter": "# 先从 dataclasses 导入 dataclass\n\n\n@dataclass\nclass Product:\n    \"\"\"商品：两个字段 name(str)、price(float)\"\"\"\n    ...  # 两个字段的注解", "ans": "from dataclasses import dataclass\n\n@dataclass\nclass Product:\n    name: str\n    price: float", "tind": "        a = _fn(\"茶\", 25.0)\n        assert (a.name, a.price) == (\"茶\", 25.0), f\"实际 {(a.name, a.price)!r}\"\n        assert _fn(\"茶\", 25.0) == _fn(\"茶\", 25.0), \"同字段实例应相等（@dataclass 自动 __eq__）\"\n        assert repr(_fn(\"书\", 9.9)).startswith(\"Product(\"), \"应有可读 __repr__\"", "snip": null, "ex": "例：两个 `Product(\"茶\", 25.0)` 用 `==` 比较应相等；print 出来有可读的 `Product(...)` 字样"}, {"n": 7, "cat": "B", "task": "默认值字段：`CartItem(name, price, quantity=1)`——quantity 默认 1", "name": "CartItem", "starter": "# 先从 dataclasses 导入 dataclass\n\n\n@dataclass\nclass CartItem:\n    \"\"\"购物车条目：name(str)、price(float)、quantity(int，默认 1)\"\"\"\n    ...  # 三个字段", "ans": "from dataclasses import dataclass\n\n@dataclass\nclass CartItem:\n    name: str\n    price: float\n    quantity: int = 1", "tind": "        a = _fn(\"书\", 9.9)\n        assert (a.name, a.price, a.quantity) == (\"书\", 9.9, 1), f\"quantity 默认应为 1，实际 {a.quantity!r}\"\n        b = _fn(\"笔\", 2.0, 5)\n        assert b.quantity == 5, \"quantity 可自定义\"\n        assert b.price == 2.0", "snip": null, "ex": "例：`CartItem(\"书\", 9.9)` 的 quantity 是 `1`；`CartItem(\"笔\", 2.0, 5)` 的 quantity 是 `5`"}, {"n": 8, "cat": "B", "task": "可变默认值：`TaggedItem(name, tags)` 的 tags 默认空列表，且**实例之间互不共享**", "name": "TaggedItem", "starter": "# field 用来声明\"每次实例化都新建\"的可变默认值\n\n\n@dataclass\nclass TaggedItem:\n    \"\"\"带标签条目：name(str)、tags(list[str]，默认空列表，实例间互不共享)\"\"\"\n    ...  # 两个字段", "ans": "from dataclasses import dataclass, field\n\n@dataclass\nclass TaggedItem:\n    name: str\n    tags: list[str] = field(default_factory=list)", "tind": "        a = _fn(\"x\")\n        assert a.tags == [], f\"默认 tags 应为空列表，实际 {a.tags!r}\"\n        b = _fn(\"y\")\n        assert b.tags is not a.tags, \"两个实例的 tags 是同一个列表对象——应用 field(default_factory=list)\"\n        assert _fn(\"z\", tags=[\"vip\"]).tags == [\"vip\"], \"自定义 tags 应生效\"", "snip": null, "ex": "例：两个只传 name 的实例，各自有**互不共享**的空 tags 列表；`TaggedItem(\"x\", tags=[\"vip\"])` 的 tags 就是 `[\"vip\"]`"}, {"n": 9, "cat": "B", "task": "不可变配置：`Config(host, port)` 定义后字段**不可修改**（dataclass 的一个选项）", "name": "Config", "starter": "# 提示：dataclass 有一个让字段不可变的选项\n\n\n@dataclass\nclass Config:\n    \"\"\"不可变配置：host(str)、port(int)，字段定义后不可修改\"\"\"\n    ...  # 两个字段 + 装饰器参数", "ans": "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Config:\n    host: str\n    port: int", "tind": "        c = _fn(\"localhost\", 8000)\n        assert (c.host, c.port) == (\"localhost\", 8000)\n        assert _fn(\"localhost\", 8000) == _fn(\"localhost\", 8000), \"同字段实例应相等\"\n        try:\n            c.host = \"x\"\n            assert False, \"frozen 数据类的字段应不可修改\"\n        except AttributeError:\n            pass", "snip": null, "ex": "例：`Config(\"localhost\", 8000)` 建出来能正常读 host/port；之后 `c.host = \"x\"` 应当报错——字段定义后不可改"}, {"n": 10, "cat": "B", "task": "数据类 + 方法：`AgentState(session_id, messages, done)` 默认值齐全，再加方法 `add_message(m)` 追加消息", "name": "AgentState", "starter": "@dataclass\nclass AgentState:\n    \"\"\"会话状态：session_id(str)、messages(list[str] 默认空列表)、done(bool 默认 False)；\n    方法 add_message(m) 把 m 追加进 messages\"\"\"\n    ...  # 三个字段 + 一个方法", "ans": "from dataclasses import dataclass, field\n\n@dataclass\nclass AgentState:\n    session_id: str\n    messages: list[str] = field(default_factory=list)\n    done: bool = False\n    def add_message(self, m):\n        self.messages.append(m)", "tind": "        s = _fn(\"s1\")\n        assert s.messages == [] and s.done is False, f\"默认值不对：{(s.messages, s.done)!r}\"\n        s.add_message(\"hi\")\n        assert s.messages == [\"hi\"], \"add_message 应把消息追加进 messages\"\n        t = _fn(\"s2\")\n        assert t.messages == [], \"新实例的 messages 不应被其他实例污染\"\n        assert s.session_id == \"s1\"", "snip": null, "ex": "例：`AgentState(\"s1\")` 的 messages 是空列表、done 是 False；`add_message(\"hi\")` 后 messages 变 `[\"hi\"]`"}, {"n": 11, "cat": "C", "task": "继承 + super：`Dog(Animal)` 自己的 `__init__` 收 name 和 breed——用 `super().__init__` 把 name 交给父类", "name": "Dog", "starter": "class Dog(Animal):\n    \"\"\"继承 Animal：__init__ 收 name 和 breed——super().__init__ 传 name，breed 自己存\"\"\"\n    ...  # 一个 __init__", "ans": "class Dog(Animal):\n    def __init__(self, name, breed):\n        super().__init__(name)\n        self.breed = breed", "tind": "        d = _fn(\"旺财\", \"柯基\")\n        assert d.name == \"旺财\", \"name 应来自父类的 __init__\"\n        assert d.breed == \"柯基\"\n        assert d.speak() == \"旺财 会叫\", \"speak 应继承自 Animal\"", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"", "ex": "例：`Dog(\"旺财\", \"柯基\")` 的 `.name` 是 `\"旺财\"`、`.breed` 是 `\"柯基\"`、`.speak()` → `\"旺财 会叫\"`"}, {"n": 12, "cat": "C", "task": "重写 + 调父类：`Kitten(Animal)` 重写 speak，在父类结果后面接 \"（奶声奶气）\"——用 `super().speak()`", "name": "Kitten", "starter": "class Kitten(Animal):\n    \"\"\"重写 speak：返回父类 speak() 的结果 + \"（奶声奶气）\"——想想 super().speak()\"\"\"\n    ...  # 一个方法", "ans": "class Kitten(Animal):\n    def speak(self):\n        return super().speak() + \"（奶声奶气）\"", "tind": "        assert _fn(\"咪咪\").speak() == \"咪咪 会叫（奶声奶气）\", f\"实际 {_fn('咪咪').speak()!r}\"\n        assert _fn(\"Tom\").speak() == \"Tom 会叫（奶声奶气）\"\n        assert isinstance(_fn(\"x\"), Animal) is True, \"Kitten 应是 Animal 的实例\"", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"", "ex": "例：`Kitten(\"Tom\").speak()` → `\"Tom 会叫（奶声奶气）\"`——在父类那句话后面接上后缀"}, {"n": 13, "cat": "C", "task": "isinstance 判断：`is_pet(obj)`——obj 是 Animal（或其子类）实例返回 True，否则 False", "name": "is_pet", "starter": "def is_pet(obj):\n    \"\"\"obj 是 Animal（或其子类）实例时返回 True，否则 False\"\"\"\n    ...  # 一行", "ans": "def is_pet(obj):\n    return isinstance(obj, Animal)", "tind": "        assert _fn(Animal(\"a\")) is True\n        class _Puppy(Animal):\n            pass\n        assert _fn(_Puppy(\"b\")) is True, \"Animal 的子类实例也应通过\"\n        assert _fn(\"字符串\") is False\n        class _NotAnimal:\n            pass\n        assert _fn(_NotAnimal()) is False", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"", "ex": "例：`is_pet(Animal(\"a\"))` → `True`；`is_pet(\"字符串\")` → `False`——Animal 的子类实例也算数"}, {"n": 14, "cat": "C", "task": "多层继承：`Puppy(Dog)` 只加一个 `play()` 方法返回 `{name} 在玩耍`——speak 和 name 都不用写", "name": "Puppy", "starter": "class Puppy(Dog):\n    \"\"\"多层继承：Dog 的子类。补 play() 方法；speak 和 name 从继承链来，不要重写\"\"\"\n    ...  # 一个方法", "ans": "class Puppy(Dog):\n    def play(self):\n        return f\"{self.name} 在玩耍\"", "tind": "        p = _fn(\"球球\", \"柴犬\")\n        assert p.play() == \"球球 在玩耍\", f\"实际 {p.play()!r}\"\n        assert p.speak() == \"球球 会叫\", \"speak 应从 Animal 经 Dog 继承而来\"\n        assert p.name == \"球球\" and p.breed == \"柴犬\", \"name/breed 应来自 Dog 的 __init__\"", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"\n\nclass Dog(Animal):\n    def __init__(self, name, breed):\n        super().__init__(name)\n        self.breed = breed", "ex": "例：`Puppy(\"球球\", \"柴犬\").play()` → `\"球球 在玩耍\"`；`.speak()`、`.name`、`.breed` 全部从继承链直接拿到，不自己写"}, {"n": 15, "cat": "D", "task": "定义协议：把 `Tool` 改成 Protocol——加 `(Protocol)` 基类与 `@runtime_checkable`，声明 `run(self, query: str) -> str`", "name": "Tool", "starter": "# 从 typing 导入 Protocol 和 runtime_checkable\n\n\nclass Tool:\n    \"\"\"把本类改成 Protocol 接口：加 (Protocol) 基类与 @runtime_checkable，声明 run(self, query: str) -> str\"\"\"\n    ...", "ans": "from typing import Protocol, runtime_checkable\n\n@runtime_checkable\nclass Tool(Protocol):\n    def run(self, query: str) -> str: ...", "tind": "        assert any(b.__name__ == \"Protocol\" for b in _fn.__mro__), \"Tool 应以 Protocol 为基类：class Tool(Protocol)\"\n        class _Duck:\n            def run(self, query):\n                return \"ok:\" + query\n        assert isinstance(_Duck(), _fn), \"未声明继承的类也应通过 isinstance——需要 @runtime_checkable\"", "snip": null, "ex": "例：改完后，任何**有 run(query) 方法**的类实例都能通过 `isinstance(obj, Tool)`——哪怕它根本没继承 Tool"}, {"n": 16, "cat": "D", "task": "实现协议：`FakeRetriever` **不继承** Retriever，只要实现 `search` 方法（返回 `[query + \"-1\"]`）", "name": "FakeRetriever", "starter": "class FakeRetriever:\n    \"\"\"测试替身：不继承 Retriever，只要实现 search 方法，返回 [query + \"-1\"]\"\"\"\n    ...  # 一个方法", "ans": "class FakeRetriever:\n    def search(self, query):\n        return [query + \"-1\"]", "tind": "        r = _fn()\n        assert isinstance(r, Retriever), \"FakeRetriever 应满足 Retriever 协议\"\n        assert r.search(\"账单\") == [\"账单-1\"], f\"search('账单') 应返回 ['账单-1']，实际 {r.search('账单')!r}\"\n        assert r.search(\"订单\") == [\"订单-1\"]", "snip": "@runtime_checkable\nclass Retriever(Protocol):\n    def search(self, query: str) -> list[str]: ...", "ex": "例：`FakeRetriever().search(\"账单\")` → `[\"账单-1\"]`；不写任何继承，也能通过 `isinstance(r, Retriever)`"}, {"n": 17, "cat": "D", "task": "鸭子类型：`run_model(model, prompt)`——调用 model 的 complete 方法并返回结果，不用管它是什么类", "name": "run_model", "starter": "def run_model(model, prompt):\n    \"\"\"调用 model 的 complete 方法并返回结果——长得像就行\"\"\"\n    ...  # 一行", "ans": "def run_model(model, prompt):\n    return model.complete(prompt)", "tind": "        assert _fn(FakeModel(), \"你好\") == \"回答: 你好\", f\"实际 {_fn(FakeModel(), '你好')!r}\"\n        class _Other:\n            def complete(self, p):\n                return \"p:\" + p\n        assert _fn(_Other(), \"a\") == \"p:a\", \"任何实现 complete 的对象都应能用——这就是结构化匹配\"", "snip": "class FakeModel:\n    def complete(self, prompt: str) -> str:\n        return \"回答: \" + prompt", "ex": "例：传入任何有 complete 方法的对象，`run_model(m, \"hi\")` 返回的就是 `m.complete(\"hi\")` 的结果"}, {"n": 18, "cat": "E", "task": "dataclass 转 dict：`to_dicts(items)` 用 `dataclasses.asdict` 把实例列表转成 dict 列表", "name": "to_dicts", "starter": "# dataclasses 里有个专门\"实例转 dict\"的工具函数\n\n\ndef to_dicts(items):\n    \"\"\"把 msgs 这样的实例列表转成 dict 列表\"\"\"\n    ...  # 一行推导", "ans": "from dataclasses import asdict\n\ndef to_dicts(items):\n    return [asdict(m) for m in items]", "tind": "        r = _fn(msgs)\n        assert r == [{\"role\": \"user\", \"content\": \"你好\"}, {\"role\": \"ai\", \"content\": \"在的\"}, {\"role\": \"user\", \"content\": \"帮我查订单\"}], f\"实际 {r!r}\"\n        assert isinstance(r[0], dict), \"每个元素应是 dict\"", "snip": "@dataclass\nclass Message:\n    role: str\n    content: str\n\nmsgs = [Message(\"user\", \"你好\"), Message(\"ai\", \"在的\"), Message(\"user\", \"帮我查订单\")]", "ex": "例：`[Message(\"user\", \"你好\")]` → `[{\"role\": \"user\", \"content\": \"你好\"}]`——实例列表变 dict 列表"}, {"n": 19, "cat": "E", "task": "组合签名：`complete_all(model, prompts, *, uppercase=False)`——对每个 prompt 调 complete；uppercase **仅限关键字**，为 True 时结果全部转大写", "name": "complete_all", "starter": "def complete_all(model, prompts, uppercase=False):\n    \"\"\"任务：把 uppercase 改成仅关键字参数（签名里加 *）；对每个 prompt 调 model.complete，uppercase 时全部转大写\"\"\"\n    ...  # 改签名 + 一两行", "ans": "def complete_all(model, prompts, *, uppercase=False):\n    results = [model.complete(p) for p in prompts]\n    return [r.upper() for r in results] if uppercase else results", "tind": "        m = FakeModel()\n        assert _fn(m, [\"你好\", \"在吗\"]) == [\"回答: 你好\", \"回答: 在吗\"], f\"实际 {_fn(m, ['你好', '在吗'])!r}\"\n        assert _fn(m, [\"hi\"], uppercase=True) == [\"回答: HI\"]\n        try:\n            _fn(m, [\"hi\"], True)\n            assert False, \"uppercase 用位置传入没有报错——签名里缺 *（仅关键字参数）\"\n        except TypeError:\n            pass", "snip": "@runtime_checkable\nclass ChatModel(Protocol):\n    def complete(self, prompt: str) -> str: ...\n\nclass FakeModel:\n    def complete(self, prompt: str) -> str:\n        return \"回答: \" + prompt", "ex": "例：对 `[\"hi\", \"yo\"]` 逐个调 complete 得 `[\"回答: hi\", \"回答: yo\"]`；`uppercase=True` 时全部大写；uppercase 按位置传要报错"}, {"n": 20, "cat": "E", "task": "统计器：`Stats` 用 `add(x)` 记录数字，`mean()` 返回平均值（没记录过任何数时返回 0）", "name": "Stats", "starter": "class Stats:\n    \"\"\"统计器：add(x) 记录一个数字；mean() 返回平均值，空时返回 0\"\"\"\n    ...  # __init__ + 两个方法", "ans": "class Stats:\n    def __init__(self):\n        self.nums = []\n    def add(self, x):\n        self.nums.append(x)\n    def mean(self):\n        return sum(self.nums) / len(self.nums) if self.nums else 0", "tind": "        s = _fn()\n        assert s.mean() == 0, \"没记录任何数时应返回 0\"\n        s.add(2)\n        s.add(4)\n        s.add(6)\n        assert s.mean() == 4.0, f\"平均 2/4/6 应为 4.0，实际 {s.mean()!r}\"", "snip": null, "ex": "例：`add(2)`、`add(4)` 后 `mean()` → `3.0`；一个数都没记过时 `mean()` → `0`"}];
+const EX = [{"n": 1, "cat": "A", "task": "计数器：`Counter` 初始 `value` 为 0，`increment(n=1)` 把 value 加 n（默认加 1）", "name": "Counter", "starter": "class Counter:\n    \"\"\"计数器：__init__ 里设 value = 0；increment(n=1) 把 value 加 n（默认加 1）\"\"\"\n    ...  # __init__ + 一个方法", "ans": "class Counter:\n    def __init__(self):\n        self.value = 0\n    def increment(self, n=1):\n        self.value += n", "tind": "        c = _fn()\n        assert c.value == 0, f\"初始 value 应为 0，实际 {c.value!r}\"\n        c.increment()\n        assert c.value == 1, f\"increment() 后应为 1，实际 {c.value!r}\"\n        c.increment(5)\n        assert c.value == 6, f\"increment(5) 后应为 6，实际 {c.value!r}\"", "snip": null, "ex": "例：`c = Counter()` 时 `c.value == 0`；`c.increment(3)` 后 `c.value == 3`；不带参的 `increment()` 一次加 1"}, {"n": 2, "cat": "A", "task": "长方形：`Rectangle(width, height)`，方法 `area()` 面积、`perimeter()` 周长", "name": "Rectangle", "starter": "class Rectangle:\n    \"\"\"长方形：__init__ 收 width/height；area() 面积；perimeter() 周长\"\"\"\n    ...  # __init__ + 两个方法", "ans": "class Rectangle:\n    def __init__(self, width, height):\n        self.width = width\n        self.height = height\n    def area(self):\n        return self.width * self.height\n    def perimeter(self):\n        return 2 * (self.width + self.height)", "tind": "        r = _fn(3, 4)\n        assert r.area() == 12, f\"面积期望 12，实际 {r.area()!r}\"\n        assert r.perimeter() == 14, f\"周长期望 14，实际 {r.perimeter()!r}\"\n        assert _fn(2, 2).area() == 4", "snip": null, "ex": "例：`Rectangle(3, 5)` 的 `area()` → `15`、`perimeter()` → `16`"}, {"n": 3, "cat": "A", "task": "可读打印：`Point2D(x, y)` 的 `__repr__` 返回 `Point(x, y)`，如 `Point(3, 4)`", "name": "Point2D", "starter": "class Point2D:\n    \"\"\"二维点：__init__ 收 x/y；__repr__ 返回 \"Point(x, y)\"，如 Point(3, 4)\"\"\"\n    ...  # __init__ + __repr__", "ans": "class Point2D:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __repr__(self):\n        return f\"Point({self.x}, {self.y})\"", "tind": "        p = _fn(3, 4)\n        assert (p.x, p.y) == (3, 4)\n        assert repr(_fn(3, 4)) == \"Point(3, 4)\", f\"实际 repr {repr(_fn(3, 4))!r}\"\n        assert str(_fn(0, 0)) == \"Point(0, 0)\"", "snip": null, "ex": "例：`repr(Point2D(1, 2))` → `\"Point(1, 2)\"`——print 出来就是这个格式"}, {"n": 4, "cat": "A", "name": "method_self", "type": "mc", "task": "在类里写 `to_fahrenheit()` 方法，把 `self.celsius` 转成华氏度。下面哪个实现正确？", "options": ["`def to_fahrenheit(self): return self.celsius * 9 / 5 + 32`", "`def to_fahrenheit(self): return self.celsius * 9 / 5`（漏了 +32）", "`def to_fahrenheit(celsius): return celsius * 9 / 5 + 32`（漏 self）", "`def to_fahrenheit(self): return celsius * 9 / 5 + 32`（`celsius` 未定义）"], "correct": 0, "explain": "实例方法第一个参数必须是 `self`，通过 `self.celsius` 访问实例属性。公式与第 1 课 #7 的函数版相同，差别只在数据来源：函数从入参取，方法从 `self` 取。", "ex": "例：`Temperature(100).to_fahrenheit()` → `212.0`"}, {"n": 5, "cat": "A", "task": "栈：`Stack` 用 `push(x)` 压入、`pop()` 弹出并返回栈顶；空栈 pop 抛 `IndexError`", "name": "Stack", "starter": "class Stack:\n    \"\"\"栈：push(x) 压入；pop() 弹出并返回栈顶；空栈 pop 抛 IndexError\"\"\"\n    ...  # __init__ + 两个方法", "ans": "class Stack:\n    def __init__(self):\n        self.items = []\n    def push(self, x):\n        self.items.append(x)\n    def pop(self):\n        if not self.items:\n            raise IndexError(\"栈为空\")\n        return self.items.pop()", "tind": "        s = _fn()\n        s.push(1)\n        s.push(2)\n        v1 = s.pop()\n        assert v1 == 2, f\"后进先出：应先弹出 2，实际 {v1!r}\"\n        v2 = s.pop()\n        assert v2 == 1, f\"应再弹出 1，实际 {v2!r}\"\n        try:\n            s.pop()\n            assert False, \"空栈 pop 应抛 IndexError\"\n        except IndexError:\n            pass", "snip": null, "ex": "例：push(1)、push(2) 后 pop() 得 2、再 pop() 得 1（后进先出）；空栈再 pop 要抛 IndexError"}, {"n": 6, "cat": "B", "task": "第一个 dataclass：`Product(name, price)`——自动获得 `__init__`/`__repr__`/`__eq__`", "name": "Product", "starter": "# 先从 dataclasses 导入 dataclass\n\n\n@dataclass\nclass Product:\n    \"\"\"商品：两个字段 name(str)、price(float)\"\"\"\n    ...  # 两个字段的注解", "ans": "from dataclasses import dataclass\n\n@dataclass\nclass Product:\n    name: str\n    price: float", "tind": "        a = _fn(\"茶\", 25.0)\n        assert (a.name, a.price) == (\"茶\", 25.0), f\"实际 {(a.name, a.price)!r}\"\n        assert _fn(\"茶\", 25.0) == _fn(\"茶\", 25.0), \"同字段实例应相等（@dataclass 自动 __eq__）\"\n        assert repr(_fn(\"书\", 9.9)).startswith(\"Product(\"), \"应有可读 __repr__\"", "snip": null, "ex": "例：两个 `Product(\"茶\", 25.0)` 用 `==` 比较应相等；print 出来有可读的 `Product(...)` 字样"}, {"n": 7, "cat": "B", "task": "默认值字段：`CartItem(name, price, quantity=1)`——quantity 默认 1", "name": "CartItem", "starter": "# 先从 dataclasses 导入 dataclass\n\n\n@dataclass\nclass CartItem:\n    \"\"\"购物车条目：name(str)、price(float)、quantity(int，默认 1)\"\"\"\n    ...  # 三个字段", "ans": "from dataclasses import dataclass\n\n@dataclass\nclass CartItem:\n    name: str\n    price: float\n    quantity: int = 1", "tind": "        a = _fn(\"书\", 9.9)\n        assert (a.name, a.price, a.quantity) == (\"书\", 9.9, 1), f\"quantity 默认应为 1，实际 {a.quantity!r}\"\n        b = _fn(\"笔\", 2.0, 5)\n        assert b.quantity == 5, \"quantity 可自定义\"\n        assert b.price == 2.0", "snip": null, "ex": "例：`CartItem(\"书\", 9.9)` 的 quantity 是 `1`；`CartItem(\"笔\", 2.0, 5)` 的 quantity 是 `5`"}, {"n": 8, "cat": "B", "task": "可变默认值：`TaggedItem(name, tags)` 的 tags 默认空列表，且**实例之间互不共享**", "name": "TaggedItem", "starter": "# field 用来声明\"每次实例化都新建\"的可变默认值\n\n\n@dataclass\nclass TaggedItem:\n    \"\"\"带标签条目：name(str)、tags(list[str]，默认空列表，实例间互不共享)\"\"\"\n    ...  # 两个字段", "ans": "from dataclasses import dataclass, field\n\n@dataclass\nclass TaggedItem:\n    name: str\n    tags: list[str] = field(default_factory=list)", "tind": "        a = _fn(\"x\")\n        assert a.tags == [], f\"默认 tags 应为空列表，实际 {a.tags!r}\"\n        b = _fn(\"y\")\n        assert b.tags is not a.tags, \"两个实例的 tags 是同一个列表对象——应用 field(default_factory=list)\"\n        assert _fn(\"z\", tags=[\"vip\"]).tags == [\"vip\"], \"自定义 tags 应生效\"", "snip": null, "ex": "例：两个只传 name 的实例，各自有**互不共享**的空 tags 列表；`TaggedItem(\"x\", tags=[\"vip\"])` 的 tags 就是 `[\"vip\"]`"}, {"n": 9, "cat": "B", "task": "不可变配置：`Config(host, port)` 定义后字段**不可修改**（dataclass 的一个选项）", "name": "Config", "starter": "# 提示：dataclass 有一个让字段不可变的选项\n\n\n@dataclass\nclass Config:\n    \"\"\"不可变配置：host(str)、port(int)，字段定义后不可修改\"\"\"\n    ...  # 两个字段 + 装饰器参数", "ans": "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Config:\n    host: str\n    port: int", "tind": "        c = _fn(\"localhost\", 8000)\n        assert (c.host, c.port) == (\"localhost\", 8000)\n        assert _fn(\"localhost\", 8000) == _fn(\"localhost\", 8000), \"同字段实例应相等\"\n        try:\n            c.host = \"x\"\n            assert False, \"frozen 数据类的字段应不可修改\"\n        except AttributeError:\n            pass", "snip": null, "ex": "例：`Config(\"localhost\", 8000)` 建出来能正常读 host/port；之后 `c.host = \"x\"` 应当报错——字段定义后不可改"}, {"n": 10, "cat": "B", "task": "数据类 + 方法：`AgentState(session_id, messages, done)` 默认值齐全，再加方法 `add_message(m)` 追加消息", "name": "AgentState", "starter": "@dataclass\nclass AgentState:\n    \"\"\"会话状态：session_id(str)、messages(list[str] 默认空列表)、done(bool 默认 False)；\n    方法 add_message(m) 把 m 追加进 messages\"\"\"\n    ...  # 三个字段 + 一个方法", "ans": "from dataclasses import dataclass, field\n\n@dataclass\nclass AgentState:\n    session_id: str\n    messages: list[str] = field(default_factory=list)\n    done: bool = False\n    def add_message(self, m):\n        self.messages.append(m)", "tind": "        s = _fn(\"s1\")\n        assert s.messages == [] and s.done is False, f\"默认值不对：{(s.messages, s.done)!r}\"\n        s.add_message(\"hi\")\n        assert s.messages == [\"hi\"], \"add_message 应把消息追加进 messages\"\n        t = _fn(\"s2\")\n        assert t.messages == [], \"新实例的 messages 不应被其他实例污染\"\n        assert s.session_id == \"s1\"", "snip": null, "ex": "例：`AgentState(\"s1\")` 的 messages 是空列表、done 是 False；`add_message(\"hi\")` 后 messages 变 `[\"hi\"]`"}, {"n": 11, "cat": "C", "task": "继承 + super：`Dog(Animal)` 自己的 `__init__` 收 name 和 breed——用 `super().__init__` 把 name 交给父类", "name": "Dog", "starter": "class Dog(Animal):\n    \"\"\"继承 Animal：__init__ 收 name 和 breed——super().__init__ 传 name，breed 自己存\"\"\"\n    ...  # 一个 __init__", "ans": "class Dog(Animal):\n    def __init__(self, name, breed):\n        super().__init__(name)\n        self.breed = breed", "tind": "        d = _fn(\"旺财\", \"柯基\")\n        assert d.name == \"旺财\", \"name 应来自父类的 __init__\"\n        assert d.breed == \"柯基\"\n        assert d.speak() == \"旺财 会叫\", \"speak 应继承自 Animal\"", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"", "ex": "例：`Dog(\"旺财\", \"柯基\")` 的 `.name` 是 `\"旺财\"`、`.breed` 是 `\"柯基\"`、`.speak()` → `\"旺财 会叫\"`"}, {"n": 12, "cat": "C", "task": "重写 + 调父类：`Kitten(Animal)` 重写 speak，在父类结果后面接 \"（奶声奶气）\"——用 `super().speak()`", "name": "Kitten", "starter": "class Kitten(Animal):\n    \"\"\"重写 speak：返回父类 speak() 的结果 + \"（奶声奶气）\"——想想 super().speak()\"\"\"\n    ...  # 一个方法", "ans": "class Kitten(Animal):\n    def speak(self):\n        return super().speak() + \"（奶声奶气）\"", "tind": "        assert _fn(\"咪咪\").speak() == \"咪咪 会叫（奶声奶气）\", f\"实际 {_fn('咪咪').speak()!r}\"\n        assert _fn(\"Tom\").speak() == \"Tom 会叫（奶声奶气）\"\n        assert isinstance(_fn(\"x\"), Animal) is True, \"Kitten 应是 Animal 的实例\"", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"", "ex": "例：`Kitten(\"Tom\").speak()` → `\"Tom 会叫（奶声奶气）\"`——在父类那句话后面接上后缀"}, {"n": 13, "cat": "C", "task": "isinstance 判断：`is_pet(obj)`——obj 是 Animal（或其子类）实例返回 True，否则 False", "name": "is_pet", "starter": "def is_pet(obj):\n    \"\"\"obj 是 Animal（或其子类）实例时返回 True，否则 False\"\"\"\n    ...  # 一行", "ans": "def is_pet(obj):\n    return isinstance(obj, Animal)", "tind": "        assert _fn(Animal(\"a\")) is True\n        class _Puppy(Animal):\n            pass\n        assert _fn(_Puppy(\"b\")) is True, \"Animal 的子类实例也应通过\"\n        assert _fn(\"字符串\") is False\n        class _NotAnimal:\n            pass\n        assert _fn(_NotAnimal()) is False", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"", "ex": "例：`is_pet(Animal(\"a\"))` → `True`；`is_pet(\"字符串\")` → `False`——Animal 的子类实例也算数"}, {"n": 14, "cat": "C", "task": "多层继承：`Puppy(Dog)` 只加一个 `play()` 方法返回 `{name} 在玩耍`——speak 和 name 都不用写", "name": "Puppy", "starter": "class Puppy(Dog):\n    \"\"\"多层继承：Dog 的子类。补 play() 方法；speak 和 name 从继承链来，不要重写\"\"\"\n    ...  # 一个方法", "ans": "class Puppy(Dog):\n    def play(self):\n        return f\"{self.name} 在玩耍\"", "tind": "        p = _fn(\"球球\", \"柴犬\")\n        assert p.play() == \"球球 在玩耍\", f\"实际 {p.play()!r}\"\n        assert p.speak() == \"球球 会叫\", \"speak 应从 Animal 经 Dog 继承而来\"\n        assert p.name == \"球球\" and p.breed == \"柴犬\", \"name/breed 应来自 Dog 的 __init__\"", "snip": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return f\"{self.name} 会叫\"\n\nclass Dog(Animal):\n    def __init__(self, name, breed):\n        super().__init__(name)\n        self.breed = breed", "ex": "例：`Puppy(\"球球\", \"柴犬\").play()` → `\"球球 在玩耍\"`；`.speak()`、`.name`、`.breed` 全部从继承链直接拿到，不自己写"}, {"n": 15, "cat": "D", "name": "protocol_runtime", "type": "mc", "task": "想定义一个**可在运行时用 `isinstance` 检查**的结构化协议，正确的定义方式是？", "options": ["`class Tool: ...`（普通基类）", "`class Tool(Protocol): ...`，并用 `@runtime_checkable` 装饰", "`class Tool(ABC): ...`，并用 `@abstractmethod` 装饰方法", "`Tool = TypedDict(\"Tool\", {...})`"], "correct": 1, "explain": "`Protocol` 表达结构化子类型；默认不可 `isinstance`，加 `@runtime_checkable` 才开放运行时检查。A 是名义子类型，C 要求显式继承，D 是字典结构类型。", "ex": "例：`@runtime_checkable class Tool(Protocol): def run(self, query: str) -> str: ...`"}, {"n": 16, "cat": "D", "task": "实现协议：`FakeRetriever` **不继承** Retriever，只要实现 `search` 方法（返回 `[query + \"-1\"]`）", "name": "FakeRetriever", "starter": "class FakeRetriever:\n    \"\"\"测试替身：不继承 Retriever，只要实现 search 方法，返回 [query + \"-1\"]\"\"\"\n    ...  # 一个方法", "ans": "class FakeRetriever:\n    def search(self, query):\n        return [query + \"-1\"]", "tind": "        r = _fn()\n        assert isinstance(r, Retriever), \"FakeRetriever 应满足 Retriever 协议\"\n        assert r.search(\"账单\") == [\"账单-1\"], f\"search('账单') 应返回 ['账单-1']，实际 {r.search('账单')!r}\"\n        assert r.search(\"订单\") == [\"订单-1\"]", "snip": "@runtime_checkable\nclass Retriever(Protocol):\n    def search(self, query: str) -> list[str]: ...", "ex": "例：`FakeRetriever().search(\"账单\")` → `[\"账单-1\"]`；不写任何继承，也能通过 `isinstance(r, Retriever)`"}, {"n": 17, "cat": "D", "name": "duck_typing", "type": "mc", "task": "`run_model(model, prompt)` 想接受**任何**有 `complete` 方法的对象，其核心机制是？", "options": ["必须让 `model` 继承统一的 `Model` 基类", "Python 的鸭子类型——运行时直接查找并调用 `model.complete`，不检查声明的类型", "必须用 `@runtime_checkable` 的 `Protocol` 才能通过类型检查", "需要用 `isinstance(model, Model)` 先判断"], "correct": 1, "explain": "鸭子类型“看起来像鸭子就是鸭子”；`Protocol` 只是可选的静态契约，不是运行时必需。这正是 #16 的 `FakeRetriever` 不继承任何基类也能被使用的原因。", "ex": "例：`run_model(FakeModel(), \"hi\")` 只要 `FakeModel` 有 `complete` 方法就能工作"}, {"n": 18, "cat": "E", "task": "dataclass 转 dict：`to_dicts(items)` 用 `dataclasses.asdict` 把实例列表转成 dict 列表", "name": "to_dicts", "starter": "# dataclasses 里有个专门\"实例转 dict\"的工具函数\n\n\ndef to_dicts(items):\n    \"\"\"把 msgs 这样的实例列表转成 dict 列表\"\"\"\n    ...  # 一行推导", "ans": "from dataclasses import asdict\n\ndef to_dicts(items):\n    return [asdict(m) for m in items]", "tind": "        r = _fn(msgs)\n        assert r == [{\"role\": \"user\", \"content\": \"你好\"}, {\"role\": \"ai\", \"content\": \"在的\"}, {\"role\": \"user\", \"content\": \"帮我查订单\"}], f\"实际 {r!r}\"\n        assert isinstance(r[0], dict), \"每个元素应是 dict\"", "snip": "@dataclass\nclass Message:\n    role: str\n    content: str\n\nmsgs = [Message(\"user\", \"你好\"), Message(\"ai\", \"在的\"), Message(\"user\", \"帮我查订单\")]", "ex": "例：`[Message(\"user\", \"你好\")]` → `[{\"role\": \"user\", \"content\": \"你好\"}]`——实例列表变 dict 列表"}, {"n": 19, "cat": "E", "task": "组合签名：`complete_all(model, prompts, *, uppercase=False)`——对每个 prompt 调 complete；uppercase **仅限关键字**，为 True 时结果全部转大写", "name": "complete_all", "starter": "def complete_all(model, prompts, uppercase=False):\n    \"\"\"任务：把 uppercase 改成仅关键字参数（签名里加 *）；对每个 prompt 调 model.complete，uppercase 时全部转大写\"\"\"\n    ...  # 改签名 + 一两行", "ans": "def complete_all(model, prompts, *, uppercase=False):\n    results = [model.complete(p) for p in prompts]\n    return [r.upper() for r in results] if uppercase else results", "tind": "        m = FakeModel()\n        assert _fn(m, [\"你好\", \"在吗\"]) == [\"回答: 你好\", \"回答: 在吗\"], f\"实际 {_fn(m, ['你好', '在吗'])!r}\"\n        assert _fn(m, [\"hi\"], uppercase=True) == [\"回答: HI\"]\n        try:\n            _fn(m, [\"hi\"], True)\n            assert False, \"uppercase 用位置传入没有报错——签名里缺 *（仅关键字参数）\"\n        except TypeError:\n            pass", "snip": "@runtime_checkable\nclass ChatModel(Protocol):\n    def complete(self, prompt: str) -> str: ...\n\nclass FakeModel:\n    def complete(self, prompt: str) -> str:\n        return \"回答: \" + prompt", "ex": "例：对 `[\"hi\", \"yo\"]` 逐个调 complete 得 `[\"回答: hi\", \"回答: yo\"]`；`uppercase=True` 时全部大写；uppercase 按位置传要报错"}, {"n": 20, "cat": "E", "task": "统计器：`Stats` 用 `add(x)` 记录数字，`mean()` 返回平均值（没记录过任何数时返回 0）", "name": "Stats", "starter": "class Stats:\n    \"\"\"统计器：add(x) 记录一个数字；mean() 返回平均值，空时返回 0\"\"\"\n    ...  # __init__ + 两个方法", "ans": "class Stats:\n    def __init__(self):\n        self.nums = []\n    def add(self, x):\n        self.nums.append(x)\n    def mean(self):\n        return sum(self.nums) / len(self.nums) if self.nums else 0", "tind": "        s = _fn()\n        assert s.mean() == 0, \"没记录任何数时应返回 0\"\n        s.add(2)\n        s.add(4)\n        s.add(6)\n        assert s.mean() == 4.0, f\"平均 2/4/6 应为 4.0，实际 {s.mean()!r}\"", "snip": null, "ex": "例：`add(2)`、`add(4)` 后 `mean()` → `3.0`；一个数都没记过时 `mean()` → `0`"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 const LS_KEY = 'lesson-0004-drill-progress';
@@ -861,17 +920,30 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
     }
   });
   const done = prog.solved.length;
-  document.getElementById('pfill').style.width = (done / 20 * 100) + '%';
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
   document.getElementById('ptext').textContent = '已完成 ' + done + ' / 20';
   document.querySelectorAll('.drill-cat').forEach(h => {
     const cat = h.dataset.cat;
@@ -891,6 +963,7 @@ async function ensurePy() {
       rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -908,11 +981,23 @@ async function ensurePy() {
 async function check(n) {
   const codeVal = codeEl(n).value;
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _res = {"ok": False, "msg": ""}
 _lenv = dict(_G)
@@ -933,18 +1018,18 @@ ${ex.tind}
 _json.dumps(_res)`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 全部断言通过';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + msg;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => codeEl(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
   if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
   rt.textContent = '批量检查中…';
   let pass = 0;
@@ -960,13 +1045,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填代码？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -1036,7 +1122,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -1093,6 +1179,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -1131,6 +1218,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -1138,6 +1226,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1145,7 +1234,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1174,6 +1265,91 @@ refreshUI();
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';

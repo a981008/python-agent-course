@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 44rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +312,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +372,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
@@ -326,16 +381,29 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-status.info { color: var(--ink-soft); }
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
 <main>
 <h1>练习场 · 20 题函数设计训练</h1>
 <p class="meta">第 3 课配套 · 默认参数 / 仅关键字 / *args/**kwargs / 可变默认参数坑 / lambda · 自动判分</p>
-<div class="callout win"><strong>玩法</strong>：这次写的是<strong>完整函数定义</strong>（不只是表达式）——把每题起始代码里的 <code>...</code> 补成实现，按题目要求改签名。点"检查"会真实运行你的函数并跑断言；改签名类题目（#8、#19）有防作弊测试：没加 <code>*</code> 会被当场抓住。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。<a href="#data-preview">↓ 先看数据一览</a></div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；这次写的是<strong>完整函数定义</strong>（不只是表达式）——把每题起始代码里的 <code>...</code> 补成实现，按题目要求改签名。点"检查"会真实运行你的函数并跑断言；改签名类题目（#8、#19）有防作弊测试：没加 <code>*</code> 会被当场抓住。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。<a href="#data-preview">↓ 先看数据一览</a></div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>（部分题目共用这些预置变量；题目下方也会显示本题用到的数据）：
-<pre><code>BASE    = {&#x27;host&#x27;: &#x27;localhost&#x27;, &#x27;port&#x27;: 8000}          # #17 合并配置时不得原地修改
+<pre><code>BASE    = {&#x27;host&#x27;: &#x27;localhost&#x27;, &#x27;port&#x27;: 8000}          # #17 已改为概念题：辨析合并配置的写法
 nums    = [3, 1, 4, 1, 5, 9, 2]
 words   = [&#x27;pay&#x27;, &#x27;Agent&#x27;, &#x27;tool&#x27;, &#x27;MCP&#x27;]
 pairs   = [(&#x27;a&#x27;, 1), (&#x27;b&#x27;, 3), (&#x27;c&#x27;, 2)]
@@ -529,14 +597,13 @@ prices  = {&#x27;apple&#x27;: 3.5, &#x27;tea&#x27;: 25.0}</code></pre>
 </div>
 
 <div class="drill" id="d-12" data-n="12" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#12</span><div class="drill-task">按<strong>长度升序</strong>排单词，同长保持原顺序（想想 sorted 的 key 参数收什么）</div></div>
-  <div class="drill-ex">例：<code>sort_words(["bb", "a", "ccc"])</code> → <code>["a", "bb", "ccc"]</code>；同长时谁先出现谁在前</div>
-  <pre class="drill-data" aria-label="本题数据">words = ['pay', 'Agent', 'tool', 'MCP']</pre>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> sort_words(words):
-    <span class="tk-str">"""按长度升序；同长保持原顺序"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def sort_words(words):
-    &quot;&quot;&quot;按长度升序；同长保持原顺序&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#12</span><div class="drill-task">要按单词长度升序排序，且<strong>同长保持原顺序</strong>，正确的 <code>sorted</code> 调用是？</div></div>
+  <div class="drill-ex">例：<code>["bbb", "a", "cc"]</code> → <code>["a", "cc", "bbb"]</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-12" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>sorted(words)</code>（按字母序，不是长度）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-12" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>sorted(words, key=len)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-12" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>sorted(words, reverse=True, key=len)</code>（降序）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-12" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>words.sort(key=len)</code>（原地排序，返回 None）</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -599,13 +666,13 @@ prices  = {&#x27;apple&#x27;: 3.5, &#x27;tea&#x27;: 25.0}</code></pre>
 </div>
 
 <div class="drill" id="d-16" data-n="16" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#16</span><div class="drill-task">默认工厂：<code>tags</code> 缺省时每次调用都要<strong>新列表对象</strong>（不共享）</div></div>
-  <div class="drill-ex">例：两次不传 tags 的调用，各自拿到<strong>不同</strong>的空列表对象；传了 tags 就用传入的那份</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> make_default(name, tags=<span class="tk-kw">None</span>):
-    <span class="tk-str">"""返回 {"name": name, "tags": tags}；tags 为 None 时给一个新空列表"""</span>
-    ...  <span class="tk-com"># 2-3 行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def make_default(name, tags=None):
-    &quot;&quot;&quot;返回 {&quot;name&quot;: name, &quot;tags&quot;: tags}；tags 为 None 时给一个新空列表&quot;&quot;&quot;
-    ...  # 2-3 行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#16</span><div class="drill-task">下面哪种写法能保证 <code>tags</code> 缺省时每次调用都拿到<strong>新列表</strong>？</div></div>
+  <div class="drill-ex">例：连续两次 <code>make_default("a")</code> 得到的两个 dict，<code>tags</code> 必须是两个不同的空列表对象</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-16" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>def make_default(name, tags=[]): return {"name": name, "tags": tags}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>def make_default(name, tags=None): return {"name": name, "tags": tags if tags is not None else []}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>def make_default(name, tags=[]): return {"name": name, "tags": tags.copy()}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>def make_default(name, tags=list()): return {"name": name, "tags": tags}</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -615,14 +682,13 @@ prices  = {&#x27;apple&#x27;: 3.5, &#x27;tea&#x27;: 25.0}</code></pre>
 </div>
 
 <div class="drill" id="d-17" data-n="17" data-cat="D">
-  <div class="drill-head"><span class="drill-no">#17</span><div class="drill-task">合并配置：以 <code>BASE</code> 为底，<code><strong>overrides</code> 覆盖，</strong>不得修改 BASE 本身**</div></div>
-  <div class="drill-ex">例：<code>safe_config(port=9000)</code> → <code>{"host": "localhost", "port": 9000}</code> 且 BASE 保持原样；<code>safe_config()</code> → 原配置原样</div>
-  <pre class="drill-data" aria-label="本题数据">BASE = {'host': 'localhost', 'port': 8000}</pre>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> safe_config(**overrides):
-    <span class="tk-str">"""返回合并后的新 dict；BASE 必须保持原样"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def safe_config(**overrides):
-    &quot;&quot;&quot;返回合并后的新 dict；BASE 必须保持原样&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#17</span><div class="drill-task">要把 <code>BASE</code> 的配置与 <code>overrides</code> 合并、且<strong>不得修改 BASE</strong>，正确的写法是？</div></div>
+  <div class="drill-ex">例：<code>BASE = {"host": "localhost", "port": 8000}</code>；<code>safe_config(port=9000)</code> → <code>{"host": "localhost", "port": 9000}</code>，BASE 不变</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-17" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>BASE.update(overrides); return BASE</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>return {<strong>BASE, </strong>overrides}</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>return BASE.copy().update(overrides)</code>（<code>update</code> 返回 None）</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-17" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>return dict(overrides, **BASE)</code>（顺序反了，BASE 会覆盖 overrides）</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -634,14 +700,13 @@ prices  = {&#x27;apple&#x27;: 3.5, &#x27;tea&#x27;: 25.0}</code></pre>
 <h2 class="drill-cat" data-cat="E">E · 综合<span class="cat-done" data-range="18-20">第 18–20 题 · 0/3</span></h2>
 
 <div class="drill" id="d-18" data-n="18" data-cat="E">
-  <div class="drill-head"><span class="drill-no">#18</span><div class="drill-task">一次返回最小和最大（多值返回 + 调用方解包）</div></div>
-  <div class="drill-ex">例：<code>min_max([6, -2, 8])</code> → <code>(-2, 8)</code>，且能写成 <code>lo, hi = min_max(...)</code> 解包</div>
-  <pre class="drill-data" aria-label="本题数据">nums = [3, 1, 4, 1, 5, 9, 2]</pre>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> min_max(nums):
-    <span class="tk-str">"""返回 (最小值, 最大值) 元组"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def min_max(nums):
-    &quot;&quot;&quot;返回 (最小值, 最大值) 元组&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#18</span><div class="drill-task">#7 的 <code>stats(*nums)</code> 与本题 <code>min_max(nums)</code> 答案都是 <code>return min(nums), max(nums)</code>。关于这两个函数，下面说法正确的是？</div></div>
+  <div class="drill-ex">例：<code>lo, hi = min_max([3,1,4])</code> → <code>lo=1, hi=4</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-18" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>min(nums), max(nums)</code> 返回的是元组，调用方可用两个变量解包</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-18" value="1"><span class="opt-letter">B</span><span class="opt-text">必须写成 <code>return [min(nums), max(nums)]</code> 才能返回两个值</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-18" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>*nums</code> 与 <code>nums</code> 在函数体里的用法完全相同，没有任何区别</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-18" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>min()</code> 和 <code>max()</code> 一次遍历就同时算出最小最大</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -696,7 +761,7 @@ prices = {"apple": 3.5, "tea": 25.0}
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "task": "问候函数：`greeting` 默认 `\"你好\"`，可通过关键字改", "name": "greet", "starter": "def greet(name, greeting=\"你好\"):\n    \"\"\"返回 \"{greeting}, {name}\"，greeting 可省略\"\"\"\n    ...  # 一行 f-string", "ans": "def greet(name, greeting=\"你好\"):\n    return f\"{greeting}, {name}\"", "tind": "        assert _fn(\"小明\") == \"你好, 小明\", f\"期望 '你好, 小明'，实际 {_fn('小明')!r}\"\n        assert _fn(\"小明\", greeting=\"早\") == \"早, 小明\", \"greeting 应可通过关键字传入\"\n        assert _fn(\"Bob\", greeting=\"Hi\") == \"Hi, Bob\"", "snip": null, "ex": "例：`greet(\"阿芳\")` → `\"你好, 阿芳\"`；`greet(\"阿芳\", greeting=\"早\")` → `\"早, 阿芳\"`（逗号是半角+空格）"}, {"n": 2, "cat": "A", "task": "幂函数：`exp` 默认 2（对应 Java 的两个重载）", "name": "power", "starter": "def power(base, exp=2):\n    \"\"\"base 的 exp 次方，exp 默认 2\"\"\"\n    ...  # 一行", "ans": "def power(base, exp=2):\n    return base ** exp", "tind": "        assert _fn(3) == 9, f\"power(3) 期望 9，实际 {_fn(3)!r}\"\n        assert _fn(2, 3) == 8, \"exp 可按位置传入\"\n        assert _fn(2.0) == 4.0", "snip": null, "ex": "例：`power(5)` → `25`（第二个参数缺省是 2）；`power(2, 3)` → `8`"}, {"n": 3, "cat": "A", "task": "拼 URL：`port` 默认 80、`path` 默认 \"/\"，都可用关键字改", "name": "make_url", "starter": "def make_url(host, port=80, path=\"/\"):\n    \"\"\"返回 \"http://{host}:{port}{path}\" \"\"\"\n    ...  # 一行 f-string", "ans": "def make_url(host, port=80, path=\"/\"):\n    return f\"http://{host}:{port}{path}\"", "tind": "        assert _fn(\"api.example.com\") == \"http://api.example.com:80/\"\n        assert _fn(\"api.example.com\", port=8080) == \"http://api.example.com:8080/\"\n        assert _fn(\"x.com\", 8080, \"/pay\") == \"http://x.com:8080/pay\"", "snip": null, "ex": "例：`make_url(\"x.io\")` → `\"http://x.io:80/\"`；`make_url(\"x.io\", port=443, path=\"/pay\")` → `\"http://x.io:443/pay\"`"}, {"n": 4, "cat": "A", "task": "折扣价：`rate` 默认 0.9，结果四舍五入 2 位", "name": "discount", "starter": "def discount(price, rate=0.9):\n    \"\"\"按折扣率算价格，四舍五入到 2 位小数\"\"\"\n    ...  # 一行", "ans": "def discount(price, rate=0.9):\n    return round(price * rate, 2)", "tind": "        assert _fn(100) == 90.0\n        assert _fn(100, 0.5) == 50.0\n        assert _fn(99.9, rate=0.8) == 79.92", "snip": null, "ex": "例：`discount(200)` → `180.0`（默认九折）；`discount(200, rate=0.5)` → `100.0`"}, {"n": 5, "cat": "A", "task": "重复字符串：`times` 默认 2，`sep` 默认 \"-\"", "name": "repeat", "starter": "def repeat(text, times=2, sep=\"-\"):\n    \"\"\"text 重复 times 次，中间用 sep 连接\"\"\"\n    ...  # 一行", "ans": "def repeat(text, times=2, sep=\"-\"):\n    return sep.join([text] * times)", "tind": "        assert _fn(\"a\") == \"a-a\"\n        assert _fn(\"ab\", 3) == \"ab-ab-ab\"\n        assert _fn(\"x\", 2, sep=\"+\") == \"x+x\"", "snip": null, "ex": "例：`repeat(\"go\")` → `\"go-go\"`；`repeat(\"go\", 3, sep=\"…\")` → `\"go…go…go\"`"}, {"n": 6, "cat": "B", "task": "任意个数字求和（`*args`），无参数时返回 0", "name": "sum_all", "starter": "def sum_all(*nums):\n    \"\"\"接收任意个数字，返回总和\"\"\"\n    ...  # 一行", "ans": "def sum_all(*nums):\n    return sum(nums)", "tind": "        assert _fn(1, 2, 3) == 6\n        assert _fn() == 0, \"无参数应返回 0\"\n        assert _fn(1.5, 2.5) == 4.0", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`sum_all(1, 2, 3, 4)` → `10`；`sum_all()` → `0`——参数个数不限"}, {"n": 7, "cat": "B", "task": "统计多个数字的最小和最大值——用**元组一次返回两个值**", "name": "stats", "starter": "def stats(*nums):\n    \"\"\"返回 (最小值, 最大值) 元组\"\"\"\n    ...  # 一行：return ..., ...", "ans": "def stats(*nums):\n    return min(nums), max(nums)", "tind": "        assert _fn(3, 1, 2) == (1, 3), f\"期望 (1, 3)，实际 {_fn(3, 1, 2)!r}\"\n        assert _fn(5) == (5, 5)\n        assert _fn(2.5, 1.5) == (1.5, 2.5)", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`stats(4, 0, 7)` → `(0, 7)`——元组里前小后大，一次返回俩"}, {"n": 8, "cat": "B", "task": "发送消息：把 `subject` 改成**仅关键字参数**（签名里加 `*`），返回 dict", "name": "send", "starter": "def send(to, subject, urgent=False):\n    \"\"\"任务：在参数列表中加 *，让 subject 只能关键字传入；返回 {\"to\":..., \"subject\":..., \"urgent\":...}\"\"\"\n    ...  # 改签名 + 一行实现", "ans": "def send(to, *, subject, urgent=False):\n    return {\"to\": to, \"subject\": subject, \"urgent\": urgent}", "tind": "        assert _fn(\"a@b.com\", subject=\"账单\") == {\"to\": \"a@b.com\", \"subject\": \"账单\", \"urgent\": False}\n        assert _fn(\"a@b.com\", subject=\"告警\", urgent=True)[\"urgent\"] is True\n        try:\n            _fn(\"a@b.com\", \"账单\")\n            assert False, \"subject 用位置传入没有报错——签名里缺 *（仅关键字参数）\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：`send(\"bob@x.com\", subject=\"账单\")` → `{\"to\": \"bob@x.com\", \"subject\": \"账单\", \"urgent\": False}`；把 subject 按位置传的写法应直接报错"}, {"n": 9, "cat": "B", "task": "接收任意个具名参数（`**kwargs`），拼成按 key 排序的 \"k=v\" 串", "name": "describe", "starter": "def describe(**info):\n    \"\"\"返回 \"k1=v1,k2=v2\"，按 key 字典序排序；空参数返回空串\"\"\"\n    ...  # 一行", "ans": "def describe(**info):\n    return \",\".join(f\"{k}={v}\" for k, v in sorted(info.items()))", "tind": "        assert _fn(name=\"pay\", age=3) == \"age=3,name=pay\", f\"实际 {_fn(name='pay', age=3)!r}\"\n        assert _fn() == \"\"\n        assert _fn(b=2, a=1) == \"a=1,b=2\"", "snip": null, "ex": "例：`describe(z=26, a=1)` → `\"a=1,z=26\"`——按 key 字典序排；`describe()` → `\"\"`"}, {"n": 10, "cat": "B", "task": "位置参数和具名参数一起收：数字总和 = `args` 的和 + `kwargs` 值的和", "name": "total", "starter": "def total(*args, **kwargs):\n    \"\"\"位置参数的值与具名参数的值，全部加总\"\"\"\n    ...  # 一行", "ans": "def total(*args, **kwargs):\n    return sum(args) + sum(kwargs.values())", "tind": "        assert _fn(1, 2, a=3, b=4) == 10\n        assert _fn() == 0\n        assert _fn(1.5) == 1.5\n        assert _fn(x=2.5) == 2.5", "snip": null, "ex": "例：`total(1, 2, a=3)` → `6`——位置参数和具名参数的值都算进来"}, {"n": 11, "cat": "C", "task": "去重后的第二大值（set 去重 + 排序的组合运用）", "name": "second_largest", "starter": "def second_largest(nums):\n    \"\"\"先去重，再取第二大；保证至少有两个不同值\"\"\"\n    ...  # 一行", "ans": "def second_largest(nums):\n    return sorted(set(nums), reverse=True)[1]", "tind": "        assert _fn([3, 1, 4, 1, 5]) == 4, f\"期望 4，实际 {_fn([3, 1, 4, 1, 5])!r}\"\n        assert _fn([10, 20]) == 10\n        assert _fn([5, 5, 2, 1]) == 2, \"重复的 5 只算一次\"", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`second_largest([9, 9, 7, 3])` → `7`——重复的最大值只算一次"}, {"n": 12, "cat": "C", "task": "按**长度升序**排单词，同长保持原顺序（想想 sorted 的 key 参数收什么）", "name": "sort_words", "starter": "def sort_words(words):\n    \"\"\"按长度升序；同长保持原顺序\"\"\"\n    ...  # 一行", "ans": "def sort_words(words):\n    return sorted(words, key=len)", "tind": "        assert _fn([\"pay\", \"Agent\", \"tool\"]) == [\"pay\", \"tool\", \"Agent\"]\n        assert _fn([\"bb\", \"aa\", \"c\"]) == [\"c\", \"bb\", \"aa\"], \"同长的元素应保持原顺序（sorted 稳定）\"\n        assert _fn([]) == []", "snip": "words = ['pay', 'Agent', 'tool', 'MCP']", "ex": "例：`sort_words([\"bb\", \"a\", \"ccc\"])` → `[\"a\", \"bb\", \"ccc\"]`；同长时谁先出现谁在前"}, {"n": 13, "cat": "C", "task": "按 value **降序**取出所有 key（排序键要能\"查到\"每个 key 对应的 value）", "name": "sort_pairs", "starter": "def sort_pairs(pairs):\n    \"\"\"按 value 降序，返回对应的 key 列表\"\"\"\n    ...  # 一行推导", "ans": "def sort_pairs(pairs):\n    return [k for k, v in sorted(pairs, key=lambda kv: kv[1], reverse=True)]", "tind": "        assert _fn([(\"a\", 1), (\"b\", 3), (\"c\", 2)]) == [\"b\", \"c\", \"a\"]\n        assert _fn([(\"a\", 2), (\"b\", 2), (\"c\", 1)]) == [\"a\", \"b\", \"c\"], \"同 value 保持原顺序\"\n        assert _fn([]) == []", "snip": "pairs = [('a', 1), ('b', 3), ('c', 2)]", "ex": "例：`sort_pairs([(\"x\", 2), (\"y\", 3), (\"z\", 1)])` → `[\"y\", \"x\", \"z\"]`——按 value 从大到小排 key"}, {"n": 14, "cat": "C", "task": "按分数降序取前 n 名（排序与切片的组合拳）", "name": "top_scores", "starter": "def top_scores(scores, n=2):\n    \"\"\"scores 是 {姓名: 分数}，返回前 n 名姓名列表\"\"\"\n    ...  # 一行推导", "ans": "def top_scores(scores, n=2):\n    return [k for k, v in sorted(scores.items(), key=lambda kv: kv[1], reverse=True)[:n]]", "tind": "        assert _fn({\"Alice\": 92, \"Bob\": 58, \"Cara\": 75}) == [\"Alice\", \"Cara\"]\n        assert _fn({\"Alice\": 92, \"Bob\": 58}, n=1) == [\"Alice\"]\n        assert _fn({\"a\": 5, \"b\": 5, \"c\": 1}) == [\"a\", \"b\"], \"同分保持原顺序\"\n        assert _fn({}) == []", "snip": null, "ex": "例：`top_scores({\"a\": 70, \"b\": 90, \"c\": 80}, n=2)` → `[\"b\", \"c\"]`——按分数排好后切前 n 名"}, {"n": 15, "cat": "D", "task": "**修复 bug**：默认列表被所有调用共享。改用哨兵值写法", "name": "append_log", "starter": "def append_log(log, logs=[]):\n    \"\"\"有 bug：logs 默认列表在定义时创建一次，多次调用互相累积。修复它\"\"\"\n    logs.append(log)\n    return logs", "ans": "def append_log(log, logs=None):\n    if logs is None:\n        logs = []\n    logs.append(log)\n    return logs", "tind": "        a = _fn(\"a\")\n        assert a == [\"a\"], f\"期望 ['a']，实际 {a!r}\"\n        b = _fn(\"b\")\n        assert b == [\"b\"], f\"第二次调用累积了上次的元素（{b!r}）——可变默认参数坑还没修掉\"\n        c = _fn(\"c\", logs=[\"x\"])\n        assert c == [\"x\", \"c\"], \"显式传入的 logs 仍应正常追加\"", "snip": null, "ex": "例：修好后，不带 logs 连续调用两次，第二次的返回应只有新元素（如 `[\"b\"]`），不能累积上次的；显式传入的列表照常追加"}, {"n": 16, "cat": "D", "task": "默认工厂：`tags` 缺省时每次调用都要**新列表对象**（不共享）", "name": "make_default", "starter": "def make_default(name, tags=None):\n    \"\"\"返回 {\"name\": name, \"tags\": tags}；tags 为 None 时给一个新空列表\"\"\"\n    ...  # 2-3 行", "ans": "def make_default(name, tags=None):\n    return {\"name\": name, \"tags\": tags if tags is not None else []}", "tind": "        d1 = _fn(\"o1\")\n        d2 = _fn(\"o2\")\n        assert d1 == {\"name\": \"o1\", \"tags\": []}\n        assert d2[\"tags\"] is not d1[\"tags\"], \"两次调用的 tags 是同一个列表对象——默认值被共享了\"\n        assert _fn(\"o3\", tags=[\"vip\"]) == {\"name\": \"o3\", \"tags\": [\"vip\"]}", "snip": null, "ex": "例：两次不传 tags 的调用，各自拿到**不同**的空列表对象；传了 tags 就用传入的那份"}, {"n": 17, "cat": "D", "task": "合并配置：以 `BASE` 为底，`**overrides` 覆盖，**不得修改 BASE 本身**", "name": "safe_config", "starter": "def safe_config(**overrides):\n    \"\"\"返回合并后的新 dict；BASE 必须保持原样\"\"\"\n    ...  # 一行", "ans": "def safe_config(**overrides):\n    return {**BASE, **overrides}", "tind": "        r = _fn(port=9000)\n        assert r == {\"host\": \"localhost\", \"port\": 9000}, f\"实际 {r!r}\"\n        assert BASE == {\"host\": \"localhost\", \"port\": 8000}, \"BASE 被修改了！不要原地 update，用 {**BASE, **overrides} 创建新字典\"\n        assert _fn() == {\"host\": \"localhost\", \"port\": 8000}", "snip": "BASE = {'host': 'localhost', 'port': 8000}", "ex": "例：`safe_config(port=9000)` → `{\"host\": \"localhost\", \"port\": 9000}` 且 BASE 保持原样；`safe_config()` → 原配置原样"}, {"n": 18, "cat": "E", "task": "一次返回最小和最大（多值返回 + 调用方解包）", "name": "min_max", "starter": "def min_max(nums):\n    \"\"\"返回 (最小值, 最大值) 元组\"\"\"\n    ...  # 一行", "ans": "def min_max(nums):\n    return min(nums), max(nums)", "tind": "        assert _fn([3, 1, 2]) == (1, 3)\n        assert _fn([5]) == (5, 5)\n        assert _fn([4, -1, 9]) == (-1, 9)\n        lo, hi = _fn([2, 8])\n        assert (lo, hi) == (2, 8), \"返回值必须能解包成两个变量（元组）\"", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`min_max([6, -2, 8])` → `(-2, 8)`，且能写成 `lo, hi = min_max(...)` 解包"}, {"n": 19, "cat": "E", "task": "组合签名：`reverse` 仅限关键字、默认 False", "name": "full_name", "starter": "def full_name(first, last, reverse=False):\n    \"\"\"任务：把 reverse 改成仅关键字参数；返回 \"first last\"，reverse 时 \"last first\" \"\"\"\n    ...  # 改签名 + 一行", "ans": "def full_name(first, last, *, reverse=False):\n    return f\"{last} {first}\" if reverse else f\"{first} {last}\"", "tind": "        assert _fn(\"王\", \"小明\") == \"王 小明\"\n        assert _fn(\"王\", \"小明\", reverse=True) == \"小明 王\"\n        try:\n            _fn(\"a\", \"b\", True)\n            assert False, \"reverse 用位置传入没有报错——签名里缺 *\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：`full_name(\"李\", \"雷\")` → `\"李 雷\"`；`full_name(\"李\", \"雷\", reverse=True)` → `\"雷 李\"`；reverse 用位置传要报错"}, {"n": 20, "cat": "E", "task": "函数是一等公民：依次应用列表里的每个函数（面试常考的管道模式）", "name": "apply_all", "starter": "def apply_all(funcs, x):\n    \"\"\"把 funcs 里的函数依次应用到 x 上，返回最终值；funcs 为空返回 x 原值\"\"\"\n    ...  # 3-4 行循环", "ans": "def apply_all(funcs, x):\n    for f in funcs:\n        x = f(x)\n    return x", "tind": "        assert _fn([lambda v: v + 1, lambda v: v * 2], 3) == 8, \"3 +1 得 4，再 *2 得 8\"\n        assert _fn([], 5) == 5\n        assert _fn([lambda s: s.upper()], \"ab\") == \"AB\"", "snip": null, "ex": "例：函数列表里先 +1 再 ×3，`apply_all(fns, 2)` → `9`——2 先 +1 变 3，3 再 ×3 变 9；空列表原样返回输入"}];
+const EX = [{"n": 1, "cat": "A", "task": "问候函数：`greeting` 默认 `\"你好\"`，可通过关键字改", "name": "greet", "starter": "def greet(name, greeting=\"你好\"):\n    \"\"\"返回 \"{greeting}, {name}\"，greeting 可省略\"\"\"\n    ...  # 一行 f-string", "ans": "def greet(name, greeting=\"你好\"):\n    return f\"{greeting}, {name}\"", "tind": "        assert _fn(\"小明\") == \"你好, 小明\", f\"期望 '你好, 小明'，实际 {_fn('小明')!r}\"\n        assert _fn(\"小明\", greeting=\"早\") == \"早, 小明\", \"greeting 应可通过关键字传入\"\n        assert _fn(\"Bob\", greeting=\"Hi\") == \"Hi, Bob\"", "snip": null, "ex": "例：`greet(\"阿芳\")` → `\"你好, 阿芳\"`；`greet(\"阿芳\", greeting=\"早\")` → `\"早, 阿芳\"`（逗号是半角+空格）"}, {"n": 2, "cat": "A", "task": "幂函数：`exp` 默认 2（对应 Java 的两个重载）", "name": "power", "starter": "def power(base, exp=2):\n    \"\"\"base 的 exp 次方，exp 默认 2\"\"\"\n    ...  # 一行", "ans": "def power(base, exp=2):\n    return base ** exp", "tind": "        assert _fn(3) == 9, f\"power(3) 期望 9，实际 {_fn(3)!r}\"\n        assert _fn(2, 3) == 8, \"exp 可按位置传入\"\n        assert _fn(2.0) == 4.0", "snip": null, "ex": "例：`power(5)` → `25`（第二个参数缺省是 2）；`power(2, 3)` → `8`"}, {"n": 3, "cat": "A", "task": "拼 URL：`port` 默认 80、`path` 默认 \"/\"，都可用关键字改", "name": "make_url", "starter": "def make_url(host, port=80, path=\"/\"):\n    \"\"\"返回 \"http://{host}:{port}{path}\" \"\"\"\n    ...  # 一行 f-string", "ans": "def make_url(host, port=80, path=\"/\"):\n    return f\"http://{host}:{port}{path}\"", "tind": "        assert _fn(\"api.example.com\") == \"http://api.example.com:80/\"\n        assert _fn(\"api.example.com\", port=8080) == \"http://api.example.com:8080/\"\n        assert _fn(\"x.com\", 8080, \"/pay\") == \"http://x.com:8080/pay\"", "snip": null, "ex": "例：`make_url(\"x.io\")` → `\"http://x.io:80/\"`；`make_url(\"x.io\", port=443, path=\"/pay\")` → `\"http://x.io:443/pay\"`"}, {"n": 4, "cat": "A", "task": "折扣价：`rate` 默认 0.9，结果四舍五入 2 位", "name": "discount", "starter": "def discount(price, rate=0.9):\n    \"\"\"按折扣率算价格，四舍五入到 2 位小数\"\"\"\n    ...  # 一行", "ans": "def discount(price, rate=0.9):\n    return round(price * rate, 2)", "tind": "        assert _fn(100) == 90.0\n        assert _fn(100, 0.5) == 50.0\n        assert _fn(99.9, rate=0.8) == 79.92", "snip": null, "ex": "例：`discount(200)` → `180.0`（默认九折）；`discount(200, rate=0.5)` → `100.0`"}, {"n": 5, "cat": "A", "task": "重复字符串：`times` 默认 2，`sep` 默认 \"-\"", "name": "repeat", "starter": "def repeat(text, times=2, sep=\"-\"):\n    \"\"\"text 重复 times 次，中间用 sep 连接\"\"\"\n    ...  # 一行", "ans": "def repeat(text, times=2, sep=\"-\"):\n    return sep.join([text] * times)", "tind": "        assert _fn(\"a\") == \"a-a\"\n        assert _fn(\"ab\", 3) == \"ab-ab-ab\"\n        assert _fn(\"x\", 2, sep=\"+\") == \"x+x\"", "snip": null, "ex": "例：`repeat(\"go\")` → `\"go-go\"`；`repeat(\"go\", 3, sep=\"…\")` → `\"go…go…go\"`"}, {"n": 6, "cat": "B", "task": "任意个数字求和（`*args`），无参数时返回 0", "name": "sum_all", "starter": "def sum_all(*nums):\n    \"\"\"接收任意个数字，返回总和\"\"\"\n    ...  # 一行", "ans": "def sum_all(*nums):\n    return sum(nums)", "tind": "        assert _fn(1, 2, 3) == 6\n        assert _fn() == 0, \"无参数应返回 0\"\n        assert _fn(1.5, 2.5) == 4.0", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`sum_all(1, 2, 3, 4)` → `10`；`sum_all()` → `0`——参数个数不限"}, {"n": 7, "cat": "B", "task": "统计多个数字的最小和最大值——用**元组一次返回两个值**", "name": "stats", "starter": "def stats(*nums):\n    \"\"\"返回 (最小值, 最大值) 元组\"\"\"\n    ...  # 一行：return ..., ...", "ans": "def stats(*nums):\n    return min(nums), max(nums)", "tind": "        assert _fn(3, 1, 2) == (1, 3), f\"期望 (1, 3)，实际 {_fn(3, 1, 2)!r}\"\n        assert _fn(5) == (5, 5)\n        assert _fn(2.5, 1.5) == (1.5, 2.5)", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`stats(4, 0, 7)` → `(0, 7)`——元组里前小后大，一次返回俩"}, {"n": 8, "cat": "B", "task": "发送消息：把 `subject` 改成**仅关键字参数**（签名里加 `*`），返回 dict", "name": "send", "starter": "def send(to, subject, urgent=False):\n    \"\"\"任务：在参数列表中加 *，让 subject 只能关键字传入；返回 {\"to\":..., \"subject\":..., \"urgent\":...}\"\"\"\n    ...  # 改签名 + 一行实现", "ans": "def send(to, *, subject, urgent=False):\n    return {\"to\": to, \"subject\": subject, \"urgent\": urgent}", "tind": "        assert _fn(\"a@b.com\", subject=\"账单\") == {\"to\": \"a@b.com\", \"subject\": \"账单\", \"urgent\": False}\n        assert _fn(\"a@b.com\", subject=\"告警\", urgent=True)[\"urgent\"] is True\n        try:\n            _fn(\"a@b.com\", \"账单\")\n            assert False, \"subject 用位置传入没有报错——签名里缺 *（仅关键字参数）\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：`send(\"bob@x.com\", subject=\"账单\")` → `{\"to\": \"bob@x.com\", \"subject\": \"账单\", \"urgent\": False}`；把 subject 按位置传的写法应直接报错"}, {"n": 9, "cat": "B", "task": "接收任意个具名参数（`**kwargs`），拼成按 key 排序的 \"k=v\" 串", "name": "describe", "starter": "def describe(**info):\n    \"\"\"返回 \"k1=v1,k2=v2\"，按 key 字典序排序；空参数返回空串\"\"\"\n    ...  # 一行", "ans": "def describe(**info):\n    return \",\".join(f\"{k}={v}\" for k, v in sorted(info.items()))", "tind": "        assert _fn(name=\"pay\", age=3) == \"age=3,name=pay\", f\"实际 {_fn(name='pay', age=3)!r}\"\n        assert _fn() == \"\"\n        assert _fn(b=2, a=1) == \"a=1,b=2\"", "snip": null, "ex": "例：`describe(z=26, a=1)` → `\"a=1,z=26\"`——按 key 字典序排；`describe()` → `\"\"`"}, {"n": 10, "cat": "B", "task": "位置参数和具名参数一起收：数字总和 = `args` 的和 + `kwargs` 值的和", "name": "total", "starter": "def total(*args, **kwargs):\n    \"\"\"位置参数的值与具名参数的值，全部加总\"\"\"\n    ...  # 一行", "ans": "def total(*args, **kwargs):\n    return sum(args) + sum(kwargs.values())", "tind": "        assert _fn(1, 2, a=3, b=4) == 10\n        assert _fn() == 0\n        assert _fn(1.5) == 1.5\n        assert _fn(x=2.5) == 2.5", "snip": null, "ex": "例：`total(1, 2, a=3)` → `6`——位置参数和具名参数的值都算进来"}, {"n": 11, "cat": "C", "task": "去重后的第二大值（set 去重 + 排序的组合运用）", "name": "second_largest", "starter": "def second_largest(nums):\n    \"\"\"先去重，再取第二大；保证至少有两个不同值\"\"\"\n    ...  # 一行", "ans": "def second_largest(nums):\n    return sorted(set(nums), reverse=True)[1]", "tind": "        assert _fn([3, 1, 4, 1, 5]) == 4, f\"期望 4，实际 {_fn([3, 1, 4, 1, 5])!r}\"\n        assert _fn([10, 20]) == 10\n        assert _fn([5, 5, 2, 1]) == 2, \"重复的 5 只算一次\"", "snip": "nums = [3, 1, 4, 1, 5, 9, 2]", "ex": "例：`second_largest([9, 9, 7, 3])` → `7`——重复的最大值只算一次"}, {"n": 12, "cat": "C", "name": "sorted_key_len", "type": "mc", "task": "要按单词长度升序排序，且**同长保持原顺序**，正确的 `sorted` 调用是？", "options": ["`sorted(words)`（按字母序，不是长度）", "`sorted(words, key=len)`", "`sorted(words, reverse=True, key=len)`（降序）", "`words.sort(key=len)`（原地排序，返回 None）"], "correct": 1, "explain": "`sorted(words, key=len)` 用字符串长度作排序键，返回新列表；Python 的 `sorted` 是稳定排序，同长元素自然保持原顺序。它与第 2 课 #87 的答案相同——这正是它被改成概念题的原因。", "ex": "例：`[\"bbb\", \"a\", \"cc\"]` → `[\"a\", \"cc\", \"bbb\"]`"}, {"n": 13, "cat": "C", "task": "按 value **降序**取出所有 key（排序键要能\"查到\"每个 key 对应的 value）", "name": "sort_pairs", "starter": "def sort_pairs(pairs):\n    \"\"\"按 value 降序，返回对应的 key 列表\"\"\"\n    ...  # 一行推导", "ans": "def sort_pairs(pairs):\n    return [k for k, v in sorted(pairs, key=lambda kv: kv[1], reverse=True)]", "tind": "        assert _fn([(\"a\", 1), (\"b\", 3), (\"c\", 2)]) == [\"b\", \"c\", \"a\"]\n        assert _fn([(\"a\", 2), (\"b\", 2), (\"c\", 1)]) == [\"a\", \"b\", \"c\"], \"同 value 保持原顺序\"\n        assert _fn([]) == []", "snip": "pairs = [('a', 1), ('b', 3), ('c', 2)]", "ex": "例：`sort_pairs([(\"x\", 2), (\"y\", 3), (\"z\", 1)])` → `[\"y\", \"x\", \"z\"]`——按 value 从大到小排 key"}, {"n": 14, "cat": "C", "task": "按分数降序取前 n 名（排序与切片的组合拳）", "name": "top_scores", "starter": "def top_scores(scores, n=2):\n    \"\"\"scores 是 {姓名: 分数}，返回前 n 名姓名列表\"\"\"\n    ...  # 一行推导", "ans": "def top_scores(scores, n=2):\n    return [k for k, v in sorted(scores.items(), key=lambda kv: kv[1], reverse=True)[:n]]", "tind": "        assert _fn({\"Alice\": 92, \"Bob\": 58, \"Cara\": 75}) == [\"Alice\", \"Cara\"]\n        assert _fn({\"Alice\": 92, \"Bob\": 58}, n=1) == [\"Alice\"]\n        assert _fn({\"a\": 5, \"b\": 5, \"c\": 1}) == [\"a\", \"b\"], \"同分保持原顺序\"\n        assert _fn({}) == []", "snip": null, "ex": "例：`top_scores({\"a\": 70, \"b\": 90, \"c\": 80}, n=2)` → `[\"b\", \"c\"]`——按分数排好后切前 n 名"}, {"n": 15, "cat": "D", "task": "**修复 bug**：默认列表被所有调用共享。改用哨兵值写法", "name": "append_log", "starter": "def append_log(log, logs=[]):\n    \"\"\"有 bug：logs 默认列表在定义时创建一次，多次调用互相累积。修复它\"\"\"\n    logs.append(log)\n    return logs", "ans": "def append_log(log, logs=None):\n    if logs is None:\n        logs = []\n    logs.append(log)\n    return logs", "tind": "        a = _fn(\"a\")\n        assert a == [\"a\"], f\"期望 ['a']，实际 {a!r}\"\n        b = _fn(\"b\")\n        assert b == [\"b\"], f\"第二次调用累积了上次的元素（{b!r}）——可变默认参数坑还没修掉\"\n        c = _fn(\"c\", logs=[\"x\"])\n        assert c == [\"x\", \"c\"], \"显式传入的 logs 仍应正常追加\"", "snip": null, "ex": "例：修好后，不带 logs 连续调用两次，第二次的返回应只有新元素（如 `[\"b\"]`），不能累积上次的；显式传入的列表照常追加"}, {"n": 16, "cat": "D", "name": "mutable_default", "type": "mc", "task": "下面哪种写法能保证 `tags` 缺省时每次调用都拿到**新列表**？", "options": ["`def make_default(name, tags=[]): return {\"name\": name, \"tags\": tags}`", "`def make_default(name, tags=None): return {\"name\": name, \"tags\": tags if tags is not None else []}`", "`def make_default(name, tags=[]): return {\"name\": name, \"tags\": tags.copy()}`", "`def make_default(name, tags=list()): return {\"name\": name, \"tags\": tags}`"], "correct": 1, "explain": "默认值只在函数定义时求值一次，A/D 的列表会被所有调用共享；C 每次拷贝的是同一个共享列表，仍非“新列表”语义。B 用 `None` 作哨兵，每次调用都新建 `[]`——与 #15 的 `logs=None` 是同一模式。", "ex": "例：连续两次 `make_default(\"a\")` 得到的两个 dict，`tags` 必须是两个不同的空列表对象"}, {"n": 17, "cat": "D", "name": "merge_config", "type": "mc", "task": "要把 `BASE` 的配置与 `overrides` 合并、且**不得修改 BASE**，正确的写法是？", "options": ["`BASE.update(overrides); return BASE`", "`return {**BASE, **overrides}`", "`return BASE.copy().update(overrides)`（`update` 返回 None）", "`return dict(overrides, **BASE)`（顺序反了，BASE 会覆盖 overrides）"], "correct": 1, "explain": "`{**BASE, **overrides}` 用字典解包创建新字典，后面的 `overrides` 覆盖同键，且不碰原 `BASE`。A 原地修改；C 的 `update()` 返回 None；D 顺序颠倒，覆盖方向反了。第 7 课 #12 的 `merged_config` 用同一技巧。", "ex": "例：`BASE = {\"host\": \"localhost\", \"port\": 8000}`；`safe_config(port=9000)` → `{\"host\": \"localhost\", \"port\": 9000}`，BASE 不变"}, {"n": 18, "cat": "E", "name": "multi_return", "type": "mc", "task": "#7 的 `stats(*nums)` 与本题 `min_max(nums)` 答案都是 `return min(nums), max(nums)`。关于这两个函数，下面说法正确的是？", "options": ["`min(nums), max(nums)` 返回的是元组，调用方可用两个变量解包", "必须写成 `return [min(nums), max(nums)]` 才能返回两个值", "`*nums` 与 `nums` 在函数体里的用法完全相同，没有任何区别", "`min()` 和 `max()` 一次遍历就同时算出最小最大"], "correct": 0, "explain": "`return min(nums), max(nums)` 用逗号返回元组（括号可省略），调用方写 `lo, hi = min_max(nums)` 即可解包。B 返回列表而非元组；C 中 `*nums` 把参数收成元组、`nums` 是单个列表参数，调用方式不同；D 中 `min`/`max` 各遍历一次。", "ex": "例：`lo, hi = min_max([3,1,4])` → `lo=1, hi=4`"}, {"n": 19, "cat": "E", "task": "组合签名：`reverse` 仅限关键字、默认 False", "name": "full_name", "starter": "def full_name(first, last, reverse=False):\n    \"\"\"任务：把 reverse 改成仅关键字参数；返回 \"first last\"，reverse 时 \"last first\" \"\"\"\n    ...  # 改签名 + 一行", "ans": "def full_name(first, last, *, reverse=False):\n    return f\"{last} {first}\" if reverse else f\"{first} {last}\"", "tind": "        assert _fn(\"王\", \"小明\") == \"王 小明\"\n        assert _fn(\"王\", \"小明\", reverse=True) == \"小明 王\"\n        try:\n            _fn(\"a\", \"b\", True)\n            assert False, \"reverse 用位置传入没有报错——签名里缺 *\"\n        except TypeError:\n            pass", "snip": null, "ex": "例：`full_name(\"李\", \"雷\")` → `\"李 雷\"`；`full_name(\"李\", \"雷\", reverse=True)` → `\"雷 李\"`；reverse 用位置传要报错"}, {"n": 20, "cat": "E", "task": "函数是一等公民：依次应用列表里的每个函数（面试常考的管道模式）", "name": "apply_all", "starter": "def apply_all(funcs, x):\n    \"\"\"把 funcs 里的函数依次应用到 x 上，返回最终值；funcs 为空返回 x 原值\"\"\"\n    ...  # 3-4 行循环", "ans": "def apply_all(funcs, x):\n    for f in funcs:\n        x = f(x)\n    return x", "tind": "        assert _fn([lambda v: v + 1, lambda v: v * 2], 3) == 8, \"3 +1 得 4，再 *2 得 8\"\n        assert _fn([], 5) == 5\n        assert _fn([lambda s: s.upper()], \"ab\") == \"AB\"", "snip": null, "ex": "例：函数列表里先 +1 再 ×3，`apply_all(fns, 2)` → `9`——2 先 +1 变 3，3 再 ×3 变 9；空列表原样返回输入"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 const LS_KEY = 'lesson-0003-drill-progress';
@@ -721,17 +786,30 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
     }
   });
   const done = prog.solved.length;
-  document.getElementById('pfill').style.width = (done / 20 * 100) + '%';
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
   document.getElementById('ptext').textContent = '已完成 ' + done + ' / 20';
   document.querySelectorAll('.drill-cat').forEach(h => {
     const cat = h.dataset.cat;
@@ -751,6 +829,7 @@ async function ensurePy() {
       rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -768,11 +847,23 @@ async function ensurePy() {
 async function check(n) {
   const codeVal = codeEl(n).value;
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _res = {"ok": False, "msg": ""}
 _lenv = dict(_G)
@@ -793,18 +884,18 @@ ${ex.tind}
 _json.dumps(_res)`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 全部断言通过';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + msg;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => codeEl(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
   if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
   rt.textContent = '批量检查中…';
   let pass = 0;
@@ -820,13 +911,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填代码？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -895,7 +987,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -952,6 +1044,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -990,6 +1083,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -997,6 +1091,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1004,7 +1099,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1033,6 +1130,91 @@ refreshUI();
 </script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';
