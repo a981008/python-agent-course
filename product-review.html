@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>产品审视报告 · Python→Agent 课程站</title>
+<style>
+:root{
+  --bg:#1b1916; --card:#232019; --card2:#2a2620; --line:#3a3733;
+  --ink:#e8e4dd; --soft:#a8a49c; --faint:#7d7972;
+  --accent:#d29a6b; --accent-bg:#2e2620;
+  --hi:#e08a84; --hi-bg:#301d1c; --mid:#ffc46b; --mid-bg:#2e2718;
+  --ok:#7dbd7d; --ok-bg:#1e2b1e; --info:#8fb8d8; --info-bg:#1c2730;
+  --max:60rem;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,sans-serif;
+  line-height:1.72;font-size:15px;padding:0 1.25rem 6rem}
+.wrap{max-width:var(--max);margin:0 auto}
+header{padding:3.5rem 0 2rem;border-bottom:1px solid var(--line);margin-bottom:2.5rem}
+.kicker{color:var(--accent);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+h1{font-size:2rem;line-height:1.25;margin:.6rem 0 .5rem;font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--soft);font-size:1rem;max-width:44rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.tag{background:var(--card2);border:1px solid var(--line);color:var(--soft);
+  border-radius:999px;padding:.25rem .8rem;font-size:.78rem}
+.tag b{color:var(--ink);font-weight:600}
+h2{font-size:1.3rem;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--line);font-weight:700}
+h3{font-size:1.02rem;margin:1.8rem 0 .7rem;color:var(--accent);font-weight:700}
+p{margin:.6rem 0}
+.lead{font-size:1.05rem;color:var(--ink);background:var(--card);
+  border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.3rem;margin:1.2rem 0}
+.grid{display:grid;gap:1rem}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:760px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem}
+.stat .n{font-size:1.7rem;font-weight:800;color:var(--accent);line-height:1.1}
+.stat .l{color:var(--soft);font-size:.82rem;margin-top:.35rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.35rem;margin:1rem 0}
+.card.dim{border-top:3px solid var(--info)}
+.grade{display:inline-flex;align-items:center;gap:.5rem;font-weight:800;font-size:1.5rem}
+.grade small{font-size:.78rem;color:var(--soft);font-weight:500}
+.badge{display:inline-block;border-radius:5px;padding:.08rem .5rem;font-size:.72rem;font-weight:700;
+  letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+.b-hi{background:var(--hi-bg);color:var(--hi)}
+.b-mid{background:var(--mid-bg);color:var(--mid)}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-info{background:var(--info-bg);color:var(--info)}
+.bar{height:8px;border-radius:5px;background:var(--card2);overflow:hidden;display:flex;margin:.6rem 0 .3rem}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.76rem;color:var(--soft);margin-top:.4rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+.find{border:1px solid var(--line);border-radius:10px;padding:.95rem 1.1rem;margin:.75rem 0;background:var(--card)}
+.find .t{font-weight:700;margin-bottom:.35rem}
+.find .t .badge{margin-right:.5rem}
+.find .ev{color:var(--soft);font-size:.86rem;font-family:"SF Mono",Menlo,Consolas,monospace}
+.find .fix{margin-top:.5rem;font-size:.9rem;color:var(--ink)}
+.find .fix b{color:var(--accent);font-weight:700}
+ul.clean{margin:.5rem 0;padding-left:1.2rem}
+ul.clean li{margin:.35rem 0}
+.route{border-left:2px solid var(--line);margin-left:.5rem;padding-left:1.4rem}
+.step{position:relative;margin-bottom:1.6rem}
+.step::before{content:"";position:absolute;left:-1.75rem;top:.35rem;width:11px;height:11px;
+  border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--bg)}
+.step .p{font-size:.75rem;font-weight:800;letter-spacing:.06em}
+.step.p0 .p{color:var(--hi)} .step.p1 .p{color:var(--mid)} .step.p2 .p{color:var(--info)}
+.step h3{margin:.25rem 0 .4rem;color:var(--ink)}
+.warn{background:var(--hi-bg);border:1px solid #5a322f;border-radius:12px;padding:1.2rem 1.35rem;margin:1rem 0}
+.warn h3{color:var(--hi);margin-top:0}
+code{font-family:"SF Mono",Menlo,Consolas,monospace;background:var(--card2);
+  padding:.1rem .35rem;border-radius:4px;font-size:.85em;color:var(--accent)}
+footer{margin-top:3.5rem;padding-top:1.5rem;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Product Review · UI 设计全栈专家团</div>
+  <h1>Python → Agent 课程站 · 产品审视报告</h1>
+  <p class="sub">面向「Java 后端 P6 用 30 天转型 Agent 工程师」的自包含静态课程站。本次由视觉设计、体验设计、前端工程三位专家分维度取证，主理人交叉去重汇编。</p>
+  <div class="meta-row">
+    <span class="tag">审视日期 <b>2026-11-26</b></span>
+    <span class="tag">范围 <b>23 个课件 · 26,312 行 · 1.42 MB</b></span>
+    <span class="tag">维度 <b>视觉 / 体验 / 工程</b></span>
+    <span class="tag">性质 <b>只读评审 · 未改动任何文件</b></span>
+  </div>
+</header>
+
+<h2>一、执行摘要</h2>
+<div class="lead">
+  <b>教学设计是扎实的，工程质量是脆弱的。</b>「讲解 → 先答后看 → 自动判分 → 间隔复习 → 自评清单」的闭环，以及贯穿始终的 Java 类比与「关 AI 手写」强化，精准命中目标用户与场景。但三份评审交叉指向同一结论：<b>默认主题路径只做了一半、工程同步机制实质失效、并已产生 1 个确定的功能回归</b>。当前形态可作为个人学习工具使用，但继续按现方式扩课，回归风险将随课件数线性增长。
+</div>
+
+<div class="grid g4">
+  <div class="stat"><div class="n">23</div><div class="l">课件页（13 主课 + 9 练习 + 大纲）</div></div>
+  <div class="stat"><div class="n">41%</div><div class="l">组件重复内联占比（约 579 KB）</div></div>
+  <div class="stat"><div class="n">7</div><div class="l">跨维度高风险问题（去重后）</div></div>
+  <div class="stat"><div class="n">1</div><div class="l">确定的功能回归（0007 判分失效）</div></div>
+</div>
+
+<h2>二、三维度健康度</h2>
+<div class="grid g3">
+  <div class="card dim">
+    <span class="b-info" style="padding:.15rem .55rem;border-radius:5px;font-size:.75rem;font-weight:700">视觉设计</span>
+    <div class="grade" style="margin:.6rem 0">B− <small>框架扎实，主题适配半途</small></div>
+    <p style="color:var(--soft);font-size:.88rem">暖白纸感 + sienna 强调 + Tufte 侧注 + 令牌化双主题，底层统一；问题集中在 token、按钮、打印、焦点四处。</p>
+    <div class="bar"><i style="width:29%;background:var(--hi)"></i><i style="width:33%;background:var(--mid)"></i><i style="width:38%;background:var(--ok)"></i></div>
+    <div class="legend"><span><i class="dot" style="background:var(--hi)"></i>高 3</span><span><i class="dot" style="background:var(--mid)"></i>中 3</span><span><i class="dot" style="background:var(--ok)"></i>优/低 4</span></div>
+  </div>
+  <div class="card dim">
+    <span class="b-info" style="padding:.15rem .55rem;border-radius:5px;font-size:.75rem;font-weight:700">体验设计</span>
+    <div class="grade" style="margin:.6rem 0">B <small>闭环成立，进度脱节</small></div>
+    <p style="color:var(--soft);font-size:.88rem">学习闭环与 Java 类比高度贴合目标；但进度追踪与学习行为脱节、键盘路径与异步反馈可感知性缺失。</p>
+    <div class="bar"><i style="width:33%;background:var(--hi)"></i><i style="width:42%;background:var(--mid)"></i><i style="width:25%;background:var(--ok)"></i></div>
+    <div class="legend"><span><i class="dot" style="background:var(--hi)"></i>高 4</span><span><i class="dot" style="background:var(--mid)"></i>中 5</span><span><i class="dot" style="background:var(--ok)"></i>优/低 6</span></div>
+  </div>
+  <div class="card dim">
+    <span class="b-info" style="padding:.15rem .55rem;border-radius:5px;font-size:.75rem;font-weight:700">前端工程</span>
+    <div class="grade" style="margin:.6rem 0">C+ <small>手抄式分发，同步失效</small></div>
+    <p style="color:var(--soft);font-size:.88rem">组件真源错位、构建脚本未入库，已产生确定性回归；首屏体积与安全判题注入是亮点。</p>
+    <div class="bar"><i style="width:36%;background:var(--hi)"></i><i style="width:36%;background:var(--mid)"></i><i style="width:28%;background:var(--ok)"></i></div>
+    <div class="legend"><span><i class="dot" style="background:var(--hi)"></i>高 3</span><span><i class="dot" style="background:var(--mid)"></i>中 6</span><span><i class="dot" style="background:var(--ok)"></i>优/低 5</span></div>
+  </div>
+</div>
+<p style="color:var(--faint);font-size:.8rem">评级为本次审视内的相对判断；条形为各维度发现按严重级别的分布，非代码质量绝对评分。</p>
+
+<h2>三、跨维度高优先级发现（去重后 Top 7）</h2>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 视觉+体验+工程</span>默认「自动主题」在系统深色下只做了一半，对比度崩坏</div>
+  <div class="ev">变量层用 @media(prefers-color-scheme:dark) 变暗，但高亮 token 只在 [data-theme="dark"] 覆盖；theme.js 在 auto 下移除该属性 → 关键字 tk-kw 落在暗底 #26241f 仅 2.54:1（FAIL），fn 3.72、num 3.78、str 4.36 均不达标。核心按钮白字 #fff / --accent #d29a6b = 2.45:1（FAIL）。波及全部 23 页。</div>
+  <div class="fix"><b>建议：</b>token 暗色规则扩到 <code>@media(prefers-color-scheme:dark) :root:not([data-theme=light])</code>；新增 <code>--on-accent</code>（暗色取 #1b1916，7.16:1）供按钮/toast 使用。⚠️ 见第六节修复顺序约束。</div>
+</div>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 工程</span>0007 练习场 9 道代码题完全无法判分（确定性功能回归）</div>
+  <div class="ev">0007-modules-drill.html:676 调用 ensurePy()，但全文件无定义（其余 8 个 drill 均各有一处）。9 道代码题点「检查」时 ReferenceError 被同行 catch 捕获，界面直接显示 <code>ensurePy is not defined</code>。</div>
+  <div class="fix"><b>建议：</b>从 0003 复制 ensurePy 块补回，或统一引擎后重生成 0007；补静态断言「含代码题的页面必须定义 ensurePy」。</div>
+</div>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 体验</span>进度追踪与实际学习行为脱节</div>
+  <div class="ev">quiz 答对、py-lab 通过、review 通过都不更新大纲状态芯片；各模块各存各的 localStorage——quiz.js 派发 <code>quiz:answered</code> 无消费方，drill 用 <code>lesson-0003-drill-progress</code>，大纲读 <code>wb-lesson-status-v1</code>。用户必须手动回大纲点芯片。间隔复习无调度与持久化，刷新即失。</div>
+  <div class="fix"><b>建议：</b>定义统一进度事件，让「本课 py-lab 全绿 + 复习通过」自动标记主课完成；复习存时间戳并在大纲显示「今日待复习 X 题」。</div>
+</div>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 体验+工程</span>键盘路径基本不可用：Tab 被困 + 焦点态与反馈缺失</div>
+  <div class="ev">pyhl.js 对所有 Tab（含 Shift+Tab）无条件 preventDefault 插 4 空格，键盘用户无法从代码框跳到运行/检查按钮（违反 WCAG 2.1.2）；:focus-visible 全站仅 1 处，编辑器 outline:none 无替代；review/drill/py-lab 状态区与 quiz 结果均无 aria-live，读屏用户点「检查」后感知不到结果——而这是产品最核心的即时反馈。</div>
+  <div class="fix"><b>修复前现实降级：</b>仅能用 <code>Ctrl/Cmd+Enter</code> 原地触发运行/检查，或用鼠标点按钮；看完反馈要跳下一题仍离不开鼠标——对纯键盘用户此路径完全阻断。<br><b>建议：</b>Tab 处理加 <code>if(e.shiftKey)return;</code> 让 Shift+Tab 走原生，并补 Esc 解锁，仅插 4 空格时拦截；全局加 <code>:focus-visible{outline:2px solid var(--accent)}</code>；反馈节点加 <code>aria-live="polite"</code>（错误 assertive）。注意 Shift+Tab 是修复目标，当前并非可用绕过方式。</div>
+</div>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 体验+工程</span>核心练习依赖单一 CDN，失败即整体瘫痪</div>
+  <div class="ev">三大判分组件与 9 个 drill 全部从 unpkg 加载 Pyodide 0.29.5，首次 10–20 秒且国内网络易失败；失败后核心练习瘫痪，降级仅一句文字建议。全仓 34 处 CDN 引用无 SRI，加载器重复三套。</div>
+  <div class="fix"><b>建议：</b>本地镜像 + 单例加载器（assets/pyodide-loader.js）+ 重试按钮 + 可复制的离线自测模板；补 integrity。</div>
+</div>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 工程</span>构建与同步机制实质失效，NOTES 约定与实现不符</div>
+  <div class="ev">构建脚本（20+ 个 tmp_*.py）在被 gitignore 的 .workbuddy/ 中，新 clone 无法复现产物；组件真源是「0004 课件的内联脚本」而非 assets/——改 assets/pyhl.js 后重跑现有脚本不会更新任何新课件，与 NOTES.md:11 直接矛盾。已观测到 base.css 与内联版漂移（打印背景 #fff vs var(--card)）、drill 引擎分化出 4 个变体。</div>
+  <div class="fix"><b>建议：</b>收敛为入库的 <code>tools/build.py</code>，assets/ 为唯一真源，页面只写数据（EX/REVIEW/QUIZ），构建期校验内联块 MD5；先修正 NOTES.md 的失实描述。</div>
+</div>
+
+<div class="find">
+  <div class="t"><span class="badge b-hi">高 · 视觉</span>深色偏好下打印输出「浅字白纸」，链路失效</div>
+  <div class="ev">打印块只改 body background、未重置 --ink；系统深色或手动 dark 时 --ink=#e8e4dd，浏览器默认省略背景图形后浅灰字印在白纸上。NOTES.md 明确要求速查表「打印友好」，此路径直接失效。</div>
+  <div class="fix"><b>建议：</b>打印块内重置 <code>--ink/--ink-soft/--accent/--ok/--bad</code> 为深色，并统一 body background:#fff（同步源码与内联版）。</div>
+</div>
+
+<h2>四、分维度其他重要发现</h2>
+
+<h3>视觉设计</h3>
+<div class="grid g2">
+  <div class="card" style="margin:0">
+    <p><span class="badge b-mid">中</span> <b>浅色 token 偏淡：</b>注释 #98a0ab / #f7f5f2 = 2.43:1、字符串 3.27:1。练习场注释即任务提示，看不清直接阻断作答。建议 tk-com #5f6672、tk-str #2f7d2f、tk-kw #8e1f8b。</p>
+    <p><span class="badge b-mid">中</span> <b>链接下划线硬编码：</b><code>#d8c4b4</code> 未变量化，暗底下比链接文字更亮、破坏克制层级，与 NOTES「硬编码浅色已清除」不符。建议改 <code>var(--accent)</code> 或独立令牌。</p>
+    <p><span class="badge b-mid">中</span> <b>响应式仅 900px 一个断点：</b>大纲 5 列表格无 overflow-x，窄屏挤压；侧注断点过低致 900–1120px 溢出。建议表格横向滚动、≤700px 隐藏「覆盖点」列、侧注断点提到 1200px。</p>
+  </div>
+  <div class="card" style="margin:0">
+    <p><span class="badge b-ok">优</span> <b>底层视觉框架扎实：</b>正文浅/深对比度 17.13:1 / 13.84:1，语义色（ok/bad/warn）映射未错位；42rem 窄栏 + 17px/1.75 + 真 float 侧注的 Tufte 方向明确且 24 页统一。</p>
+    <p><span class="badge b-mid">中</span> <b>令牌治理：</b><code>--warn</code> 只在 0000 定义、未进 assets/base.css，未来基于源码生成的页面会静默失效；h3(1.05rem) 小于正文(17px)，层级偏弱。</p>
+    <p><span class="badge b-hi">低</span> <b>主题按钮用 emoji：</b>多平台字形不一致，与克制纸略有张力，建议改文字 + 纯 CSS 图标。</p>
+  </div>
+</div>
+
+<h3>体验设计</h3>
+<div class="grid g2">
+  <div class="card" style="margin:0">
+    <p><span class="badge b-ok">优</span> <b>教学闭环成立且反馈有教学价值：</b>先答后看带解析 → py-lab 真运行判分 + 参考实现 + 自评 → 间隔复习先写后查 → 大纲进度。防作弊测试（内省签名、可变默认参数累积等）把「懂没懂」变成机器可判据。</p>
+    <p><span class="badge b-ok">优</span> <b>目标贴合度高：</b>Java 类比贯穿（对照表、心智转变、record/Stream 类比），单课 20–25 分钟契合每晚 1.5h。</p>
+    <p><span class="badge b-mid">中</span> <b>大纲页脚写死「返回第 9 课」</b>，与「大纲是枢纽」定位矛盾；课数口径不一（14 vs 13），易致「还剩几课」误判。</p>
+  </div>
+  <div class="card" style="margin:0">
+    <p><span class="badge b-mid">中</span> <b>重置不可逆：</b>py-lab 重置直接覆盖代码且无确认，与 drill 的 confirm 不一致（违反 Nielsen 撤销原则）。</p>
+    <p><span class="badge b-mid">中</span> <b>语义化不足：</b>代码 textarea 无 label/aria-label；quiz 一组 button 无 radiogroup 语义，读屏无法理解「单选」。</p>
+    <p><span class="badge b-mid">中</span> <b>缺日程级可视化：</b>只有「每 2 天 1 课」模糊节奏，用户每晚仍需回对话问「继续学」；建议加轻量日程或高亮「建议下一课」。</p>
+    <p><span class="badge b-hi">低</span> <b>文案心理表述不准：</b>「已进长期记忆」易给错误安全感，宜改「明天再来复核一次更稳」。</p>
+  </div>
+</div>
+
+<h3>前端工程</h3>
+<div class="grid g2">
+  <div class="card" style="margin:0">
+    <p><span class="badge b-ok">优</span> <b>判题注入方式安全：</b>用 JSON.stringify 作 Python 字符串字面量，用户代码无法逃逸模板；code 模式用 <code>_lenv=dict(_G)</code> 隔离；39 题缩进与引用全部合规，未发现 XSS 路径。</p>
+    <p><span class="badge b-ok">优</span> <b>Tab 职责分离、主题逻辑一致：</b>23 页各只有一处 Tab 处理（均来自 pyhl），pylab 明确注释已移交；23/23 页 theme.js 与 assets MD5 相同，无硬编码 data-theme。</p>
+    <p><span class="badge b-ok">优</span> <b>首屏体积可控：</b>gzip 后大纲 11.9 KB / 普通 drill 18.8 KB / 主课 17.6 KB / 100 题页 24.2 KB；Pyodide 只在点击时加载，无首屏 WASM 开销；23/23 页无 HTML 基础缺陷。</p>
+  </div>
+  <div class="card" style="margin:0">
+    <p><span class="badge b-mid">中</span> <b>重置无法真清空：</b>pyhl 从 <code>wb-code:</code> 恢复本地代码，drill/pylab 重置只清 progress 不清 code 键 → 保存后点「重置」，刷新旧代码复活。另直接赋值 .value 不派发 input，高亮层可能停留在旧内容。</p>
+    <p><span class="badge b-mid">中</span> <b>判题边界缺运行时校验：</b>tind 原样拼进 try 体、要求严格 8 空格缩进（目前合规但构建期无断言）；expr 的 eval 只捕 Exception，SystemExit 等会穿透；错误直接显示 e.message 可能暴露英文异常。</p>
+    <p><span class="badge b-mid">中</span> <b>大纲状态逻辑未抽取：</b>lesson-status.js 仅存在于 0000；用 innerHTML 重写进度区导致初始文案「进度以本机浏览器记录为准」首次更新后消失。</p>
+    <p><span class="badge b-hi">低</span> <b>无障碍细节：</b>动态创建的高亮 pre 未设 aria-hidden（静态烘焙的都设了），将来新增编辑器会让读屏重复朗读。</p>
+  </div>
+</div>
+
+<h2>五、优先级路线图</h2>
+<div class="route">
+  <div class="step p0">
+    <div class="p">P0 · 立即修复（阻断核心使用）</div>
+    <h3>恢复判分 + 修默认主题对比度 + 修打印</h3>
+    <ul class="clean">
+      <li>补回 0007 的 <code>ensurePy</code>，恢复 9 道代码题判分。</li>
+      <li>按第六节顺序修复 auto-dark 的 token 与按钮对比度（含暗色注释提亮）。</li>
+      <li>打印块重置前景色并统一背景，恢复打印友好。</li>
+    </ul>
+  </div>
+  <div class="step p1">
+    <div class="p">P1 · 本周期内（消除高风险与回归源）</div>
+    <h3>打通进度闭环 + 补齐键盘可达 + Pyodide 降级</h3>
+    <ul class="clean">
+      <li>统一进度事件，复习加时间戳与「今日待复习」提示；修大纲页脚与课数口径。</li>
+      <li>放行 Shift+Tab、补焦点态与 aria-live、补 aria-label 与单选组语义。</li>
+      <li>统一 Pyodide 加载器 + 本地镜像 + 重试与离线降级；重置清理 <code>wb-code:</code> 并派发 input。</li>
+    </ul>
+  </div>
+  <div class="step p2">
+    <div class="p">P2 · 结构性改造（降低长期扩课成本）</div>
+    <h3>建立单一构建入口 + 统一引擎 + 响应式与令牌治理</h3>
+    <ul class="clean">
+      <li><code>tools/build.py</code> 入库，assets/ 为唯一真源，页面只写数据，构建期校验 MD5；同步修正 NOTES.md。</li>
+      <li>drill 引擎提为 assets/drill-engine.js，分母统一 <code>EX.length</code>，消除 4 个变体。</li>
+      <li>表格横向滚动、侧注断点提到 1200px、补 <code>--warn</code> 到 base.css、h3 提字号。</li>
+    </ul>
+  </div>
+</div>
+
+<h2>六、关键实施约束：对比度修复的顺序陷阱</h2>
+<div class="warn">
+  <h3>⚠️ 两种颜色修复不可分开上线，否则引入作答阻断回归</h3>
+  <p>现状（auto + 系统深色）：CSS 变量已切暗底 <code>#26241f</code>，但 token 因 <code>[data-theme="dark"]</code> 未命中仍用浅色值。此时注释 <code>#98a0ab</code> on 暗底 = <b>5.87:1（恰好达标）</b>，不达标的是关键字/函数/数字/字符串。</p>
+  <p>若直接把 token 暗色规则扩到 auto 路径：注释会变成暗色 <code>#6b7394</code> on 暗底 = <b>3.33:1（从达标跌到 FAIL）</b>——<b>「修好关键字，弄坏注释」</b>。而练习场的注释正是任务提示（如「从 typing 导入 Protocol」），读不清会直接阻断作答。</p>
+  <p style="margin-bottom:0"><b>正确顺序（同批上线）：</b>① 先把暗色 <code>.tk-com</code> 提亮到 <code>#9aa3c7</code>（实测 6.23:1）；② 再把 token 深色规则扩到 <code>@media(prefers-color-scheme:dark)</code> 路径，与变量同源。两步必须一次改动、一次发布。</p>
+</div>
+
+<h2>七、结论</h2>
+<div class="lead" style="border-left-color:var(--ok)">
+  这是一个<b>内容和教学设计明显强于工程底座</b>的产品。对当前唯一用户（作者本人），优先做 P0 三项即可恢复完整可用；若要长期维护并持续加课，必须先补上「assets 单一真源 + 构建校验」这一结构性前提，否则每一次改动都在累积不可见的回归。三份评审一致认为：<b>教学闭环的设计意图是对的，问题几乎全部出在「实现没有完整兑现设计」——主题只做了一半、进度没有连起来、组件真源放错了地方。</b>
+</div>
+
+<footer>
+  本报告由 UI 设计全栈专家团生成 · 视觉设计 / 体验设计 / 前端工程 三维度取证 · 主理人交叉去重汇编 · 全程只读，未修改课程站任何文件。<br>
+  证据基于对 assets/ 全部组件源码、23 个课件 HTML、MISSION.md / NOTES.md 的逐文件核验与 WCAG 2.x 对比度实算。
+</footer>
+
+</div>
+</body>
+</html>

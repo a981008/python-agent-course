@@ -388,14 +388,14 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <body>
 <main id="top">
 <h1>课程大纲 · Python 线</h1>
-<p class="meta">13 节课 · 从 Java 后端到能独立手写 Agent · 对应《一个月转型 Agent 学习计划》</p>
+<p class="meta">15 节课 · 从 Java 后端到能独立手写 Agent · 对应《一个月转型 Agent 学习计划》</p>
 
 <div class="callout win">
 <strong>使命锚点</strong>（来自 MISSION.md）：30 天转型 Agent，Python 要达到<strong>独立手写、面试不依赖 AI</strong>。每节课的验收标准都是可检验的动作——"能写出什么/能通过什么测试"，不是"看懂了"。
 </div>
 
 <div class="callout">
-<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的 <strong>9 个练习场共 244 题</strong>（1★-9★；第 10-13 课的动手任务在课件内）每题都带例子说明，先写后看、自动判分（代码题在线跑断言，概念题点选选项判分）；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。每个页面右上角的<strong>当前页小标题</strong>可展开快速跳转，编辑区按 <strong>Cmd/Ctrl+S</strong> 保存代码。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成。状态只保存在当前浏览器本地：首次打开全部为 ○ 未开始，换浏览器/设备或清除浏览器数据后需要重新标记，不会自动同步。想开下一课直接在对话里说"继续学 Python"。
+<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的 <strong>10 个练习场共 266 题</strong>（1★-10★；第 10-15 课的动手任务在课件内）每题都带例子说明，先写后看、自动判分（代码题在线跑断言，概念题点选选项判分）；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。每个页面右上角的<strong>当前页小标题</strong>可展开快速跳转，编辑区按 <strong>Cmd/Ctrl+S</strong> 保存代码。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成。状态只保存在当前浏览器本地：首次打开全部为 ○ 未开始，换浏览器/设备或清除浏览器数据后需要重新标记，不会自动同步。想开下一课直接在对话里说"继续学 Python"。
 </div>
 
 <h2 class="drill-cat">阶段一 · 语言基础（对应学习计划 W1-W2 前半）</h2>
@@ -432,12 +432,20 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <tr><td><strong>13</strong></td><td><a href="0013-nano-agent.html">综合实战：手写 Nano Agent</a></td><td>ReAct 循环/工具注册/上下文拼接</td><td>无 AI 辅助跑通一次完整 ReAct 循环</td><td><button class="status-chip" data-key="13" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 </table></div>
 
+
+<h2 class="drill-cat">阶段四 · 官网教程补齐（对应 Python 3.15 官方教程盲区）</h2>
+<div class="table-scroll"><table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<tr><td><strong>14</strong></td><td><a href="0014-numerics-and-testing.html">数值、异常进阶与测试</a></td><td>浮点表示错误/Decimal 精确算钱/ExceptionGroup/except*/add_note/pytest 断言</td><td>手写精确算钱函数 + 批量异常收集，全部断言通过</td><td><button class="status-chip" data-key="14" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>15</strong></td><td><a href="0015-stdlib-gaps.html">标准库补漏</a></td><td>argparse/sys.argv/logging/string.Template/weakref/bisect/heapq/timeit</td><td>写出带 CLI 参数、结构化日志与 Prompt 模板的小工具</td><td><button class="status-chip" data-key="15" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>10★</strong></td><td><a href="0010-gaps-drill.html">练习场 · 22 题官网缺口补齐训练</a></td><td>break/continue/循环 else/match/仅位置参数/类变量/classmethod/Decimal/ExceptionGroup/argparse 等 12 类考点</td><td>22 题先写后看全对（12 代码题 + 10 概念选择题，含结构与内省检查）</td><td><button class="status-chip" data-key="10★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+</table></div>
+
 <h2 class="drill-cat">进度总览</h2>
-<p id="progress-note">已完成 <span id="done-count">0</span>/13 课 + 各课练习场 + 速查表。<span id="progress-tail">进度以本机浏览器记录为准；预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。</span></p>
+<p id="progress-note">已完成 <span id="done-count">0</span>/15 课 + 各课练习场 + 速查表。<span id="progress-tail">进度以本机浏览器记录为准；预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。</span></p>
 <p id="review-due-note" class="meta" hidden></p>
 
 <footer class="doc-footer">
-  本大纲由 teach skill 维护，共 13 课 + 9 个练习场（244 题）· <a href="#top">↑ 回到顶部</a>
+  本大纲由 teach skill 维护，共 15 课 + 10 个练习场（266 题）· <a href="#top">↑ 回到顶部</a>
 </footer>
 </main>
 <script>
@@ -858,7 +866,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：课程大纲</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html" aria-current="page"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html" aria-current="page"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

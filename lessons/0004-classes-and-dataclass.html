@@ -518,6 +518,60 @@ isinstance(FakeModel(), ChatModel)   # True——结构匹配即实现</pre>
 <p>① <code>@runtime_checkable</code> 只让 <code>isinstance</code> 可用（只检查方法名存在，不检查签名）；只给类型检查器用、不做运行时判断的话可以不加。</p>
 <p>② 方法声明的函数体写 <code>...</code>（Ellipsis）——Python 惯用的"此处无实现"，对应 Java 接口方法的分号。</p>
 
+<h2>五·补、类变量、实例变量与三个常用装饰器（5 分钟）</h2>
+
+<p>官网 9.3.5 和 9.7 节是 Java 程序员迁移时最容易踩的语义差异，也是读 Pydantic / LangChain 源码的必备词汇。</p>
+
+<pre><span class="lang-tag">PYTHON — 官网 9.3.5 / 9.4 / 9.7 节</span>
+# ① 类变量 vs 实例变量（≈ Java 的 static 字段 vs 实例字段）
+class Agent:
+    MAX_STEPS = 5          # 类变量：全类共享
+    def __init__(self, name):
+        self.name = name   # 实例变量：每个对象各一份
+
+a = Agent("A"); b = Agent("B")
+a.name = "改了"            # 只影响 a
+Agent.MAX_STEPS = 10       # 改类变量，a/b 读到的都变（除非被遮蔽）
+
+# 关键坑：a.MAX_STEPS = 3 是在 a 上"遮蔽"类变量，
+# 并没有改 Agent.MAX_STEPS —— 和 Java 的 static 赋值不一样
+
+# ② classmethod：第一个参数是类本身（cls），常用于工厂
+@classmethod
+def from_config(cls, cfg):
+    return cls(cfg["name"])     # cls 是 Agent，不是某个实例
+
+# ③ staticmethod：既不拿 self 也不拿 cls，纯工具函数
+@staticmethod
+def parse_pair(s):
+    return s.split(":")
+
+# ④ property：把方法伪装成属性，读取时自动调用
+@property
+def display(self):
+    return f"&lt;{self.name}&gt;"
+
+a.display                  # 不加括号，像字段一样读
+
+# 属性查找顺序：实例字典 → 类 → 父类（MRO）
+# @property 定义在类这一层，所以实例字段同名会把它遮蔽</pre>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q4 · 执行 a.MAX_STEPS = 3 之后，Agent.MAX_STEPS 和其他实例会怎样？</p>
+  <button class="quiz-opt" data-key="a">类变量被改成 3，所有实例都变</button>
+  <button class="quiz-opt" data-key="b">只在实例 a 上创建一个同名属性遮蔽类变量，类和 b 不受影响</button>
+  <button class="quiz-opt" data-key="c">抛出 AttributeError，类变量不能这样赋值</button>
+  <p class="quiz-explain" hidden>Python 实例属性是动态创建的。实例字典优先于类字典，所以 a 读到的 3 来自自己的遮蔽属性；Agent.MAX_STEPS 仍是原来的值。Java 的 static 字段赋值语义不同，这是迁移时最常见的坑之一。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q5 · @classmethod 装饰的方法，第一个参数收到的是什么？</p>
+  <button class="quiz-opt" data-key="a">类对象本身（约定名 cls），不是某个实例</button>
+  <button class="quiz-opt" data-key="b">实例对象 self</button>
+  <button class="quiz-opt" data-key="c">什么都没有，它是纯函数</button>
+  <p class="quiz-explain" hidden>classmethod 通过 cls 可以调用类的构造器和类方法，所以常用来做"从配置创建对象"的工厂。既不收 self 也不收 cls 的是 staticmethod。</p>
+</div>
+
 <h2>六、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="a">
@@ -1481,7 +1535,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "Point", "task": "① 默�
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：4 类与 dataclass</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html" aria-current="page"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html" aria-current="page"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

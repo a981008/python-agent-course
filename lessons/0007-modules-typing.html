@@ -602,6 +602,50 @@ def register(registry, tool):
 <p>自评清单：① <code>str | None</code> 提示写在签名上了吗？None 分支是先判 None 再解析吗？② TypedDict 三个字段注解对了吗？校验顺序影响错误列表吗？③ tags 用了 <code>field(default_factory=list)</code> 吗——两个 Tool 的 tags 互不影响吗？</p>
 </details>
 
+<h2>三·补、相对导入与字节码缓存（4 分钟）</h2>
+
+<p>第 7 课的验收要求"把练习代码重组为可 pip 安装的小项目"，但还差两块：包内部怎么互相导入，以及 import 时磁盘上发生的那件事。</p>
+
+<pre><span class="lang-tag">PYTHON — 官网 6.1.3 / 6.4.2 节</span>
+# ① 相对导入：包内部用点号定位，不写死包名
+#   mypkg/
+#     __init__.py
+#     core.py          ← 定义 Agent
+#     tools/
+#       __init__.py
+#       format.py      ← 要用上一级包的 Agent
+
+# mypkg/tools/format.py 里写：
+from ..core import Agent     # .. = 上一级包（mypkg）
+from . import helper         # .  = 当前包（mypkg.tools）
+
+# 两条限制：
+#   1. 只能用 from X import Y 形式；from .. import * 是语法错误
+#   2. 依赖 __package__，所以直接 python tools/format.py 会失败
+#      要用 python -m mypkg.tools.format 从包外启动
+
+# ② 字节码缓存：__pycache__ 与 .pyc
+# 首次 import 把编译结果写进 __pycache__/core.cpython-315.pyc
+# 下次 import 直接读缓存、跳过编译 → 第二次启动明显更快
+# .pyc 是可再生的缓存，可安全删除；Python 版本不匹配会自动重编译
+# 项目的 .gitignore 里通常写：__pycache__/  和  *.pyc</pre>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q4 · 在 mypkg/tools/format.py 里写 from ..core import Agent，其中 .. 指什么？</p>
+  <button class="quiz-opt" data-key="a">上一级包，也就是 mypkg</button>
+  <button class="quiz-opt" data-key="b">当前目录的父文件夹（文件系统层面）</button>
+  <button class="quiz-opt" data-key="c">Python 安装目录</button>
+  <p class="quiz-explain" hidden>相对导入的点号是"包层级"而不是文件系统路径：一个点=当前包，两个点=上一级包。它依赖 __package__，所以必须作为包的一部分被导入，直接运行该文件会失败。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q5 · __pycache__ 里的 .pyc 文件是干什么的？</p>
+  <button class="quiz-opt" data-key="a">备份源码，防止误删</button>
+  <button class="quiz-opt" data-key="b">缓存编译后的字节码，让后续 import 跳过编译步骤</button>
+  <button class="quiz-opt" data-key="c">记录包的版本号，pip 靠它判断升级</button>
+  <p class="quiz-explain" hidden>.pyc 是 CPython 把源码编译成字节码后的缓存，纯性能优化，删掉不影响正确性。版本不匹配时会自动重新生成，所以不该提交到版本库。</p>
+</div>
+
 <h2>六、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="b">
@@ -1434,7 +1478,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_temperature", "task
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：7 模块与 typing</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html" aria-current="page"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html" aria-current="page"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

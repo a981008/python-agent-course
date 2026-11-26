@@ -610,6 +610,46 @@ def from_value(s):
 <p>自评清单：① <code>nonlocal</code> 写在内部函数里了吗？两个计数器真的互不影响？② 右移用了 <code>lst[-k:] + lst[:-k]</code> 还是笨办法循环 pop？k=0 和空列表都对吗？③ <code>Status(s)</code> 的 ValueError 被捕获并返回 None 了吗？</p>
 </details>
 
+<h2>四·补、del 与内省三件套（3 分钟）</h2>
+
+<p>官网 5.2、6.3 和 9.1 节补齐两个基础概念：<code>del</code> 到底删了什么，以及不会用法时怎么现场问解释器。</p>
+
+<pre><span class="lang-tag">PYTHON — 官网 5.2 / 6.3 / 9.1 节</span>
+# ① del 删的是"名字到对象的绑定"，不是对象本身
+a = [1, 2]
+b = a                  # b 和 a 是贴到同一个列表上的两个标签（别名）
+del a                  # 只撕掉 a 这个标签
+b                      # [1, 2] —— 列表还在，b 仍可用
+
+del b[0]               # 删的是容器里的元素，原地修改 → [2]
+del b                  # 引用计数归零后对象才被回收
+
+# 这正是官网 9.1"名称和对象"：变量是标签，不是装值的盒子
+# 也解释了第 3 课的可变默认参数坑——多个名字指向同一个列表
+
+# ② 内省三件套：语法记不住时，不要猜，直接问解释器
+dir(obj)               # 列出对象所有属性和方法名
+help(str.split)        # 看文档字符串（就是第 3 课讲的 __doc__）
+inspect.signature(fn)  # 看真实签名（第 3/7 课的判分也在用它）
+
+# 脚本调试：python3 -i script.py 出错后停在交互态，变量还在现场</pre>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q4 · a = [1, 2]; b = a; del a 之后，b 还能用吗？</p>
+  <button class="quiz-opt" data-key="a">不能，a 删了对象就被销毁了</button>
+  <button class="quiz-opt" data-key="b">能，但内容变成空列表</button>
+  <button class="quiz-opt" data-key="c">能，仍是 [1, 2]；del 只删掉 a 这个绑定，对象由 b 继续引用</button>
+  <p class="quiz-explain" hidden>变量是贴到对象上的标签。del a 只撕掉 a 这张标签；对象是否回收取决于还有没有别的引用。这也是"名称和对象"一节要讲清的别名语义。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q5 · 想知道一个字符串对象有哪些方法，最快的现场手段是？</p>
+  <button class="quiz-opt" data-key="a">翻 Java 文档类比</button>
+  <button class="quiz-opt" data-key="b">在 REPL 里执行 dir(s)；想看某个方法的用法再 help(s.split)</button>
+  <button class="quiz-opt" data-key="c">读 .pyc 字节码</button>
+  <p class="quiz-explain" hidden>dir() 列名字、help() 读 __doc__、inspect.signature() 看签名——这是 Python 的内省三件套，面试手写代码前先在 REPL 里验证语法手感是合理策略。</p>
+</div>
+
 <h2>七、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="b">
@@ -1450,7 +1490,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：6 Python 独有语法</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html" aria-current="page"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html" aria-current="page"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

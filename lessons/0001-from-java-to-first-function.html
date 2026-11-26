@@ -421,6 +421,64 @@ public List&lt;String&gt; topOrderIds(List&lt;Order&gt; orders) {
 <a href="../reference/java-to-python-syntax.html">参考 · Java → Python 语法速查表</a>
 </div>
 
+<h2>二·补、控制流三件套：break / continue、循环 else、match（4 分钟）</h2>
+
+<p>官网第 4 章还有三个控制手段是前面没讲的。它们不是"高级语法"，而是面试手写循环题的常用词汇。</p>
+
+<pre><span class="lang-tag">PYTHON — 官网 4.4 / 4.5 / 4.7 节</span>
+# ① break / continue：语义和 Java 完全一样，只是没有括号
+for n in nums:
+    if n &lt; 0:
+        continue      # 跳过本次，进下一轮
+    if n &gt; 100:
+        break         # 直接跳出整个循环
+    total += n
+
+# ② 循环的 else：循环"正常跑完"才执行，被 break 跳出则不执行
+for x in items:
+    if x == target:
+        print("找到了")
+        break
+else:
+    print("没找到")     # 只有 for 完整跑完、没 break 才走到这里
+
+# Java 里要声明一个 found 布尔变量；Python 用 for-else 直接表达
+
+# ③ match（Python 3.10+）：结构模式匹配 ≈ switch + 解构
+match action:
+    case {"type": "call", "name": name}:
+        dispatch(name)
+    case {"type": "final", "text": text}:
+        return text
+    case _:              # 兜底分支，必须放最后
+        raise ValueError("未知动作")
+
+# Agent 场景：LLM 返回 {"type": ...} 字典，match 比一串 if 更清晰</pre>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q4 · for 循环后面的 else 什么时候执行？</p>
+  <button class="quiz-opt" data-key="a">每次循环迭代结束后都执行一次</button>
+  <button class="quiz-opt" data-key="b">只有循环完整跑完、没有被 break 跳出时才执行</button>
+  <button class="quiz-opt" data-key="c">只有执行了 break 之后才执行</button>
+  <p class="quiz-explain" hidden>for-else 是"没中断才执行"：找到目标后 break，else 不会跑；整个循环没命中才进 else。Java 里要用 found 标志位模拟这个逻辑。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q5 · match 语句里的 case _ 是什么？</p>
+  <button class="quiz-opt" data-key="a">兜底分支，匹配前面所有 case 都没命中的情况，必须放最后</button>
+  <button class="quiz-opt" data-key="b">匹配空字符串</button>
+  <button class="quiz-opt" data-key="c">Python 里不合法，match 不支持通配</button>
+  <p class="quiz-explain" hidden>case _ 是通配符模式（wildcard），永远匹配，所以只能放最后。它相当于 Java switch 的 default。</p>
+</div>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q6 · continue 的作用是？</p>
+  <button class="quiz-opt" data-key="a">跳出整个循环</button>
+  <button class="quiz-opt" data-key="b">结束当前函数</button>
+  <button class="quiz-opt" data-key="c">跳过本次循环的剩余语句，直接进入下一轮</button>
+  <p class="quiz-explain" hidden>continue 只影响当前这一次迭代；break 才是跳出整个循环。两者都不带括号，是语句不是函数。</p>
+</div>
+
 <h2>三、检索练习：先答后看（关补全）</h2>
 
 <p>以下是<strong>凭记忆</strong>回答的检索练习——答错没关系，答错的地方才是记忆正在生长的地方。</p>
@@ -1288,7 +1346,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "lookup", "tind": "       
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：1 从 Java 到第 1 个函数</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html" aria-current="page"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html" aria-current="page"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>
