@@ -385,17 +385,16 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p><strong>REPL 是 Python 的一部分</strong>（Java 没有的开发节奏）：终端敲 <code>python3</code> 直接进入，语句立刻执行并回显。三个必备工具：</p>
 
-<pre><span class="lang-tag">REPL — 直接敲 python3 进入</span>
-&gt;&gt;&gt; letters = ['a', 'b', 'c']
-&gt;&gt;&gt; letters[-1]          # 负索引从尾部数
-'c'
-&gt;&gt;&gt; _                    # _ 是上一个表达式的结果（REPL 独有）
-'c'
-&gt;&gt;&gt; help(str.split)      # 看文档；dir("abc") 列出所有方法
-&gt;&gt;&gt; type(letters), len(letters)
+<pre><span class="lang-tag">REPL — 直接敲 python3 进入</span><code><span data-pyhl="1">&gt;&gt;&gt; letters = [<span class="tk-str">'a'</span>, <span class="tk-str">'b'</span>, <span class="tk-str">'c'</span>]
+&gt;&gt;&gt; letters[-<span class="tk-num">1</span>]          <span class="tk-com"># 负索引从尾部数</span>
+<span class="tk-str">'c'</span>
+&gt;&gt;&gt; _                    <span class="tk-com"># _ 是上一个表达式的结果（REPL 独有）</span>
+<span class="tk-str">'c'</span>
+&gt;&gt;&gt; <span class="tk-fn">help</span>(<span class="tk-fn">str</span>.split)      <span class="tk-com"># 看文档；dir("abc") 列出所有方法</span>
+&gt;&gt;&gt; <span class="tk-fn">type</span>(letters), <span class="tk-fn">len</span>(letters)
 
-# 脚本调试：python3 -i script.py
-# 出错后停在交互态，变量还在现场，直接查</pre>
+<span class="tk-com"># 脚本调试：python3 -i script.py</span>
+<span class="tk-com"># 出错后停在交互态，变量还在现场，直接查</span></span></code></pre>
 
 <p>面试手写代码前，先用 REPL 试语法手感是合理策略——它就是为试错而生的。</p>
 
@@ -406,16 +405,15 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <a href="../reference/java-to-python-syntax.html">参考 · 全语法速查表 · 切片</a>
 </div>
 
-<pre><span class="lang-tag">PYTHON — seq[start:stop:step]，含头不含尾</span>
-letters = ['a', 'b', 'c', 'd', 'e', 'f']
-letters[1:4]        # ['b', 'c', 'd']      → list.subList(1, 4)
-letters[-2:]        # ['e', 'f']           负索引从尾部数（Java 没有）
-letters[::2]        # ['a', 'c', 'e']      步长 2
-letters[::-1]       # 反转，等价 Collections.reverse
-nums = [1, 2, 3]
-copy = nums[:]      # 浅拷贝整个序列（切片总是产生新对象）
-letters[10:]        # [] —— 切片越界不抛异常（Java 直接 IndexOutOfBounds）
-nums[1:3] = [20, 30]   # 切片赋值：直接改片段</pre>
+<pre><span class="lang-tag">PYTHON — seq[start:stop:step]，含头不含尾</span><code><span data-pyhl="1">letters = [<span class="tk-str">'a'</span>, <span class="tk-str">'b'</span>, <span class="tk-str">'c'</span>, <span class="tk-str">'d'</span>, <span class="tk-str">'e'</span>, <span class="tk-str">'f'</span>]
+letters[<span class="tk-num">1</span>:<span class="tk-num">4</span>]        <span class="tk-com"># ['b', 'c', 'd']      → list.subList(1, 4)</span>
+letters[-<span class="tk-num">2</span>:]        <span class="tk-com"># ['e', 'f']           负索引从尾部数（Java 没有）</span>
+letters[::<span class="tk-num">2</span>]        <span class="tk-com"># ['a', 'c', 'e']      步长 2</span>
+letters[::-<span class="tk-num">1</span>]       <span class="tk-com"># 反转，等价 Collections.reverse</span>
+nums = [<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>]
+copy = nums[:]      <span class="tk-com"># 浅拷贝整个序列（切片总是产生新对象）</span>
+letters[<span class="tk-num">10</span>:]        <span class="tk-com"># [] —— 切片越界不抛异常（Java 直接 IndexOutOfBounds）</span>
+nums[<span class="tk-num">1</span>:<span class="tk-num">3</span>] = [<span class="tk-num">20</span>, <span class="tk-num">30</span>]   <span class="tk-com"># 切片赋值：直接改片段</span></span></code></pre>
 
 <p>三条记忆点：① <strong>含头不含尾</strong>（和 subList 一样）；② <strong>负索引</strong>从尾部数，取尾不再手算 size-1；③ <strong>越界不炸</strong>——切片是"取窗口"，窗口外面没有就给空。字符串、元组同样支持。</p>
 
@@ -425,92 +423,86 @@ nums[1:3] = [20, 30]   # 切片赋值：直接改片段</pre>
 
 <p>Java 匿名类只能捕获 <code>final</code> 变量；Python 闭包能<strong>读写</strong>外层变量——但有个坑。变量查找顺序叫 <strong>LEGB</strong>：Local（本函数）→ Enclosing（外层函数）→ Global（模块）→ Builtins（内建）。</p>
 
-<pre><span class="lang-tag">PYTHON — 查找就近遮蔽，赋值才要声明</span>
-x = "global"
-def outer():
-    x = "enclosing"
-    def inner():
-        x = "local"        # 就近遮蔽，不改外层
-        return x
-    return inner()
+<pre><span class="lang-tag">PYTHON — 查找就近遮蔽，赋值才要声明</span><code><span data-pyhl="1">x = <span class="tk-str">"global"</span>
+<span class="tk-kw">def</span> outer():
+    x = <span class="tk-str">"enclosing"</span>
+    <span class="tk-kw">def</span> inner():
+        x = <span class="tk-str">"local"</span>        <span class="tk-com"># 就近遮蔽，不改外层</span>
+        <span class="tk-kw">return</span> x
+    <span class="tk-kw">return</span> inner()
 
-# 闭包写状态：内部函数引用外层变量，外层函数返回它
-def make_counter():
-    count = 0              # 状态藏在闭包里
-    def inc():
-        nonlocal count     # ★ 没有它，count += 1 会创建新局部变量！
-        count += 1
-        return count
-    return inc
+<span class="tk-com"># 闭包写状态：内部函数引用外层变量，外层函数返回它</span>
+<span class="tk-kw">def</span> make_counter():
+    count = <span class="tk-num">0</span>              <span class="tk-com"># 状态藏在闭包里</span>
+    <span class="tk-kw">def</span> inc():
+        <span class="tk-kw">nonlocal</span> count     <span class="tk-com"># ★ 没有它，count += 1 会创建新局部变量！</span>
+        count += <span class="tk-num">1</span>
+        <span class="tk-kw">return</span> count
+    <span class="tk-kw">return</span> inc
 
 c = make_counter()
-c(); c()                   # 1, 2 —— 每次调用 make_counter 得到独立计数器</pre>
+c(); c()                   <span class="tk-com"># 1, 2 —— 每次调用 make_counter 得到独立计数器</span></span></code></pre>
 
 <p><code>nonlocal</code> 是 Java 程序员最容易漏的字：闭包里<strong>读</strong>外层变量不需要声明，<strong>写</strong>（赋值）才需要。<code>global</code> 是另一层——模块级变量。</p>
 
 <p>经典坑：循环变量被闭包<strong>共享</strong>：</p>
 
-<pre><span class="lang-tag">PYTHON — 三处闭包引用同一个 i</span>
-funcs = [lambda: i for i in range(3)]
-[f() for f in funcs]      # [2, 2, 2]！都指向循环结束后的 i
-funcs = [lambda i=i: i for i in range(3)]   # 用默认参数冻结当前值
-[f() for f in funcs]      # [0, 1, 2]</pre>
+<pre><span class="lang-tag">PYTHON — 三处闭包引用同一个 i</span><code><span data-pyhl="1">funcs = [<span class="tk-kw">lambda</span>: i <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">3</span>)]
+[f() <span class="tk-kw">for</span> f <span class="tk-kw">in</span> funcs]      <span class="tk-com"># [2, 2, 2]！都指向循环结束后的 i</span>
+funcs = [<span class="tk-kw">lambda</span> i=i: i <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">3</span>)]   <span class="tk-com"># 用默认参数冻结当前值</span>
+[f() <span class="tk-kw">for</span> f <span class="tk-kw">in</span> funcs]      <span class="tk-com"># [0, 1, 2]</span></span></code></pre>
 
 <h2>四、对象模型：is 与 ==、可哈希、name mangling（6 分钟）</h2>
 
 <p>Java 里 <code>==</code> 是引用比较、<code>equals()</code> 是值比较。Python 反过来：<strong><code>==</code> 是值比较</strong>（默认调 <code>__eq__</code>），<strong><code>is</code> 才是对象身份比较</strong>（≈ Java 的 ==）：</p>
 
-<pre><span class="lang-tag">PYTHON — 判等纪律</span>
-a = [1]; b = [1]
-a == b        # True：值相等 → equals()
-a is b        # False：两个不同对象 → Java 的 ==
-id(a) == id(b)   # False：id() 是对象身份（≈ identityHashCode）
+<pre><span class="lang-tag">PYTHON — 判等纪律</span><code><span data-pyhl="1">a = [<span class="tk-num">1</span>]; b = [<span class="tk-num">1</span>]
+a == b        <span class="tk-com"># True：值相等 → equals()</span>
+a <span class="tk-kw">is</span> b        <span class="tk-com"># False：两个不同对象 → Java 的 ==</span>
+id(a) == id(b)   <span class="tk-com"># False：id() 是对象身份（≈ identityHashCode）</span>
 
-# 纪律：判等永远写 ==；is 只用于 None / True / False
-if x is None: ...        # → if (x == null)
-if lst: ...              # truthiness：空容器/0/None 为假</pre>
+<span class="tk-com"># 纪律：判等永远写 ==；is 只用于 None / True / False</span>
+<span class="tk-kw">if</span> x <span class="tk-kw">is</span> <span class="tk-kw">None</span>: ...        <span class="tk-com"># → if (x == null)</span>
+<span class="tk-kw">if</span> lst: ...              <span class="tk-com"># truthiness：空容器/0/None 为假</span></span></code></pre>
 
 <p>第二个概念：<strong>可哈希</strong>。Python 对象做 dict 键、进 set，要求可哈希（≈ Java 要求 hashCode 稳定）：数字、字符串、tuple 可以；list、dict、set 不行——所以 <code>{[1,2]: "x"}</code> 直接 TypeError，但 <code>{(1,2): "x"}</code> 合法。frozen dataclass 有真 <code>__hash__</code>，可变对象没有。</p>
 
 <p>第三个：Python 没有 <code>private</code> 关键字，靠<strong>约定 + 改名</strong>：</p>
 
-<pre><span class="lang-tag">PYTHON — 下划线的三种含义</span>
-class Account:
-    def __init__(self):
-        self.owner = "公开"       # → public
-        self._balance = 0         # 约定"内部使用"，外部仍能访问（→ @VisibleForTesting 的味道）
-        self.__pin = "1234"       # 触发 name mangling：真实名字变成 _Account__pin
+<pre><span class="lang-tag">PYTHON — 下划线的三种含义</span><code><span data-pyhl="1"><span class="tk-kw">class</span> Account:
+    <span class="tk-kw">def</span> __init__(<span class="tk-kw">self</span>):
+        <span class="tk-kw">self</span>.owner = <span class="tk-str">"公开"</span>       <span class="tk-com"># → public</span>
+        <span class="tk-kw">self</span>._balance = <span class="tk-num">0</span>         <span class="tk-com"># 约定"内部使用"，外部仍能访问（→ @VisibleForTesting 的味道）</span>
+        <span class="tk-kw">self</span>.__pin = <span class="tk-str">"1234"</span>       <span class="tk-com"># 触发 name mangling：真实名字变成 _Account__pin</span>
 
 acct = Account()
-acct.__pin          # AttributeError！
-acct._Account__pin  # 改名后的真身（知道即可，别这样访问）
-# 双下划线防的是"子类无意覆盖"，不是访问控制</pre>
+acct.__pin          <span class="tk-com"># AttributeError！</span>
+acct._Account__pin  <span class="tk-com"># 改名后的真身（知道即可，别这样访问）</span>
+<span class="tk-com"># 双下划线防的是"子类无意覆盖"，不是访问控制</span></span></code></pre>
 
 <h2>五、bytes 与 Enum：数据面与类型面（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — bytes：网络与文件的默认单位</span>
-s = "中文"
-data = s.encode("utf-8")     # str → bytes（→ getBytes(Charset)）
-data.decode("utf-8")         # bytes → str（→ new String(bytes, UTF_8)）
+<pre><span class="lang-tag">PYTHON — bytes：网络与文件的默认单位</span><code><span data-pyhl="1">s = <span class="tk-str">"中文"</span>
+data = s.encode(<span class="tk-str">"utf-8"</span>)     <span class="tk-com"># str → bytes（→ getBytes(Charset)）</span>
+data.decode(<span class="tk-str">"utf-8"</span>)         <span class="tk-com"># bytes → str（→ new String(bytes, UTF_8)）</span>
 b = b"hello"
-b[0]                         # 104 —— bytes 的元素是 int
-# open() 忘写 encoding 在 Windows 会用 GBK——永远显式写！
-with open("a.txt", encoding="utf-8") as f:
-    text = f.read()</pre>
+b[<span class="tk-num">0</span>]                         <span class="tk-com"># 104 —— bytes 的元素是 int</span>
+<span class="tk-com"># open() 忘写 encoding 在 Windows 会用 GBK——永远显式写！</span>
+<span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"a.txt"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:
+    text = f.read()</span></code></pre>
 
-<pre><span class="lang-tag">PYTHON — Enum（→ Java enum）</span>
-from enum import Enum, auto
+<pre><span class="lang-tag">PYTHON — Enum（→ Java enum）</span><code><span data-pyhl="1"><span class="tk-kw">from</span> enum <span class="tk-kw">import</span> Enum, auto
 
-class Status(Enum):
-    PENDING = auto()          # auto() 自动编号
-    PAID = "paid"
-    SHIPPED = "shipped"
+<span class="tk-kw">class</span> Status(Enum):
+    PENDING = auto()          <span class="tk-com"># auto() 自动编号</span>
+    PAID = <span class="tk-str">"paid"</span>
+    SHIPPED = <span class="tk-str">"shipped"</span>
 
-Status.PAID.value            # 'paid'
-Status("paid")               # 按值反查（查不到抛 ValueError）
-Status.PAID.name             # 'PAID'
-list(Status)                 # 可迭代所有成员
-# IntEnum 可直接比大小；frozen dataclass 一样不可变，但 Enum 语义更明确</pre>
+Status.PAID.value            <span class="tk-com"># 'paid'</span>
+Status(<span class="tk-str">"paid"</span>)               <span class="tk-com"># 按值反查（查不到抛 ValueError）</span>
+Status.PAID.name             <span class="tk-com"># 'PAID'</span>
+<span class="tk-fn">list</span>(Status)                 <span class="tk-com"># 可迭代所有成员</span>
+<span class="tk-com"># IntEnum 可直接比大小；frozen dataclass 一样不可变，但 Enum 语义更明确</span></span></code></pre>
 
 <h2>六、动手：闭包计数器 + 切片右移 + Enum（8 分钟）</h2>
 
@@ -576,36 +568,36 @@ def from_value(s):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code># 任务 1 — 闭包计数器
-def make_counter():
-    count = 0                 # 状态藏在闭包里，不在全局
-    def inc():
-        nonlocal count        # 没有它，count += 1 会创建新的局部变量
-        count += 1
-        return count
-    return inc
+<pre><code><span class="tk-com"># 任务 1 — 闭包计数器</span>
+<span class="tk-kw">def</span> make_counter():
+    count = <span class="tk-num">0</span>                 <span class="tk-com"># 状态藏在闭包里，不在全局</span>
+    <span class="tk-kw">def</span> inc():
+        <span class="tk-kw">nonlocal</span> count        <span class="tk-com"># 没有它，count += 1 会创建新的局部变量</span>
+        count += <span class="tk-num">1</span>
+        <span class="tk-kw">return</span> count
+    <span class="tk-kw">return</span> inc
 
-# 任务 2 — 切片循环右移
-def rotate(lst, k):
-    if not lst:               # 空列表：k %= len 会除零，先挡掉
-        return []
-    k %= len(lst)             # k 超过长度先取模
-    return lst[-k:] + lst[:-k]   # 尾段搬到前面；k=0 时 -0 就是 0，结果恰好是全拷贝
+<span class="tk-com"># 任务 2 — 切片循环右移</span>
+<span class="tk-kw">def</span> rotate(lst, k):
+    <span class="tk-kw">if</span> <span class="tk-kw">not</span> lst:               <span class="tk-com"># 空列表：k %= len 会除零，先挡掉</span>
+        <span class="tk-kw">return</span> []
+    k %= <span class="tk-fn">len</span>(lst)             <span class="tk-com"># k 超过长度先取模</span>
+    <span class="tk-kw">return</span> lst[-k:] + lst[:-k]   <span class="tk-com"># 尾段搬到前面；k=0 时 -0 就是 0，结果恰好是全拷贝</span>
 
-# 任务 3 — Enum 与按值反查
-from enum import Enum
+<span class="tk-com"># 任务 3 — Enum 与按值反查</span>
+<span class="tk-kw">from</span> enum <span class="tk-kw">import</span> Enum
 
-class Status(Enum):
-    PENDING = "pending"
-    PAID = "paid"
-    SHIPPED = "shipped"
-    CANCELLED = "cancelled"
+<span class="tk-kw">class</span> Status(Enum):
+    PENDING = <span class="tk-str">"pending"</span>
+    PAID = <span class="tk-str">"paid"</span>
+    SHIPPED = <span class="tk-str">"shipped"</span>
+    CANCELLED = <span class="tk-str">"cancelled"</span>
 
-def from_value(s):
-    try:
-        return Status(s)
-    except ValueError:
-        return None
+<span class="tk-kw">def</span> from_value(s):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">return</span> Status(s)
+    <span class="tk-kw">except</span> ValueError:
+        <span class="tk-kw">return</span> <span class="tk-kw">None</span>
 </code></pre>
 <p>自评清单：① <code>nonlocal</code> 写在内部函数里了吗？两个计数器真的互不影响？② 右移用了 <code>lst[-k:] + lst[:-k]</code> 还是笨办法循环 pop？k=0 和空列表都对吗？③ <code>Status(s)</code> 的 ValueError 被捕获并返回 None 了吗？</p>
 </details>
@@ -614,25 +606,24 @@ def from_value(s):
 
 <p>官网 5.2、6.3 和 9.1 节补齐两个基础概念：<code>del</code> 到底删了什么，以及不会用法时怎么现场问解释器。</p>
 
-<pre><span class="lang-tag">PYTHON — 官网 5.2 / 6.3 / 9.1 节</span>
-# ① del 删的是"名字到对象的绑定"，不是对象本身
-a = [1, 2]
-b = a                  # b 和 a 是贴到同一个列表上的两个标签（别名）
-del a                  # 只撕掉 a 这个标签
-b                      # [1, 2] —— 列表还在，b 仍可用
+<pre><span class="lang-tag">PYTHON — 官网 5.2 / 6.3 / 9.1 节</span><code><span data-pyhl="1"><span class="tk-com"># ① del 删的是"名字到对象的绑定"，不是对象本身</span>
+a = [<span class="tk-num">1</span>, <span class="tk-num">2</span>]
+b = a                  <span class="tk-com"># b 和 a 是贴到同一个列表上的两个标签（别名）</span>
+<span class="tk-kw">del</span> a                  <span class="tk-com"># 只撕掉 a 这个标签</span>
+b                      <span class="tk-com"># [1, 2] —— 列表还在，b 仍可用</span>
 
-del b[0]               # 删的是容器里的元素，原地修改 → [2]
-del b                  # 引用计数归零后对象才被回收
+<span class="tk-kw">del</span> b[<span class="tk-num">0</span>]               <span class="tk-com"># 删的是容器里的元素，原地修改 → [2]</span>
+<span class="tk-kw">del</span> b                  <span class="tk-com"># 引用计数归零后对象才被回收</span>
 
-# 这正是官网 9.1"名称和对象"：变量是标签，不是装值的盒子
-# 也解释了第 3 课的可变默认参数坑——多个名字指向同一个列表
+<span class="tk-com"># 这正是官网 9.1"名称和对象"：变量是标签，不是装值的盒子</span>
+<span class="tk-com"># 也解释了第 3 课的可变默认参数坑——多个名字指向同一个列表</span>
 
-# ② 内省三件套：语法记不住时，不要猜，直接问解释器
-dir(obj)               # 列出对象所有属性和方法名
-help(str.split)        # 看文档字符串（就是第 3 课讲的 __doc__）
-inspect.signature(fn)  # 看真实签名（第 3/7 课的判分也在用它）
+<span class="tk-com"># ② 内省三件套：语法记不住时，不要猜，直接问解释器</span>
+<span class="tk-fn">dir</span>(obj)               <span class="tk-com"># 列出对象所有属性和方法名</span>
+<span class="tk-fn">help</span>(<span class="tk-fn">str</span>.split)        <span class="tk-com"># 看文档字符串（就是第 3 课讲的 __doc__）</span>
+inspect.signature(fn)  <span class="tk-com"># 看真实签名（第 3/7 课的判分也在用它）</span>
 
-# 脚本调试：python3 -i script.py 出错后停在交互态，变量还在现场</pre>
+<span class="tk-com"># 脚本调试：python3 -i script.py 出错后停在交互态，变量还在现场</span></span></code></pre>
 
 <div class="quiz" data-answer="c">
   <p class="quiz-q">Q4 · a = [1, 2]; b = a; del a 之后，b 还能用吗？</p>
@@ -1167,6 +1158,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1352,15 +1345,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

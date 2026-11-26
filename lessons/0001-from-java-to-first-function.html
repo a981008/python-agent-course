@@ -425,35 +425,34 @@ public List&lt;String&gt; topOrderIds(List&lt;Order&gt; orders) {
 
 <p>官网第 4 章还有三个控制手段是前面没讲的。它们不是"高级语法"，而是面试手写循环题的常用词汇。</p>
 
-<pre><span class="lang-tag">PYTHON — 官网 4.4 / 4.5 / 4.7 节</span>
-# ① break / continue：语义和 Java 完全一样，只是没有括号
-for n in nums:
-    if n &lt; 0:
-        continue      # 跳过本次，进下一轮
-    if n &gt; 100:
-        break         # 直接跳出整个循环
+<pre><span class="lang-tag">PYTHON — 官网 4.4 / 4.5 / 4.7 节</span><code><span data-pyhl="1"><span class="tk-com"># ① break / continue：语义和 Java 完全一样，只是没有括号</span>
+<span class="tk-kw">for</span> n <span class="tk-kw">in</span> nums:
+    <span class="tk-kw">if</span> n &lt; <span class="tk-num">0</span>:
+        <span class="tk-kw">continue</span>      <span class="tk-com"># 跳过本次，进下一轮</span>
+    <span class="tk-kw">if</span> n &gt; <span class="tk-num">100</span>:
+        <span class="tk-kw">break</span>         <span class="tk-com"># 直接跳出整个循环</span>
     total += n
 
-# ② 循环的 else：循环"正常跑完"才执行，被 break 跳出则不执行
-for x in items:
-    if x == target:
-        print("找到了")
-        break
-else:
-    print("没找到")     # 只有 for 完整跑完、没 break 才走到这里
+<span class="tk-com"># ② 循环的 else：循环"正常跑完"才执行，被 break 跳出则不执行</span>
+<span class="tk-kw">for</span> x <span class="tk-kw">in</span> items:
+    <span class="tk-kw">if</span> x == target:
+        <span class="tk-fn">print</span>(<span class="tk-str">"找到了"</span>)
+        <span class="tk-kw">break</span>
+<span class="tk-kw">else</span>:
+    <span class="tk-fn">print</span>(<span class="tk-str">"没找到"</span>)     <span class="tk-com"># 只有 for 完整跑完、没 break 才走到这里</span>
 
-# Java 里要声明一个 found 布尔变量；Python 用 for-else 直接表达
+<span class="tk-com"># Java 里要声明一个 found 布尔变量；Python 用 for-else 直接表达</span>
 
-# ③ match（Python 3.10+）：结构模式匹配 ≈ switch + 解构
-match action:
-    case {"type": "call", "name": name}:
+<span class="tk-com"># ③ match（Python 3.10+）：结构模式匹配 ≈ switch + 解构</span>
+<span class="tk-kw">match</span> action:
+    <span class="tk-kw">case</span> {<span class="tk-str">"type"</span>: <span class="tk-str">"call"</span>, <span class="tk-str">"name"</span>: name}:
         dispatch(name)
-    case {"type": "final", "text": text}:
-        return text
-    case _:              # 兜底分支，必须放最后
-        raise ValueError("未知动作")
+    <span class="tk-kw">case</span> {<span class="tk-str">"type"</span>: <span class="tk-str">"final"</span>, <span class="tk-str">"text"</span>: text}:
+        <span class="tk-kw">return</span> text
+    <span class="tk-kw">case</span> _:              <span class="tk-com"># 兜底分支，必须放最后</span>
+        <span class="tk-kw">raise</span> ValueError(<span class="tk-str">"未知动作"</span>)
 
-# Agent 场景：LLM 返回 {"type": ...} 字典，match 比一串 if 更清晰</pre>
+<span class="tk-com"># Agent 场景：LLM 返回 {"type": ...} 字典，match 比一串 if 更清晰</span></span></code></pre>
 
 <div class="quiz" data-answer="b">
   <p class="quiz-q">Q4 · for 循环后面的 else 什么时候执行？</p>
@@ -541,35 +540,35 @@ def top_order_ids_v2(orders: list[Order]) -> list[str]:
 </div>
 
 <p class="meta">运行环境已预置的数据（<code>Order</code> 与 <code>SAMPLE</code>，无需你自己定义）：</p>
-<pre><code>from dataclasses import dataclass
+<pre><code><span class="tk-kw">from</span> dataclasses <span class="tk-kw">import</span> <span class="tk-fn">dataclass</span>
 
-@dataclass
-class Order:
-    order_id: str
-    amount: float
+<span class="tk-dec">@dataclass</span>
+<span class="tk-kw">class</span> Order:
+    order_id: <span class="tk-fn">str</span>
+    amount: <span class="tk-fn">float</span>
 
 SAMPLE = [
-    Order("ORD-003", 250.0),
-    Order("ORD-001", 99.9),
-    Order("ORD-002", 150.0),
-    Order("ORD-004", 100.0),
+    Order(<span class="tk-str">"ORD-003"</span>, <span class="tk-num">250.0</span>),
+    Order(<span class="tk-str">"ORD-001"</span>, <span class="tk-num">99.9</span>),
+    Order(<span class="tk-str">"ORD-002"</span>, <span class="tk-num">150.0</span>),
+    Order(<span class="tk-str">"ORD-004"</span>, <span class="tk-num">100.0</span>),
 ]</code></pre>
 
 <p>写完并通过全部测试后，展开对照参考实现自评：</p>
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code>def top_order_ids(orders: list[Order]) -&gt; list[str]:
-    """循环版：最接近 Java 直译，面试兜底写法"""
-    result: list[str] = []
-    for o in orders:
-        if o.amount &gt; 100:
+<pre><code><span class="tk-kw">def</span> top_order_ids(orders: <span class="tk-fn">list</span>[Order]) -&gt; <span class="tk-fn">list</span>[<span class="tk-fn">str</span>]:
+    <span class="tk-str">"""循环版：最接近 Java 直译，面试兜底写法"""</span>
+    result: <span class="tk-fn">list</span>[<span class="tk-fn">str</span>] = []
+    <span class="tk-kw">for</span> o <span class="tk-kw">in</span> orders:
+        <span class="tk-kw">if</span> o.amount &gt; <span class="tk-num">100</span>:
             result.append(o.order_id)
-    return sorted(result)
+    <span class="tk-kw">return</span> <span class="tk-fn">sorted</span>(result)
 
-def top_order_ids_v2(orders: list[Order]) -&gt; list[str]:
-    """推导版：Python 惯用写法，一行表达过滤+映射"""
-    return sorted(o.order_id for o in orders if o.amount &gt; 100)</code></pre>
+<span class="tk-kw">def</span> top_order_ids_v2(orders: <span class="tk-fn">list</span>[Order]) -&gt; <span class="tk-fn">list</span>[<span class="tk-fn">str</span>]:
+    <span class="tk-str">"""推导版：Python 惯用写法，一行表达过滤+映射"""</span>
+    <span class="tk-kw">return</span> <span class="tk-fn">sorted</span>(o.order_id <span class="tk-kw">for</span> o <span class="tk-kw">in</span> orders <span class="tk-kw">if</span> o.amount &gt; <span class="tk-num">100</span>)</code></pre>
 <p>自评清单：① 缩进全是 4 空格？② 两个版本都带了类型提示？③ 循环版用 <code>append</code>、没写出 <code>= []</code> 声明也行，但你写了更好？④ 推导版注意 <code>sorted()</code> 里放的是生成器，结果一样。</p>
 </details>
 
@@ -1024,6 +1023,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "lookup", "tind": "       
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1209,15 +1210,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "lookup", "tind": "       
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

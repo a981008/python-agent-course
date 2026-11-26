@@ -404,11 +404,11 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；这次写的是<strong>完整函数定义</strong>（不只是表达式）——把每题起始代码里的 <code>...</code> 补成实现，按题目要求改签名。点"检查"会真实运行你的函数并跑断言；改签名类题目（#8、#19）有防作弊测试：没加 <code>*</code> 会被当场抓住。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。<a href="#data-preview">↓ 先看数据一览</a></div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>（部分题目共用这些预置变量；题目下方也会显示本题用到的数据）：
-<pre><code>BASE    = {&#x27;host&#x27;: &#x27;localhost&#x27;, &#x27;port&#x27;: 8000}          # #17 已改为概念题：辨析合并配置的写法
-nums    = [3, 1, 4, 1, 5, 9, 2]
-words   = [&#x27;pay&#x27;, &#x27;Agent&#x27;, &#x27;tool&#x27;, &#x27;MCP&#x27;]
-pairs   = [(&#x27;a&#x27;, 1), (&#x27;b&#x27;, 3), (&#x27;c&#x27;, 2)]
-prices  = {&#x27;apple&#x27;: 3.5, &#x27;tea&#x27;: 25.0}</code></pre>
+<pre><code><span data-pyhl="1">BASE    = {<span class="tk-str">'host'</span>: <span class="tk-str">'localhost'</span>, <span class="tk-str">'port'</span>: <span class="tk-num">8000</span>}          <span class="tk-com"># #17 已改为概念题：辨析合并配置的写法</span>
+nums    = [<span class="tk-num">3</span>, <span class="tk-num">1</span>, <span class="tk-num">4</span>, <span class="tk-num">1</span>, <span class="tk-num">5</span>, <span class="tk-num">9</span>, <span class="tk-num">2</span>]
+words   = [<span class="tk-str">'pay'</span>, <span class="tk-str">'Agent'</span>, <span class="tk-str">'tool'</span>, <span class="tk-str">'MCP'</span>]
+pairs   = [(<span class="tk-str">'a'</span>, <span class="tk-num">1</span>), (<span class="tk-str">'b'</span>, <span class="tk-num">3</span>), (<span class="tk-str">'c'</span>, <span class="tk-num">2</span>)]
+prices  = {<span class="tk-str">'apple'</span>: <span class="tk-num">3.5</span>, <span class="tk-str">'tea'</span>: <span class="tk-num">25.0</span>}</span></code></pre>
 </div>
 <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="pfill"></div></div><div class="progress-text" id="ptext">已完成 0 / 20</div></div>
 <div class="drill-toolbar"><button class="drill-btn" id="btn-checkall">检查全部（已填的）</button><button class="drill-btn ghost" id="btn-reset">重置进度</button><span class="rt-note" id="rt-status"></span></div>
@@ -935,6 +935,8 @@ refreshUI();
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1120,15 +1122,29 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

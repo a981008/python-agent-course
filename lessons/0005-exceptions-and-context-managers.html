@@ -411,17 +411,16 @@ except KeyError:
 
 <h2>二、try/except/else/finally 完整结构（6 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 四个块各管一件事</span>
-try:
-    result = call_model(prompt)          # 冒险的代码
-except TimeoutError as e:                # 精确捕获，可写多个 except
+<pre><span class="lang-tag">PYTHON — 四个块各管一件事</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    result = call_model(prompt)          <span class="tk-com"># 冒险的代码</span>
+<span class="tk-kw">except</span> TimeoutError <span class="tk-kw">as</span> e:                <span class="tk-com"># 精确捕获，可写多个 except</span>
     result = fallback
-except (KeyError, TypeError):            # 元组 = 一口气捕获多种
-    result = None
-else:                                    # 无异常时才执行（成功路径）
-    log.info("成功")
-finally:                                 # 无论如何都执行（清理）
-    release(resource)</pre>
+<span class="tk-kw">except</span> (KeyError, TypeError):            <span class="tk-com"># 元组 = 一口气捕获多种</span>
+    result = <span class="tk-kw">None</span>
+<span class="tk-kw">else</span>:                                    <span class="tk-com"># 无异常时才执行（成功路径）</span>
+    log.info(<span class="tk-str">"成功"</span>)
+<span class="tk-kw">finally</span>:                                 <span class="tk-com"># 无论如何都执行（清理）</span>
+    release(resource)</span></code></pre>
 
 <p>三条纪律，都是 Java 带过来的好习惯，Python 里更严格：</p>
 <p>① <strong>精确捕获</strong>，别裸 <code>except:</code>——它会连 <code>KeyboardInterrupt</code>、<code>SystemExit</code> 一起吞（它们直接继承 <code>BaseException</code>，不走 <code>Exception</code>）；兜底用 <code>except Exception as e</code>。</p>
@@ -445,45 +444,42 @@ finally:                                 # 无论如何都执行（清理）
 <a href="../reference/java-to-python-syntax.html">参考 · 全语法速查表 · 异常处理</a>
 </div>
 
-<pre><span class="lang-tag">PYTHON — 包装底层异常，保留原因</span>
-try:
+<pre><span class="lang-tag">PYTHON — 包装底层异常，保留原因</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
     resp = http_post(url, payload)
-except ConnectionError as e:
-    raise ModelCallError("模型调用失败") from e   # 异常链：__cause__ = e</pre>
+<span class="tk-kw">except</span> ConnectionError <span class="tk-kw">as</span> e:
+    <span class="tk-kw">raise</span> ModelCallError(<span class="tk-str">"模型调用失败"</span>) <span class="tk-kw">from</span> e   <span class="tk-com"># 异常链：__cause__ = e</span></span></code></pre>
 
 <p><code>from e</code> 对应 Java 的 <code>initCause</code>：traceback 会把两个异常都打出来（"The above exception was the direct cause of..."），底层网络错误的信息一点不丢。Agent 项目里，工具层错误包装成业务错误时必须这样做——否则排查问题等于盲人摸象。</p>
 
 <p><strong>自定义异常要成体系</strong>：先建一个业务异常基类，具体异常继承它。这样上层捕获基类就能兜住一整族，和 Java 完全同款：</p>
 
-<pre><span class="lang-tag">PYTHON — 异常层次</span>
-class AgentError(Exception):
-    """本项目业务异常基类"""
+<pre><span class="lang-tag">PYTHON — 异常层次</span><code><span data-pyhl="1"><span class="tk-kw">class</span> AgentError(Exception):
+    <span class="tk-str">"""本项目业务异常基类"""</span>
 
-class ModelCallError(AgentError): ...
-class ToolExecError(AgentError): ...
+<span class="tk-kw">class</span> ModelCallError(AgentError): ...
+<span class="tk-kw">class</span> ToolExecError(AgentError): ...
 
-try:
+<span class="tk-kw">try</span>:
     run_agent()
-except AgentError:          # 一网打尽本项目的业务异常
-    alert_oncall()</pre>
+<span class="tk-kw">except</span> AgentError:          <span class="tk-com"># 一网打尽本项目的业务异常</span>
+    alert_oncall()</span></code></pre>
 
 <h2>四、with 与上下文管理器：让语言替你写 finally（6 分钟）</h2>
 
 <p>Java 的 try-with-resources 需要 <code>AutoCloseable</code>；Python 的 <code>with</code> 需要<strong>上下文管理器</strong>——实现 <code>__enter__</code>/<code>__exit__</code> 两个方法的对象。日常很少手写类，用 <code>@contextmanager</code> 把一个函数变成 CM：</p>
 
-<pre><span class="lang-tag">PYTHON — yield 一分为二</span>
-from contextlib import contextmanager
+<pre><span class="lang-tag">PYTHON — yield 一分为二</span><code><span data-pyhl="1"><span class="tk-kw">from</span> contextlib <span class="tk-kw">import</span> contextmanager
 
-@contextmanager
-def tagged(name):
-    print("进入", name)        # yield 之前 = __enter__（with 进入时执行）
-    try:
-        yield name              # yield 的值 = as 后面的变量
-    finally:
-        print("退出", name)     # yield 之后 = __exit__（离开时必执行）
+<span class="tk-dec">@contextmanager</span>
+<span class="tk-kw">def</span> tagged(name):
+    <span class="tk-fn">print</span>(<span class="tk-str">"进入"</span>, name)        <span class="tk-com"># yield 之前 = __enter__（with 进入时执行）</span>
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">yield</span> name              <span class="tk-com"># yield 的值 = as 后面的变量</span>
+    <span class="tk-kw">finally</span>:
+        <span class="tk-fn">print</span>(<span class="tk-str">"退出"</span>, name)     <span class="tk-com"># yield 之后 = __exit__（离开时必执行）</span>
 
-with tagged("数据库事务") as t:
-    do_something()              # 即使这里抛异常，"退出"也会打印</pre>
+<span class="tk-kw">with</span> tagged(<span class="tk-str">"数据库事务"</span>) <span class="tk-kw">as</span> t:
+    do_something()              <span class="tk-com"># 即使这里抛异常，"退出"也会打印</span></span></code></pre>
 
 <p>结构记法：<strong>yield 前是入口、yield 后是出口、yield 的值就是 as</strong>。清理逻辑放 <code>finally</code>（或 yield 后面）——<strong>等会动手要写的"兜底层"正是这个套路</strong>：包住一段危险代码，指定的异常就地消化。</p>
 
@@ -551,34 +547,34 @@ def suppress_error(exc_type):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code># 任务 1 — 业务异常层
-class InsufficientBalanceError(Exception):
-    pass
+<pre><code><span class="tk-com"># 任务 1 — 业务异常层</span>
+<span class="tk-kw">class</span> InsufficientBalanceError(Exception):
+    <span class="tk-kw">pass</span>
 
-def withdraw(balance: float, amount: float) -&gt; float:
-    if amount &gt; balance:
-        raise InsufficientBalanceError(f"余额不足: {balance} &lt; {amount}")
-    return balance - amount
+<span class="tk-kw">def</span> withdraw(balance: <span class="tk-fn">float</span>, amount: <span class="tk-fn">float</span>) -&gt; <span class="tk-fn">float</span>:
+    <span class="tk-kw">if</span> amount &gt; balance:
+        <span class="tk-kw">raise</span> InsufficientBalanceError(f"余额不足: {balance} &lt; {amount}")
+    <span class="tk-kw">return</span> balance - amount
 
-# 任务 2 — 重试层
-def retry_call(fn, times: int = 3):
-    last = None
-    for _ in range(times):
-        try:
-            return fn()
-        except ValueError as e:
+<span class="tk-com"># 任务 2 — 重试层</span>
+<span class="tk-kw">def</span> retry_call(fn, times: <span class="tk-fn">int</span> = <span class="tk-num">3</span>):
+    last = <span class="tk-kw">None</span>
+    <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(times):
+        <span class="tk-kw">try</span>:
+            <span class="tk-kw">return</span> fn()
+        <span class="tk-kw">except</span> ValueError <span class="tk-kw">as</span> e:
             last = e
-    raise last
+    <span class="tk-kw">raise</span> last
 
-# 任务 3 — 兜底层（上下文管理器）
-from contextlib import contextmanager
+<span class="tk-com"># 任务 3 — 兜底层（上下文管理器）</span>
+<span class="tk-kw">from</span> contextlib <span class="tk-kw">import</span> contextmanager
 
-@contextmanager
-def suppress_error(exc_type):
-    try:
-        yield
-    except exc_type:
-        pass
+<span class="tk-dec">@contextmanager</span>
+<span class="tk-kw">def</span> suppress_error(exc_type):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">yield</span>
+    <span class="tk-kw">except</span> exc_type:
+        <span class="tk-kw">pass</span>
 </code></pre>
 <p>自评清单：① <code>raise</code> 出的异常带着"余额不足"消息吗？② 重试循环里是"用尽才抛最后一次异常"，不是"第一次失败就抛"？③ 非 <code>ValueError</code> 的异常没有重试（精确捕获的意义）？④ <code>yield</code> 写在了 <code>try</code> 里、<code>except</code> 只吞指定类型？</p>
 </details>
@@ -1153,6 +1149,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1338,15 +1336,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

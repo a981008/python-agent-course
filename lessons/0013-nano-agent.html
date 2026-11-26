@@ -419,17 +419,16 @@ FastAPI 形态（第 12 课）    →  把循环包成 HTTP 服务（下一版�
 
 <h2>三、本课的极简协议（4 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — Nano Agent 协议</span>
-fake_llm(context) 的回复只有两种格式：
-  CALL 工具名 {"参数": "值"}      ← 行动：去调工具
+<pre><span class="lang-tag">PYTHON — Nano Agent 协议</span><code><span data-pyhl="1">fake_llm(context) 的回复只有两种格式：
+  CALL 工具名 {<span class="tk-str">"参数"</span>: <span class="tk-str">"值"</span>}      ← 行动：去调工具
   FINAL 答案文本                  ← 完成：循环结束
 
-parse_llm(text) → ("call", 工具名, 参数dict) / ("final", None, 答案文本)
-context = ["问题: ...", "观察: ...", ...]   # 每步追加，≈ messages
-MAX_STEPS = 5                                # 步数上限
+parse_llm(text) → (<span class="tk-str">"call"</span>, 工具名, 参数<span class="tk-fn">dict</span>) / (<span class="tk-str">"final"</span>, <span class="tk-kw">None</span>, 答案文本)
+context = [<span class="tk-str">"问题: ..."</span>, <span class="tk-str">"观察: ..."</span>, ...]   <span class="tk-com"># 每步追加，≈ messages</span>
+MAX_STEPS = <span class="tk-num">5</span>                                <span class="tk-com"># 步数上限</span>
 
-# 假 LLM 是脚本化的：没观察过就要求调工具，观察过就给最终答案
-# 真实项目里换成本课不变的其他一切——调 API、解析 JSON，形态完全一样</pre>
+<span class="tk-com"># 假 LLM 是脚本化的：没观察过就要求调工具，观察过就给最终答案</span>
+<span class="tk-com"># 真实项目里换成本课不变的其他一切——调 API、解析 JSON，形态完全一样</span></span></code></pre>
 
 <h2>四、动手：三步装出 Nano Agent（10 分钟）</h2>
 
@@ -487,31 +486,31 @@ def run_react(question):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code># 任务 1 — 工具函数（@tool 是第 10 课的注册器，预置可复用）
-@tool
-def get_weather(city):
-    return f"{city}: {WEATHER[city]}"
+<pre><code><span class="tk-com"># 任务 1 — 工具函数（@tool 是第 10 课的注册器，预置可复用）</span>
+<span class="tk-dec">@tool</span>
+<span class="tk-kw">def</span> get_weather(city):
+    <span class="tk-kw">return</span> f"{city}: {WEATHER[city]}"
 
-# 任务 2 — 解析 LLM 回复（第 9 课的 json）
-def parse_llm(text):
-    if text.startswith("CALL "):
-        body = text[len("CALL "):]
-        name, _, arg_json = body.partition(" ")
-        return ("call", name, json.loads(arg_json))
-    if text.startswith("FINAL "):
-        return ("final", None, text[len("FINAL "):])
-    raise ValueError("无法解析的回复: " + text)
+<span class="tk-com"># 任务 2 — 解析 LLM 回复（第 9 课的 json）</span>
+<span class="tk-kw">def</span> parse_llm(text):
+    <span class="tk-kw">if</span> text.startswith(<span class="tk-str">"CALL "</span>):
+        body = text[<span class="tk-fn">len</span>(<span class="tk-str">"CALL "</span>):]
+        name, _, arg_json = body.partition(<span class="tk-str">" "</span>)
+        <span class="tk-kw">return</span> (<span class="tk-str">"call"</span>, name, json.loads(arg_json))
+    <span class="tk-kw">if</span> text.startswith(<span class="tk-str">"FINAL "</span>):
+        <span class="tk-kw">return</span> (<span class="tk-str">"final"</span>, <span class="tk-kw">None</span>, text[<span class="tk-fn">len</span>(<span class="tk-str">"FINAL "</span>):])
+    <span class="tk-kw">raise</span> ValueError(<span class="tk-str">"无法解析的回复: "</span> + text)
 
-# 任务 3 — ReAct 主循环（第 5 课的异常兜底 + 第 10 课的注册表）
-def run_react(question):
-    context = ["问题: " + question]
-    for _ in range(MAX_STEPS):
+<span class="tk-com"># 任务 3 — ReAct 主循环（第 5 课的异常兜底 + 第 10 课的注册表）</span>
+<span class="tk-kw">def</span> run_react(question):
+    context = [<span class="tk-str">"问题: "</span> + question]
+    <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(MAX_STEPS):
         kind, name, arg = parse_llm(fake_llm(context))
-        if kind == "final":
-            return arg
-        observation = TOOLS[name](**arg)          # **kwargs 万能透传（第 3 课）
-        context.append("观察: " + str(observation))
-    raise RuntimeError("步数耗尽")</code></pre>
+        <span class="tk-kw">if</span> kind == <span class="tk-str">"final"</span>:
+            <span class="tk-kw">return</span> arg
+        observation = TOOLS[name](**arg)          <span class="tk-com"># **kwargs 万能透传（第 3 课）</span>
+        context.append(<span class="tk-str">"观察: "</span> + <span class="tk-fn">str</span>(observation))
+    <span class="tk-kw">raise</span> RuntimeError(<span class="tk-str">"步数耗尽"</span>)</code></pre>
 <p>自评清单：① 工具真的用 @tool 注册进 TOOLS 了吗？② parse_llm 两个分支的元组形状一致吗？③ 主循环有没有步数上限？"观察: " 的格式和 fake_llm 的判断对上了吗？</p>
 </details>
 
@@ -1035,6 +1034,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "�
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1220,15 +1221,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

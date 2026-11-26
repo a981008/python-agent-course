@@ -394,38 +394,36 @@ sleep 不占线程                →  await asyncio.sleep(0.05)——事件循�
 
 <h2>二、async def 与 await：最大的坑（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 新手三连坑</span>
-async def fetch(name):
-    await asyncio.sleep(0.05)          # 模拟一次 IO
-    return f"data-{name}"
+<pre><span class="lang-tag">PYTHON — 新手三连坑</span><code><span data-pyhl="1"><span class="tk-kw">async</span> <span class="tk-kw">def</span> fetch(name):
+    <span class="tk-kw">await</span> asyncio.sleep(<span class="tk-num">0.05</span>)          <span class="tk-com"># 模拟一次 IO</span>
+    <span class="tk-kw">return</span> f"data-{name}"
 
-fetch("a")                # ❌ 不会执行！只返回一个"协程对象"（≈ 一个没跑的 future）
-r = await fetch("a")      # ✅ await 才真正执行并拿到结果
-asyncio.run(main())       # 入口：事件循环从这里启动（Java 的 main 等价物）
+fetch(<span class="tk-str">"a"</span>)                <span class="tk-com"># ❌ 不会执行！只返回一个"协程对象"（≈ 一个没跑的 future）</span>
+r = <span class="tk-kw">await</span> fetch(<span class="tk-str">"a"</span>)      <span class="tk-com"># ✅ await 才真正执行并拿到结果</span>
+asyncio.run(main())       <span class="tk-com"># 入口：事件循环从这里启动（Java 的 main 等价物）</span>
 
-# 规则一：调用协程函数得到协程对象，不执行
-# 规则二：await 只能写在 async def 里面
-# 规则三：await 的瞬间 = 主动让出控制权，事件循环去跑别的协程</pre>
+<span class="tk-com"># 规则一：调用协程函数得到协程对象，不执行</span>
+<span class="tk-com"># 规则二：await 只能写在 async def 里面</span>
+<span class="tk-com"># 规则三：await 的瞬间 = 主动让出控制权，事件循环去跑别的协程</span></span></code></pre>
 
 <h2>三、gather：并发发起一批 IO（6 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 三种并发耗时对比</span>
-import asyncio, time
+<pre><span class="lang-tag">PYTHON — 三种并发耗时对比</span><code><span data-pyhl="1"><span class="tk-kw">import</span> asyncio, time
 
-async def fetch(name):
-    await asyncio.sleep(0.05)          # 每个都"耗时" 0.05s
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> fetch(name):
+    <span class="tk-kw">await</span> asyncio.sleep(<span class="tk-num">0.05</span>)          <span class="tk-com"># 每个都"耗时" 0.05s</span>
 
-async def main():
-    # 顺序版：0.05 × 3 = 0.15s —— await 一个才轮到下一个
-    a = await fetch("a"); b = await fetch("b"); c = await fetch("c")
-    # 并发版：总耗时 ≈ 0.05s —— 三个一起等 IO，事件循环统一调度
-    a, b, c = await asyncio.gather(fetch("a"), fetch("b"), fetch("c"))
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> main():
+    <span class="tk-com"># 顺序版：0.05 × 3 = 0.15s —— await 一个才轮到下一个</span>
+    a = <span class="tk-kw">await</span> fetch(<span class="tk-str">"a"</span>); b = <span class="tk-kw">await</span> fetch(<span class="tk-str">"b"</span>); c = <span class="tk-kw">await</span> fetch(<span class="tk-str">"c"</span>)
+    <span class="tk-com"># 并发版：总耗时 ≈ 0.05s —— 三个一起等 IO，事件循环统一调度</span>
+    a, b, c = <span class="tk-kw">await</span> asyncio.gather(fetch(<span class="tk-str">"a"</span>), fetch(<span class="tk-str">"b"</span>), fetch(<span class="tk-str">"c"</span>))
 
 asyncio.run(main())
 
-# gather 特性一：结果按【传入顺序】返回，与完成先后无关
-# gather 特性二：加 return_exceptions=True 时，异常不会炸掉整批，而是作为结果返回
-#（LLM API 场景：并发请求 20 个模型 → gather 一把梭）</pre>
+<span class="tk-com"># gather 特性一：结果按【传入顺序】返回，与完成先后无关</span>
+<span class="tk-com"># gather 特性二：加 return_exceptions=True 时，异常不会炸掉整批，而是作为结果返回</span>
+<span class="tk-com">#（LLM API 场景：并发请求 20 个模型 → gather 一把梭）</span></span></code></pre>
 
 <div class="marginnote">
 超时/重试/取消：<br>
@@ -438,33 +436,31 @@ asyncio.run(main())
 
 <h3>wait_for：给 await 加一个期限</h3>
 
-<pre><span class="lang-tag">PYTHON — wait_for：超时就放弃，别干等</span>
-try:
-    result = await asyncio.wait_for(fetch("a"), 1.0)   # 最多等 1 秒
-except asyncio.TimeoutError:
-    result = "timeout"       # 超时不炸程序——异常交给你，兜底方式自己定
+<pre><span class="lang-tag">PYTHON — wait_for：超时就放弃，别干等</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    result = <span class="tk-kw">await</span> asyncio.wait_for(fetch(<span class="tk-str">"a"</span>), <span class="tk-num">1.0</span>)   <span class="tk-com"># 最多等 1 秒</span>
+<span class="tk-kw">except</span> asyncio.TimeoutError:
+    result = <span class="tk-str">"timeout"</span>       <span class="tk-com"># 超时不炸程序——异常交给你，兜底方式自己定</span>
 
-# 记住三件事：
-# ① 第二个参数是【秒数】
-# ② 超时抛的是 asyncio.TimeoutError（不是普通 TimeoutError 的唯一形态，用全名最稳）
-# ③ 超时后那个协程会被自动取消，不会漏在后台空跑
-# LLM API 场景：请求卡死 30 秒 → wait_for(coro, 10) 把控制权拿回来</pre>
+<span class="tk-com"># 记住三件事：</span>
+<span class="tk-com"># ① 第二个参数是【秒数】</span>
+<span class="tk-com"># ② 超时抛的是 asyncio.TimeoutError（不是普通 TimeoutError 的唯一形态，用全名最稳）</span>
+<span class="tk-com"># ③ 超时后那个协程会被自动取消，不会漏在后台空跑</span>
+<span class="tk-com"># LLM API 场景：请求卡死 30 秒 → wait_for(coro, 10) 把控制权拿回来</span></span></code></pre>
 
 <h3>create_task + wait：谁先完成用谁</h3>
 
-<pre><span class="lang-tag">PYTHON — FIRST_COMPLETED：第一个完成就返回</span>
-async def race():
-    t1 = asyncio.create_task(fetch("a"))   # create_task = 立刻起跑、但不等待
-    t2 = asyncio.create_task(fetch("b"))   # （对照表里 ExecutorService.submit 的等价物）
-    done, pending = await asyncio.wait(
+<pre><span class="lang-tag">PYTHON — FIRST_COMPLETED：第一个完成就返回</span><code><span data-pyhl="1"><span class="tk-kw">async</span> <span class="tk-kw">def</span> race():
+    t1 = asyncio.create_task(fetch(<span class="tk-str">"a"</span>))   <span class="tk-com"># create_task = 立刻起跑、但不等待</span>
+    t2 = asyncio.create_task(fetch(<span class="tk-str">"b"</span>))   <span class="tk-com"># （对照表里 ExecutorService.submit 的等价物）</span>
+    done, pending = <span class="tk-kw">await</span> asyncio.wait(
         [t1, t2], return_when=asyncio.FIRST_COMPLETED)
-    winner = next(iter(done))              # done：已完成任务的集合
-    print(winner.result())                 # 任务的最终值要 .result() 取
-    for t in pending:                      # 输家还在跑？主动取消
+    winner = next(iter(done))              <span class="tk-com"># done：已完成任务的集合</span>
+    <span class="tk-fn">print</span>(winner.result())                 <span class="tk-com"># 任务的最终值要 .result() 取</span>
+    <span class="tk-kw">for</span> t <span class="tk-kw">in</span> pending:                      <span class="tk-com"># 输家还在跑？主动取消</span>
         t.cancel()
 
-# gather 等【全部】完成；wait 按 return_when 条件提前返回
-# 注意：wait 要传 create_task 的返回值（task），不要直接塞裸协程</pre>
+<span class="tk-com"># gather 等【全部】完成；wait 按 return_when 条件提前返回</span>
+<span class="tk-com"># 注意：wait 要传 create_task 的返回值（task），不要直接塞裸协程</span></span></code></pre>
 
 <p>记忆锚点：<strong>wait_for 管"最坏情况"，wait 管"最好情况"</strong>——前者给等待设上限，后者让最快的先走。下一节动手就用它们。</p>
 
@@ -529,21 +525,21 @@ async def with_timeout(factory, seconds):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code># 任务 1 — 协程函数
-async def fetch(name):
-    await asyncio.sleep(0.05)      # 模拟一次 IO（网络/磁盘）
-    return f"data-{name}"
+<pre><code><span class="tk-com"># 任务 1 — 协程函数</span>
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> fetch(name):
+    <span class="tk-kw">await</span> asyncio.sleep(<span class="tk-num">0.05</span>)      <span class="tk-com"># 模拟一次 IO（网络/磁盘）</span>
+    <span class="tk-kw">return</span> f"data-{name}"
 
-# 任务 2 — gather 并发（一次发起，别写循环逐个 await）
-async def fetch_all():
-    return await asyncio.gather(fetch("a"), fetch("b"), fetch("c"))
+<span class="tk-com"># 任务 2 — gather 并发（一次发起，别写循环逐个 await）</span>
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> fetch_all():
+    <span class="tk-kw">return</span> <span class="tk-kw">await</span> asyncio.gather(fetch(<span class="tk-str">"a"</span>), fetch(<span class="tk-str">"b"</span>), fetch(<span class="tk-str">"c"</span>))
 
-# 任务 3 — 超时控制
-async def with_timeout(factory, seconds):
-    try:
-        return await asyncio.wait_for(factory(), seconds)
-    except asyncio.TimeoutError:
-        return "timeout"</code></pre>
+<span class="tk-com"># 任务 3 — 超时控制</span>
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> with_timeout(factory, seconds):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">return</span> <span class="tk-kw">await</span> asyncio.wait_for(factory(), seconds)
+    <span class="tk-kw">except</span> asyncio.TimeoutError:
+        <span class="tk-kw">return</span> <span class="tk-str">"timeout"</span></code></pre>
 <p>自评清单：① fetch 是 async def 吗？调用它（不 await）得到的是协程对象吗？② fetch_all 用的是一次 gather，而不是循环里逐个 await 吗？③ wait_for 的超时异常是 asyncio.TimeoutError，被捕获后返回 "timeout" 了吗？</p>
 </details>
 
@@ -1067,6 +1063,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "fetch", "task": "① 协�
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1252,15 +1250,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "fetch", "task": "① 协�
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

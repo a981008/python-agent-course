@@ -380,25 +380,24 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h2>一、心智模型：float 是近似，Decimal 是精确（4 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 官网第 15 章"浮点算术：问题和限制"</span>
-&gt;&gt;&gt; 0.1 + 0.2
-0.30000000000000004
-&gt;&gt;&gt; 0.1 + 0.2 == 0.3
-False
+<pre><span class="lang-tag">PYTHON — 官网第 15 章"浮点算术：问题和限制"</span><code><span data-pyhl="1">&gt;&gt;&gt; <span class="tk-num">0.1</span> + <span class="tk-num">0.2</span>
+<span class="tk-num">0.30000000000000004</span>
+&gt;&gt;&gt; <span class="tk-num">0.1</span> + <span class="tk-num">0.2</span> == <span class="tk-num">0.3</span>
+<span class="tk-kw">False</span>
 
-# 原因：0.1 在二进制里是无限循环小数，只能用近似值表示。
-# 这不是 Python 的 bug —— Java 的 double、C 的 float 都一样（IEEE 754）。
+<span class="tk-com"># 原因：0.1 在二进制里是无限循环小数，只能用近似值表示。</span>
+<span class="tk-com"># 这不是 Python 的 bug —— Java 的 double、C 的 float 都一样（IEEE 754）。</span>
 
-from decimal import Decimal, ROUND_HALF_UP
+<span class="tk-kw">from</span> decimal <span class="tk-kw">import</span> Decimal, ROUND_HALF_UP
 
-Decimal("0.1") + Decimal("0.2")     # Decimal('0.3') —— 精确十进制
-Decimal(0.1)                        # ✗ 错：把已经近似的 float 转成了精确类型
+Decimal(<span class="tk-str">"0.1"</span>) + Decimal(<span class="tk-str">"0.2"</span>)     <span class="tk-com"># Decimal('0.3') —— 精确十进制</span>
+Decimal(<span class="tk-num">0.1</span>)                        <span class="tk-com"># ✗ 错：把已经近似的 float 转成了精确类型</span>
 
-# 量化到"分"：
-Decimal("19.99").quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+<span class="tk-com"># 量化到"分"：</span>
+Decimal(<span class="tk-str">"19.99"</span>).quantize(Decimal(<span class="tk-str">"0.01"</span>), rounding=ROUND_HALF_UP)
 
-# 纪律：金额一律用 Decimal，且必须用字符串或整数构造。
-# 第 5 课的支付函数用的是 float——本课把它修正过来。</pre>
+<span class="tk-com"># 纪律：金额一律用 Decimal，且必须用字符串或整数构造。</span>
+<span class="tk-com"># 第 5 课的支付函数用的是 float——本课把它修正过来。</span></span></code></pre>
 
 <div class="marginnote">
 官网 15.1 节"表示性错误"只讲原理；面试追问通常是"那算钱怎么办"——答案就是 Decimal。
@@ -406,51 +405,49 @@ Decimal("19.99").quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 <h2>二、ExceptionGroup 与 except*（Python 3.11+）（4 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 官网 8.9 / 8.10 节</span>
-# 并发任务可能同时失败。3.11 之前只能抛一个，其余信息丢失。
+<pre><span class="lang-tag">PYTHON — 官网 8.9 / 8.10 节</span><code><span data-pyhl="1"><span class="tk-com"># 并发任务可能同时失败。3.11 之前只能抛一个，其余信息丢失。</span>
 
-try:
-    raise ExceptionGroup("批量失败", [ValueError("a"), KeyError("b")])
-except* ValueError as eg:
-    print("值错误:", eg.exceptions)     # (ValueError('a'),)
-except* KeyError as eg:
-    print("键错误:", eg.exceptions)     # (KeyError('b'),)
+<span class="tk-kw">try</span>:
+    <span class="tk-kw">raise</span> ExceptionGroup(<span class="tk-str">"批量失败"</span>, [ValueError(<span class="tk-str">"a"</span>), KeyError(<span class="tk-str">"b"</span>)])
+<span class="tk-kw">except</span>* ValueError <span class="tk-kw">as</span> eg:
+    <span class="tk-fn">print</span>(<span class="tk-str">"值错误:"</span>, eg.exceptions)     <span class="tk-com"># (ValueError('a'),)</span>
+<span class="tk-kw">except</span>* KeyError <span class="tk-kw">as</span> eg:
+    <span class="tk-fn">print</span>(<span class="tk-str">"键错误:"</span>, eg.exceptions)     <span class="tk-com"># (KeyError('b'),)</span>
 
-# except* 不是 except 的别名：
-#   每个分支独立处理一类异常，剩下的继续交给后面的 except*
-#   和 asyncio.gather(return_exceptions=True) 是天然搭档
+<span class="tk-com"># except* 不是 except 的别名：</span>
+<span class="tk-com">#   每个分支独立处理一类异常，剩下的继续交给后面的 except*</span>
+<span class="tk-com">#   和 asyncio.gather(return_exceptions=True) 是天然搭档</span>
 
-# add_note（3.11）：给异常补充上下文，不改异常类型
-try:
-    1 / 0
-except ZeroDivisionError as e:
-    e.add_note("分母来自配置文件 config.yaml")
-    raise                              # 注意是 raise，不是 raise e</pre>
+<span class="tk-com"># add_note（3.11）：给异常补充上下文，不改异常类型</span>
+<span class="tk-kw">try</span>:
+    <span class="tk-num">1</span> / <span class="tk-num">0</span>
+<span class="tk-kw">except</span> ZeroDivisionError <span class="tk-kw">as</span> e:
+    e.add_note(<span class="tk-str">"分母来自配置文件 config.yaml"</span>)
+    <span class="tk-kw">raise</span>                              <span class="tk-com"># 注意是 raise，不是 raise e</span></span></code></pre>
 
 <h2>三、pytest：把验证变成可执行的规格（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 官网 10.11"质量控制"</span>
-# test_pricing.py
-from decimal import Decimal
-from pricing import money_total
+<pre><span class="lang-tag">PYTHON — 官网 10.11"质量控制"</span><code><span data-pyhl="1"><span class="tk-com"># test_pricing.py</span>
+<span class="tk-kw">from</span> decimal <span class="tk-kw">import</span> Decimal
+<span class="tk-kw">from</span> pricing <span class="tk-kw">import</span> money_total
 
-def test_empty():
-    assert money_total([]) == Decimal("0.00")
+<span class="tk-kw">def</span> test_empty():
+    <span class="tk-kw">assert</span> money_total([]) == Decimal(<span class="tk-str">"0.00"</span>)
 
-def test_normal():
-    assert money_total([Decimal("19.99"), Decimal("0.01")]) == Decimal("20.00")
+<span class="tk-kw">def</span> test_normal():
+    <span class="tk-kw">assert</span> money_total([Decimal(<span class="tk-str">"19.99"</span>), Decimal(<span class="tk-str">"0.01"</span>)]) == Decimal(<span class="tk-str">"20.00"</span>)
 
-import pytest
-@pytest.mark.parametrize("items,expected", [
-    ([], Decimal("0.00")),
-    ([Decimal("1.005")], Decimal("1.01")),
+<span class="tk-kw">import</span> pytest
+<span class="tk-dec">@pytest.mark.parametrize</span>(<span class="tk-str">"items,expected"</span>, [
+    ([], Decimal(<span class="tk-str">"0.00"</span>)),
+    ([Decimal(<span class="tk-str">"1.005"</span>)], Decimal(<span class="tk-str">"1.01"</span>)),
 ])
-def test_cases(items, expected):
-    assert money_total(items) == expected
+<span class="tk-kw">def</span> test_cases(items, expected):
+    <span class="tk-kw">assert</span> money_total(items) == expected
 
-# 运行：pytest -q
-# 价值：断言失败会打印实际值；用例名就是规格说明；改代码后一键回归。
-# 浏览器里不能真跑 pytest，本课动手区用同形态的 _t/_eq 断言器演示。</pre>
+<span class="tk-com"># 运行：pytest -q</span>
+<span class="tk-com"># 价值：断言失败会打印实际值；用例名就是规格说明；改代码后一键回归。</span>
+<span class="tk-com"># 浏览器里不能真跑 pytest，本课动手区用同形态的 _t/_eq 断言器演示。</span></span></code></pre>
 
 <h2>四、动手：精确算钱 + 批量异常 + 断言（8 分钟）</h2>
 
@@ -506,22 +503,22 @@ def safe_divide(a, b):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code>def money_total(prices):
-    total = sum(prices, Decimal("0"))
-    return total.quantize(CENT, rounding=ROUND_HALF_UP)
+<pre><code><span class="tk-kw">def</span> money_total(prices):
+    total = <span class="tk-fn">sum</span>(prices, Decimal(<span class="tk-str">"0"</span>))
+    <span class="tk-kw">return</span> total.quantize(CENT, rounding=ROUND_HALF_UP)
 
-def collect_errors(results):
-    errs = [RuntimeError(msg) for ok, msg in results if not ok]
-    if errs:
-        raise ExceptionGroup("批量失败", errs)
-    return "ok"
+<span class="tk-kw">def</span> collect_errors(results):
+    errs = [RuntimeError(msg) <span class="tk-kw">for</span> ok, msg <span class="tk-kw">in</span> results <span class="tk-kw">if</span> <span class="tk-kw">not</span> ok]
+    <span class="tk-kw">if</span> errs:
+        <span class="tk-kw">raise</span> ExceptionGroup(<span class="tk-str">"批量失败"</span>, errs)
+    <span class="tk-kw">return</span> <span class="tk-str">"ok"</span>
 
-def safe_divide(a, b):
-    try:
-        return a / b
-    except ZeroDivisionError as e:
-        e.add_note("分母不能为零")
-        raise</code></pre>
+<span class="tk-kw">def</span> safe_divide(a, b):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">return</span> a / b
+    <span class="tk-kw">except</span> ZeroDivisionError <span class="tk-kw">as</span> e:
+        e.add_note(<span class="tk-str">"分母不能为零"</span>)
+        <span class="tk-kw">raise</span></code></pre>
 <p>自评清单：① Decimal 是用字符串构造的吗？② ExceptionGroup 只在有失败项时才抛吗？③ add_note 之后用的是裸 raise 吗？</p>
 </details>
 
@@ -1034,6 +1031,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "money_total", "task": "�
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1219,15 +1218,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "money_total", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */

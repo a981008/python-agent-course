@@ -391,63 +391,59 @@ JUnit 断言 + 随机数据          →  doctest / random / statistics</pre>
 
 <h2>二、json：与 Jackson 同职（4 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — dumps / loads 一对</span>
-import json
-json.dumps({"名字": "小明", "scores": [90, 85]})
-# '{"名字": "小明", "scores": [90, 85]}' ← ensure_ascii=False 中文原样（默认会转成 \uXXXX）
-json.dumps(data, indent=2)             # 美化输出
-json.loads('{"a": 1}')                 # {'a': 1}  ← 字符串 → 对象
-json.load(f) / json.dump(obj, f)       # 直接读写文件对象（≠ loads/dumps 的 s 版本）
+<pre><span class="lang-tag">PYTHON — dumps / loads 一对</span><code><span data-pyhl="1"><span class="tk-kw">import</span> json
+json.dumps({<span class="tk-str">"名字"</span>: <span class="tk-str">"小明"</span>, <span class="tk-str">"scores"</span>: [<span class="tk-num">90</span>, <span class="tk-num">85</span>]})
+<span class="tk-com"># '{"名字": "小明", "scores": [90, 85]}' ← ensure_ascii=False 中文原样（默认会转成 \uXXXX）</span>
+json.dumps(data, indent=<span class="tk-num">2</span>)             <span class="tk-com"># 美化输出</span>
+json.loads(<span class="tk-str">'{"a": 1}'</span>)                 <span class="tk-com"># {'a': 1}  ← 字符串 → 对象</span>
+json.load(f) / json.dump(obj, f)       <span class="tk-com"># 直接读写文件对象（≠ loads/dumps 的 s 版本）</span>
 
-# 类型映射：None↔null、True↔true、dict↔object、list↔array
-# 只能序列化基本类型——datetime、自定义类要先转 str/dict（Model.model_dump() 的日常）</pre>
+<span class="tk-com"># 类型映射：None↔null、True↔true、dict↔object、list↔array</span>
+<span class="tk-com"># 只能序列化基本类型——datetime、自定义类要先转 str/dict（Model.model_dump() 的日常）</span></span></code></pre>
 
 <h2>三、文件 I/O 与 pathlib：with + encoding 是纪律（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 读文件（对比 try-finally-close，with 自动关）</span>
-with open("app.log", encoding="utf-8") as f:     # encoding 必须显式写！Windows 默认 GBK
-    text = f.read()                              # 一次读全（小文件）
-    # lines = f.readlines()                      # 按行列表
-with open("out.txt", "w", encoding="utf-8") as f:
-    f.write("hello\n")                          # "w" 覆盖写；"a" 追加写
+<pre><span class="lang-tag">PYTHON — 读文件（对比 try-finally-close，with 自动关）</span><code><span data-pyhl="1"><span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"app.log"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:     <span class="tk-com"># encoding 必须显式写！Windows 默认 GBK</span>
+    text = f.read()                              <span class="tk-com"># 一次读全（小文件）</span>
+    <span class="tk-com"># lines = f.readlines()                      # 按行列表</span>
+<span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"out.txt"</span>, <span class="tk-str">"w"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:
+    f.write(<span class="tk-str">"hello\n"</span>)                          <span class="tk-com"># "w" 覆盖写；"a" 追加写</span>
 
-from pathlib import Path
-p = Path("src") / "agent" / "app.py"   # 用 / 拼路径，替代 os.path.join
-p.suffix                               # ".py"        ← 扩展名
-p.parent                               # src/agent
-p.read_text(encoding="utf-8")          # 读整个文件（with 的语法糖）
-Path(".").glob("*.py")                 # 模式匹配文件列表</pre>
+<span class="tk-kw">from</span> pathlib <span class="tk-kw">import</span> Path
+p = Path(<span class="tk-str">"src"</span>) / <span class="tk-str">"agent"</span> / <span class="tk-str">"app.py"</span>   <span class="tk-com"># 用 / 拼路径，替代 os.path.join</span>
+p.suffix                               <span class="tk-com"># ".py"        ← 扩展名</span>
+p.parent                               <span class="tk-com"># src/agent</span>
+p.read_text(encoding=<span class="tk-str">"utf-8"</span>)          <span class="tk-com"># 读整个文件（with 的语法糖）</span>
+Path(<span class="tk-str">"."</span>).glob(<span class="tk-str">"*.py"</span>)                 <span class="tk-com"># 模式匹配文件列表</span></span></code></pre>
 
 <h2>四、re：正则几乎从 Java 平移（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 四个最常用的入口</span>
-import re
-re.search(r"user=(\w+)", line)     # 找第一处；m.group(1) 取分组；找不到 None
-re.match(r"\d+", line)              # 从头匹配（≠ search 全文找）
-re.findall(r"\d+", "a1b22")         # ['1', '22'] —— 所有匹配，字符串列表
-re.fullmatch(r"[a-z]+", s)          # 整串匹配（校验格式用这个，别用 match）
-re.sub(r"\d+", "*", s)              # 替换
+<pre><span class="lang-tag">PYTHON — 四个最常用的入口</span><code><span data-pyhl="1"><span class="tk-kw">import</span> re
+re.search(r"user=(\w+)", line)     <span class="tk-com"># 找第一处；m.group(1) 取分组；找不到 None</span>
+re.<span class="tk-kw">match</span>(r"\d+", line)              <span class="tk-com"># 从头匹配（≠ search 全文找）</span>
+re.findall(r"\d+", <span class="tk-str">"a1b22"</span>)         <span class="tk-com"># ['1', '22'] —— 所有匹配，字符串列表</span>
+re.fullmatch(r"[a-z]+", s)          <span class="tk-com"># 整串匹配（校验格式用这个，别用 match）</span>
+re.sub(r"\d+", <span class="tk-str">"*"</span>, s)              <span class="tk-com"># 替换</span>
 
-# r"..." 原始字符串是正则的标配——免得 \d 写成 \\d
-# \w 字母数字下划线；\d 数字；\S 非空白；( ) 分组 group(1)；[...] 字符集；{m,n} 次数</pre>
+<span class="tk-com"># r"..." 原始字符串是正则的标配——免得 \d 写成 \\d</span>
+<span class="tk-com"># \w 字母数字下划线；\d 数字；\S 非空白；( ) 分组 group(1)；[...] 字符集；{m,n} 次数</span></span></code></pre>
 
 <h2>五、collections 与 datetime（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 三件套 + 日期</span>
-from collections import Counter, defaultdict, deque
-c = Counter(["a", "b", "a"])
-c["a"]                       # 2 —— 没有的键返回 0，不炸
-c.most_common(2)             # [('a', 2), ('b', 1)] 排行榜
-d = defaultdict(list)
-d["k"].append(1)             # 键不存在自动建空列表（≈ computeIfAbsent）
-q = deque([1, 2, 3])
-q.rotate(-1)                 # 循环移动，O(1)（list 做 deque 是 O(n)）
+<pre><span class="lang-tag">PYTHON — 三件套 + 日期</span><code><span data-pyhl="1"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter, defaultdict, deque
+c = Counter([<span class="tk-str">"a"</span>, <span class="tk-str">"b"</span>, <span class="tk-str">"a"</span>])
+c[<span class="tk-str">"a"</span>]                       <span class="tk-com"># 2 —— 没有的键返回 0，不炸</span>
+c.most_common(<span class="tk-num">2</span>)             <span class="tk-com"># [('a', 2), ('b', 1)] 排行榜</span>
+d = defaultdict(<span class="tk-fn">list</span>)
+d[<span class="tk-str">"k"</span>].append(<span class="tk-num">1</span>)             <span class="tk-com"># 键不存在自动建空列表（≈ computeIfAbsent）</span>
+q = deque([<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>])
+q.rotate(-<span class="tk-num">1</span>)                 <span class="tk-com"># 循环移动，O(1)（list 做 deque 是 O(n)）</span>
 
-from datetime import date, timedelta
-date.fromisoformat("2026-11-26")          # 解析 ISO 日期（java.time.parse 味道）
-date.fromisoformat("2026-11-26") + timedelta(days=5)   # 日期加减
-(d2 - d1).days                            # 相差天数
-date.today().isoformat()                  # 转回字符串</pre>
+<span class="tk-kw">from</span> datetime <span class="tk-kw">import</span> date, timedelta
+date.fromisoformat(<span class="tk-str">"2026-11-26"</span>)          <span class="tk-com"># 解析 ISO 日期（java.time.parse 味道）</span>
+date.fromisoformat(<span class="tk-str">"2026-11-26"</span>) + timedelta(days=<span class="tk-num">5</span>)   <span class="tk-com"># 日期加减</span>
+(d2 - d1).days                            <span class="tk-com"># 相差天数</span>
+date.today().isoformat()                  <span class="tk-com"># 转回字符串</span></span></code></pre>
 
 <h2>六、动手：日志解析小工具（8 分钟）</h2>
 
@@ -503,35 +499,35 @@ def slow_pay_errors(lines):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code>import re
-from collections import Counter
+<pre><code><span class="tk-kw">import</span> re
+<span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
 
-# 任务 1 — 正则解析单行
-def parse_line(line):
-    m = re.match(r"(\S+) (\w+) user=(\w+)", line)
-    if not m:
-        return None
-    return {"time": m.group(1), "level": m.group(2), "user": m.group(3)}
+<span class="tk-com"># 任务 1 — 正则解析单行</span>
+<span class="tk-kw">def</span> parse_line(line):
+    m = re.<span class="tk-kw">match</span>(r"(\S+) (\w+) user=(\w+)", line)
+    <span class="tk-kw">if</span> <span class="tk-kw">not</span> m:
+        <span class="tk-kw">return</span> <span class="tk-kw">None</span>
+    <span class="tk-kw">return</span> {<span class="tk-str">"time"</span>: m.group(<span class="tk-num">1</span>), <span class="tk-str">"level"</span>: m.group(<span class="tk-num">2</span>), <span class="tk-str">"user"</span>: m.group(<span class="tk-num">3</span>)}
 
-# 任务 2 — Counter 统计
-def count_by_level(lines):
+<span class="tk-com"># 任务 2 — Counter 统计</span>
+<span class="tk-kw">def</span> count_by_level(lines):
     c = Counter()
-    for line in lines:
+    <span class="tk-kw">for</span> line <span class="tk-kw">in</span> lines:
         d = parse_line(line)
-        if d:
-            c[d["level"]] += 1
-    return dict(c)
+        <span class="tk-kw">if</span> d:
+            c[d[<span class="tk-str">"level"</span>]] += <span class="tk-num">1</span>
+    <span class="tk-kw">return</span> <span class="tk-fn">dict</span>(c)
 
-# 任务 3 — 筛选 + 排序
-def slow_pay_errors(lines):
+<span class="tk-com"># 任务 3 — 筛选 + 排序</span>
+<span class="tk-kw">def</span> slow_pay_errors(lines):
     out = []
-    for line in lines:
+    <span class="tk-kw">for</span> line <span class="tk-kw">in</span> lines:
         d = parse_line(line)
-        if d and d["level"] == "ERROR" and "action=pay" in line:
+        <span class="tk-kw">if</span> d <span class="tk-kw">and</span> d[<span class="tk-str">"level"</span>] == <span class="tk-str">"ERROR"</span> <span class="tk-kw">and</span> <span class="tk-str">"action=pay"</span> <span class="tk-kw">in</span> line:
             ms = re.search(r"duration_ms=(\d+)", line)
-            out.append((int(ms.group(1)), line))
-    out.sort(reverse=True)
-    return [line for _, line in out]</code></pre>
+            out.append((<span class="tk-fn">int</span>(ms.group(<span class="tk-num">1</span>)), line))
+    out.sort(reverse=<span class="tk-kw">True</span>)
+    <span class="tk-kw">return</span> [line <span class="tk-kw">for</span> _, line <span class="tk-kw">in</span> out]</code></pre>
 <p>自评清单：① parse_line 用的是 <code>re.match</code> 还是 <code>search</code>？这里从头匹配，match 就够；② 不匹配的行返回 None 而不是抛异常了吗？③ 排序用 <code>(ms, line)</code> 元组 <code>sort(reverse=True)</code> 时，同行 ms 相同会不会比字符串？想想稳定性。</p>
 </details>
 
@@ -1046,6 +1042,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "�
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1231,15 +1229,29 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
 /* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
