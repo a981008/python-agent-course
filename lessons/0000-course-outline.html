@@ -326,7 +326,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="callout">
-<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的练习场贯穿全程；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成。状态只保存在当前浏览器本地：首次打开全部为 ○ 未开始，换浏览器/设备或清除浏览器数据后需要重新标记，不会自动同步。想开下一课直接在对话里说"继续学 Python"。
+<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的 <strong>9 个练习场共 244 题</strong>（1★-9★；第 10-13 课的动手任务在课件内）每题都带例子说明，先写后看、自动判分；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。每个页面右上角的<strong>当前页小标题</strong>可展开快速跳转，编辑区按 <strong>Cmd/Ctrl+S</strong> 保存代码。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成。状态只保存在当前浏览器本地：首次打开全部为 ○ 未开始，换浏览器/设备或清除浏览器数据后需要重新标记，不会自动同步。想开下一课直接在对话里说"继续学 Python"。
 </div>
 
 <h2 class="drill-cat">阶段一 · 语言基础（对应学习计划 W1-W2 前半）</h2>
@@ -359,7 +359,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
 <tr><td><strong>10</strong></td><td><a href="0010-decorators.html">装饰器与回调</a></td><td>装饰器三段式/带参装饰器（工厂）/functools.wraps/@tool 注册模式</td><td>手写 @retry(times=3) 和 @log 装饰器</td><td><button class="status-chip" data-key="10" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>11</strong></td><td><a href="0011-generators.html">生成器与流式输出</a></td><td>yield/迭代器协议/yield from/send 双向通信/惰性管道</td><td>手写 token 流式输出的生成器</td><td><button class="status-chip" data-key="11" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>12</strong></td><td><a href="0012-fastapi.html">FastAPI 最小面</a></td><td>路由/Pydantic 模型/异步端点</td><td>把 Nano Agent 包成 HTTP 服务</td><td><button class="status-chip" data-key="12" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>12</strong></td><td><a href="0012-fastapi.html">FastAPI 最小面</a></td><td>路由/Pydantic 模型/异步端点（浏览器用预置 MiniAPI 教学框架）</td><td>在 MiniAPI 上写出请求模型 + 异步端点 + 统一错误处理（404/422）</td><td><button class="status-chip" data-key="12" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>13</strong></td><td><a href="0013-nano-agent.html">综合实战：手写 Nano Agent</a></td><td>ReAct 循环/工具注册/上下文拼接</td><td>无 AI 辅助跑通一次完整 ReAct 循环</td><td><button class="status-chip" data-key="13" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 </table>
 
@@ -367,7 +367,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <p id="progress-note">已完成 <span id="done-count">0</span>/13 课 + 各课练习场 + 速查表。进度以本机浏览器记录为准；预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。</p>
 
 <footer class="doc-footer">
-  本大纲由 teach skill 维护，课程发布后状态会更新 · 返回 <a href="0009-stdlib.html">第 9 课</a>
+  本大纲由 teach skill 维护，共 13 课 + 9 个练习场（244 题）· 返回 <a href="0013-nano-agent.html">第 13 课（收官）</a>
 </footer>
 </main>
 <script>
