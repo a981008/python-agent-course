@@ -271,6 +271,34 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 
 
+
+/* 右上角：当前页小标题 + 快速跳转 */
+#wb-quicknav { position: fixed; top: .6rem; right: .8rem; z-index: 200; font-family: inherit; }
+#wb-quicknav-btn {
+  display: flex; align-items: center; gap: .45rem; max-width: min(22rem, 70vw);
+  padding: .32rem .75rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.08); opacity: .95;
+}
+#wb-quicknav-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+#wb-quicknav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#wb-quicknav-btn .wb-qn-arrow { color: var(--accent); font-size: .7rem; }
+#wb-quicknav-menu {
+  position: absolute; right: 0; top: calc(100% + .4rem);
+  width: min(24rem, calc(100vw - 1.6rem)); max-height: min(70vh, 34rem); overflow: auto;
+  padding: .45rem; border: 1px solid var(--line); border-radius: .75rem;
+  background: var(--card); color: var(--ink); box-shadow: 0 12px 32px rgba(0,0,0,.18);
+}
+#wb-quicknav-menu[hidden] { display: none; }
+.wb-qn-group { padding: .4rem .55rem .15rem; font-size: .68rem; font-weight: 800; letter-spacing: .06em; color: var(--ink-soft); }
+#wb-quicknav-menu a {
+  display: flex; justify-content: space-between; gap: .75rem; align-items: baseline;
+  padding: .3rem .55rem; border-radius: .4rem; color: var(--ink); text-decoration: none; font-size: .82rem;
+}
+#wb-quicknav-menu a:hover { background: var(--accent-soft); }
+#wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
+#wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
+@media print { #wb-quicknav { display: none; } }
 </style>
 </head>
 <body>
@@ -1229,6 +1257,35 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
   }
 })();
 
+</script>
+<div id="wb-quicknav">
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：12 FastAPI 最小面</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html" aria-current="page"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+</div>
+
+<script>
+/* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */
+(function () {
+  var btn = document.getElementById('wb-quicknav-btn');
+  var menu = document.getElementById('wb-quicknav-menu');
+  if (!btn || !menu) return;
+  function close() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#wb-quicknav')) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) close();
+  });
+})();
 </script>
 </body>
 </html>
