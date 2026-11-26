@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>练习场 · 8 题标准库长尾训练</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #256b29;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
+  --max-w: 110rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  display: block;
+  width: auto;
+  margin: 0.8rem 0 1rem;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: var(--on-accent);
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: var(--on-accent);
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+
+/* 右上角：当前页小标题 + 快速跳转 */
+#wb-quicknav { position: fixed; top: .6rem; right: .8rem; z-index: 200; font-family: inherit; }
+#wb-quicknav-btn {
+  display: flex; align-items: center; gap: .45rem; max-width: min(22rem, 70vw);
+  padding: .32rem .75rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.08); opacity: .95;
+}
+#wb-quicknav-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+#wb-quicknav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#wb-quicknav-btn .wb-qn-arrow { color: var(--accent); font-size: .7rem; }
+#wb-quicknav-menu {
+  position: absolute; right: 0; top: calc(100% + .4rem);
+  width: min(24rem, calc(100vw - 1.6rem)); max-height: min(70vh, 34rem); overflow: auto;
+  padding: .45rem; border: 1px solid var(--line); border-radius: .75rem;
+  background: var(--card); color: var(--ink); box-shadow: 0 12px 32px rgba(0,0,0,.18);
+}
+#wb-quicknav-menu[hidden] { display: none; }
+.wb-qn-group { padding: .4rem .55rem .15rem; font-size: .68rem; font-weight: 800; letter-spacing: .06em; color: var(--ink-soft); }
+#wb-quicknav-menu a {
+  display: flex; justify-content: space-between; gap: .75rem; align-items: baseline;
+  padding: .3rem .55rem; border-radius: .4rem; color: var(--ink); text-decoration: none; font-size: .82rem;
+}
+#wb-quicknav-menu a:hover { background: var(--accent-soft); }
+#wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
+#wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
+@media print { #wb-quicknav { display: none; } }
+</style>
+<style>
+.progress-wrap { margin: 1.2rem 0; }
+.progress-bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width .3s; }
+.progress-text { font-size: .85rem; color: var(--ink-soft); margin-top: .4rem; }
+.drill-toolbar { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0 1.6rem; }
+.drill-cat { margin: 2rem 0 0.8rem; font-size: 1.05rem; border-bottom: 2px solid var(--accent); padding-bottom: .3rem; }
+.drill-cat .cat-done { font-size: .8rem; color: var(--ink-soft); margin-left: .6rem; }
+.drill { border: 1px solid var(--line); border-radius: 8px; padding: .8rem 1rem; margin: .7rem 0; background: var(--card); }
+.drill.solved { border-color: #6aa96a; background: var(--ok-bg); }
+.drill.revealed { border-left: 3px solid #d9a441; }
+.drill-head { display: flex; gap: .7rem; align-items: baseline; }
+.drill-ex { margin: .1rem 0 .55rem; padding: .45rem .7rem; background: var(--accent-soft); border-radius: 6px; font-size: .8rem; line-height: 1.7; color: var(--ink-soft); }
+.drill-no { flex: 0 0 2.2rem; font-family: "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--ink-soft); }
+.drill-task { flex: 1; }
+.drill-data { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .5rem .8rem; font-family: "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--ink-soft); }
+.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; color: var(--ink); }
+.drill-code:focus { border-color: var(--accent); }
+.drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
+
+.drill-opts { margin: .7rem 0 .3rem; display: grid; gap: .45rem; }
+.drill-opt { display: flex; gap: .6rem; align-items: baseline; padding: .55rem .85rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; transition: border-color .15s; }
+.drill-opt:hover { border-color: var(--accent); }
+.drill-opt input[type=radio] { accent-color: var(--accent); flex: none; margin-top: .15rem; }
+.opt-letter { font-weight: 700; color: var(--accent); flex: none; font-family: "SF Mono", Menlo, monospace; }
+.opt-text { line-height: 1.6; font-size: .92rem; }
+.drill.solved .drill-opt { opacity: .7; }
+.drill-opt.is-right { background: var(--ok-bg); border-color: var(--ok); }
+.drill-opt.is-right .opt-letter { color: var(--ok); }
+.drill-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); }
+.drill-opt.is-wrong .opt-letter { color: var(--bad); }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn:hover { opacity: .88; }
+.drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.drill-status.pass { color: var(--ok); font-weight: 600; }
+.drill-status.fail { color: var(--bad); }
+.drill-status.info { color: var(--ink-soft); }
+.drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
+.rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---- 全宽布局 + 本页子标题导航（2026-11-26） ---- */
+.wb-toc { margin: 1rem 0 1.6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 0.65rem 0.95rem; font-size: 0.86rem; }
+.wb-toc > summary { cursor: pointer; font-weight: 700; color: var(--ink-soft); }
+.wb-toc-body { margin-top: 0.5rem; max-height: 16rem; overflow-y: auto; }
+.wb-toc a { display: block; padding: 0.16rem 0; border-bottom: none; color: var(--ink-soft); line-height: 1.45; }
+.wb-toc a:hover { color: var(--accent); background: none; }
+.wb-toc a.active { color: var(--accent); font-weight: 700; }
+.wb-toc a.lv3 { padding-left: 0.9rem; font-size: 0.8rem; }
+h2[id^="sec-"], h3[id^="sec-"] { scroll-margin-top: 1rem; }
+@media (min-width: 1180px) {
+  main, .wrap { padding-right: 17.5rem; }
+  .wb-toc {
+    position: fixed; top: 4rem;
+    right: max(1.5rem, calc((100vw - 110rem) / 2));
+    width: 15rem;
+    max-height: calc(100vh - 5.5rem);
+    overflow-y: auto;
+    margin: 0; padding: 0 0 0 1rem;
+    border: none; border-left: 2px solid var(--line); border-radius: 0; background: none;
+    font-size: 0.8rem;
+    z-index: 5;
+  }
+  .wb-toc > summary { display: none; }
+  .wb-toc-body { margin-top: 0; max-height: none; overflow: visible; }
+}
+@media (max-width: 700px) { body { padding-top: 4.2rem; } }
+@media print {
+  main { display: block; max-width: none; }
+  .wb-toc { display: none; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>练习场 · 8 题标准库长尾训练</h1>
+<p class="meta">第 17 课配套 · csv / sqlite3 / tempfile / subprocess / struct / zoneinfo · 自动判分</p>
+<div class="callout win"><strong>玩法</strong>：本场只记“用哪个模块、边界在哪”：CSV 的换行、SQL 的参数化、子进程的参数列表，以及临时资源。 <code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
+<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="pfill"></div></div><div class="progress-text" id="ptext">已完成 0 / 8</div></div>
+<div class="drill-toolbar"><button class="drill-btn" id="btn-checkall">检查全部（已填的）</button><button class="drill-btn ghost" id="btn-reset">重置进度</button><span class="rt-note" id="rt-status"></span></div>
+<h2 class="drill-cat" data-cat="A">A · 文本、数据库与进程<span class="cat-done" data-range="1-3">第 1–3 题 · 0/3</span></h2>
+<div class="drill" id="d-1" data-n="1" data-cat="A">
+  <div class="drill-head"><span class="drill-no">#01</span><div class="drill-task">用 csv 写文件时应设置？</div></div>
+  <div class="drill-ex">例：<code>open(path, "w", newline="", encoding="utf-8")</code>。</div><div class="drill-opts">
+  <label class="drill-opt"><input type="radio" name="opt-1" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">newline=<span class="tk-str">""</span></code> 且显式 encoding</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">newline=<span class="tk-str">"\n"</span></code> 且默认编码</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="2"><span class="opt-letter">C</span><span class="opt-text">二进制模式</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-1" value="3"><span class="opt-letter">D</span><span class="opt-text">只写逗号分隔字符串</span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<div class="drill" id="d-2" data-n="2" data-cat="A">
+  <div class="drill-head"><span class="drill-no">#02</span><div class="drill-task">sqlite3 防 SQL 注入的正确做法是？</div></div>
+  <div class="drill-ex">例：<code>conn.execute("insert into t(name) values (?)", (name,))</code>。</div><div class="drill-opts">
+  <label class="drill-opt"><input type="radio" name="opt-2" value="0"><span class="opt-letter">A</span><span class="opt-text">用 <code data-pyhl="1">?</code> 占位并把值作为参数传入</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="1"><span class="opt-letter">B</span><span class="opt-text">用 f-string 拼 SQL</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="2"><span class="opt-letter">C</span><span class="opt-text">用 <code data-pyhl="1">%</code> 格式化</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-2" value="3"><span class="opt-letter">D</span><span class="opt-text">把用户输入转大写</span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<div class="drill" id="d-3" data-n="3" data-cat="A">
+  <div class="drill-head"><span class="drill-no">#03</span><div class="drill-task">Python 里跑外部命令更安全的写法是？</div></div>
+  <div class="drill-ex">例：<code>subprocess.run(["python3","-V"], check=True)</code>。</div><div class="drill-opts">
+  <label class="drill-opt"><input type="radio" name="opt-3" value="0"><span class="opt-letter">A</span><span class="opt-text">参数列表 + <code data-pyhl="1">check=<span class="tk-kw">True</span></code>，不用 shell=True</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-3" value="1"><span class="opt-letter">B</span><span class="opt-text">拼接一个完整 shell 字符串</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-3" value="2"><span class="opt-letter">C</span><span class="opt-text">用 eval</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-3" value="3"><span class="opt-letter">D</span><span class="opt-text">用 os.system 拼字符串</span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<h2 class="drill-cat" data-cat="B">B · 二进制、时区与临时资源<span class="cat-done" data-range="4-6">第 4–6 题 · 0/3</span></h2>
+<div class="drill" id="d-4" data-n="4" data-cat="B">
+  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task"><code>struct.pack("&gt;i", 1024)</code> 的 <code>&gt;</code> 表示？</div></div>
+  <div class="drill-ex">例：网络协议常用大端。</div><div class="drill-opts">
+  <label class="drill-opt"><input type="radio" name="opt-4" value="0"><span class="opt-letter">A</span><span class="opt-text">大端字节序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="1"><span class="opt-letter">B</span><span class="opt-text">小端字节序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="2"><span class="opt-letter">C</span><span class="opt-text">字符串</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="3"><span class="opt-letter">D</span><span class="opt-text">压缩</span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<div class="drill" id="d-5" data-n="5" data-cat="B">
+  <div class="drill-head"><span class="drill-no">#05</span><div class="drill-task">获取上海时区对象应使用？</div></div>
+  <div class="drill-ex">例：<code>datetime.now(ZoneInfo("Asia/Shanghai"))</code>。</div><div class="drill-opts">
+  <label class="drill-opt"><input type="radio" name="opt-5" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">ZoneInfo(<span class="tk-str">"Asia/Shanghai"</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-5" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">timezone(<span class="tk-str">"Asia/Shanghai"</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-5" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1">datetime(<span class="tk-str">"Asia/Shanghai"</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-5" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1">tzinfo(<span class="tk-str">"Shanghai"</span>)</code></span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<div class="drill" id="d-6" data-n="6" data-cat="B">
+  <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">临时目录最推荐的管理方式是？</div></div>
+  <div class="drill-ex">例：<code>with tempfile.TemporaryDirectory() as d: ...</code>。</div><div class="drill-opts">
+  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1"><span class="tk-kw">with</span> tempfile.TemporaryDirectory() <span class="tk-kw">as</span> d:</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text">手动拼 <code data-pyhl="1">/tmp</code> 并永不删除</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text">用当前目录</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text">用全局变量保存路径</span></label>
+  </div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<h2 class="drill-cat" data-cat="C">C · 手写<span class="cat-done" data-range="7-8">第 7–8 题 · 0/2</span></h2>
+<div class="drill" id="d-7" data-n="7" data-cat="C">
+  <div class="drill-head"><span class="drill-no">#07</span><div class="drill-task">写 <code>parse_csv(text)</code>：用 <code>csv.DictReader</code> 解析文本，返回 <code>[{"name":..., "score":...}, ...]</code>（score 转 int）。</div></div>
+  <div class="drill-ex">例：<code>parse_csv("name,score\na,1\n")</code> → <code>[{"name":"a","score":1}]</code>。</div><div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">import csv, io
+
+def parse_csv(text):
+    &quot;&quot;&quot;DictReader 解析；score 转 int&quot;&quot;&quot;
+    ...</pre><textarea class="drill-code" spellcheck="false" rows="7">import csv, io
+
+def parse_csv(text):
+    &quot;&quot;&quot;DictReader 解析；score 转 int&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<div class="drill" id="d-8" data-n="8" data-cat="C">
+  <div class="drill-head"><span class="drill-no">#08</span><div class="drill-task">写 <code>safe_run(cmd)</code>：用 subprocess 运行参数列表，<code>capture_output=True, text=True, check=True</code>，返回 stdout。</div></div>
+  <div class="drill-ex">例：<code>safe_run(["python3","-V"])</code> 返回版本字符串。</div><div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">import subprocess
+
+def safe_run(cmd):
+    &quot;&quot;&quot;参数列表 + capture_output + text + check&quot;&quot;&quot;
+    ...</pre><textarea class="drill-code" spellcheck="false" rows="7">import subprocess
+
+def safe_run(cmd):
+    &quot;&quot;&quot;参数列表 + capture_output + text + check&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="drill-row">
+    <button class="drill-btn drill-check">检查</button>
+    <button class="drill-btn ghost drill-ans">答案</button>
+    <span class="drill-status"></span>
+  </div>
+  <pre class="drill-ansbox" hidden></pre>
+</div>
+<footer class="doc-footer">
+  返回：<a href="0017-stdlib-extra.html">第 17 课 · 标准库长尾</a> · <a href="0016-stdlib-drill.html">上一场 · 16★ 练习</a> · <a href="0018-scripting-drill.html">下一场 · 18★ 练习</a> · <a href="0000-course-outline.html">课程大纲</a>
+</footer>
+</main>
+
+<script type="text/x-python" id="env-code">
+import csv, io, subprocess
+</script>
+
+<script>
+const EX = [{"n": 1, "cat": "A", "name": "csv_newline", "type": "mc", "task": "用 csv 写文件时应设置？", "options": ["`newline=\"\"` 且显式 encoding", "`newline=\"\\n\"` 且默认编码", "二进制模式", "只写逗号分隔字符串"], "correct": 0, "explain": "newline=\"\" 防止 Windows 空行；encoding 防止中文乱码。", "ex": "例：`open(path, \"w\", newline=\"\", encoding=\"utf-8\")`。"}, {"n": 2, "cat": "A", "name": "sqlite_param", "type": "mc", "task": "sqlite3 防 SQL 注入的正确做法是？", "options": ["用 `?` 占位并把值作为参数传入", "用 f-string 拼 SQL", "用 `%` 格式化", "把用户输入转大写"], "correct": 0, "explain": "参数化查询把 SQL 和值分开。", "ex": "例：`conn.execute(\"insert into t(name) values (?)\", (name,))`。"}, {"n": 3, "cat": "A", "name": "subprocess_safe", "type": "mc", "task": "Python 里跑外部命令更安全的写法是？", "options": ["参数列表 + `check=True`，不用 shell=True", "拼接一个完整 shell 字符串", "用 eval", "用 os.system 拼字符串"], "correct": 0, "explain": "参数列表避免 shell 注入；仍要对不可信输入做白名单。", "ex": "例：`subprocess.run([\"python3\",\"-V\"], check=True)`。"}, {"n": 4, "cat": "B", "name": "struct", "type": "mc", "task": "`struct.pack(\">i\", 1024)` 的 `>` 表示？", "options": ["大端字节序", "小端字节序", "字符串", "压缩"], "correct": 0, "explain": "`>` 大端，`<` 小端，`i` 是 4 字节整数。", "ex": "例：网络协议常用大端。"}, {"n": 5, "cat": "B", "name": "zoneinfo", "type": "mc", "task": "获取上海时区对象应使用？", "options": ["`ZoneInfo(\"Asia/Shanghai\")`", "`timezone(\"Asia/Shanghai\")`", "`datetime(\"Asia/Shanghai\")`", "`tzinfo(\"Shanghai\")`"], "correct": 0, "explain": "zoneinfo 读取 IANA 时区数据库；不要手写 UTC+8 偏移。", "ex": "例：`datetime.now(ZoneInfo(\"Asia/Shanghai\"))`。"}, {"n": 6, "cat": "B", "name": "tempfile", "type": "mc", "task": "临时目录最推荐的管理方式是？", "options": ["`with tempfile.TemporaryDirectory() as d:`", "手动拼 `/tmp` 并永不删除", "用当前目录", "用全局变量保存路径"], "correct": 0, "explain": "上下文管理器自动清理目录，异常也能清理。", "ex": "例：`with tempfile.TemporaryDirectory() as d: ...`。"}, {"n": 7, "cat": "C", "name": "parse_csv", "type": "code", "task": "写 `parse_csv(text)`：用 `csv.DictReader` 解析文本，返回 `[{\"name\":..., \"score\":...}, ...]`（score 转 int）。", "starter": "import csv, io\n\ndef parse_csv(text):\n    \"\"\"DictReader 解析；score 转 int\"\"\"\n    ...", "ans": "import csv, io\n\ndef parse_csv(text):\n    rows = csv.DictReader(io.StringIO(text))\n    return [{\"name\": r[\"name\"], \"score\": int(r[\"score\"])} for r in rows]", "tind": "        text = \"name,score\\na,1\\nb,2\\n\"\n        assert _fn(text) == [{\"name\":\"a\",\"score\":1},{\"name\":\"b\",\"score\":2}]\n        assert _fn(\"name,score\\n\") == []", "snip": null, "ex": "例：`parse_csv(\"name,score\\na,1\\n\")` → `[{\"name\":\"a\",\"score\":1}]`。"}, {"n": 8, "cat": "C", "name": "safe_run", "type": "code", "task": "写 `safe_run(cmd)`：用 subprocess 运行参数列表，`capture_output=True, text=True, check=True`，返回 stdout。", "starter": "import subprocess\n\ndef safe_run(cmd):\n    \"\"\"参数列表 + capture_output + text + check\"\"\"\n    ...", "ans": "import subprocess\n\ndef safe_run(cmd):\n    return subprocess.run(cmd, capture_output=True, text=True, check=True).stdout", "tind": "        out = _fn([\"python3\", \"-c\", \"print(42)\"])\n        assert \"42\" in out", "snip": null, "ex": "例：`safe_run([\"python3\",\"-V\"])` 返回版本字符串。"}];
+const ENV_CODE = document.getElementById('env-code').textContent;
+
+const LS_KEY = 'lesson-0017-drill-progress';
+let prog = { solved: [], revealed: [], answers: {} };
+try { const raw = localStorage.getItem(LS_KEY); if (raw) prog = Object.assign(prog, JSON.parse(raw)); } catch (e) {}
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(prog)); } catch (e) {} }
+
+/* Cmd/Ctrl+S 桥接：pyhl 保存事件 → 计入本题答案持久化（与"检查"保存同一存储） */
+document.addEventListener("wb-code-save", function (e) {
+  var el = e.detail.ta.closest(".drill");
+  if (!el || !el.dataset.n) return;
+  prog.answers[+el.dataset.n] = e.detail.code;
+  save();
+});
+
+function row(n) { return document.getElementById('d-' + n); }
+function codeEl(n) { return row(n).querySelector('.drill-code'); }
+function statusEl(n) { return row(n).querySelector('.drill-status'); }
+function ansbox(n) { return row(n).querySelector('.drill-ansbox'); }
+const byN = {}; EX.forEach(e => byN[e.n] = e);
+
+function refreshUI() {
+  document.querySelectorAll('.drill').forEach(el => {
+    const n = +el.dataset.n;
+    const ex = byN[n];
+    el.classList.toggle('solved', prog.solved.includes(n));
+    el.classList.toggle('revealed', prog.revealed.includes(n));
+    const ab = ansbox(n);
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+                ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct].replace(/`/g, '') + '\n\n解析：' + ex.explain.replace(/`/g, '') + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+                ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
+    }
+  });
+  const done = prog.solved.length;
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
+  document.getElementById('ptext').textContent = '已完成 ' + done + ' / ' + EX.length;
+  document.querySelectorAll('.drill-cat').forEach(h => {
+    const cat = h.dataset.cat;
+    const total = EX.filter(e => e.cat === cat).length;
+    const d = prog.solved.filter(n => byN[n].cat === cat).length;
+    const span = h.querySelector('.cat-done');
+    span.textContent = '第 ' + span.dataset.range + ' 题 · ' + d + '/' + total;
+  });
+}
+
+let pyodide = null, loading = null;
+const rt = document.getElementById('rt-status');
+async function ensurePy() {
+  if (pyodide) return pyodide;
+  if (!loading) {
+    loading = (async () => {
+      rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
+      document.head.appendChild(s);
+      await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
+      const py = await loadPyodide();
+      await py.runPythonAsync(ENV_CODE);
+      await py.runPythonAsync('_G = dict(globals())');
+      pyodide = py;
+      rt.textContent = '运行时就绪 ✓';
+      return py;
+    })();
+    loading.catch(() => { loading = null; rt.textContent = '运行时加载失败，可重试'; });
+  }
+  return loading;
+}
+
+async function check(n) {
+  const _ed = codeEl(n); const codeVal = _ed ? _ed.value : '';
+  const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    row(n).querySelectorAll('.drill-opt').forEach(l => l.classList.remove('is-right', 'is-wrong'));
+    row(n).querySelector('.drill-opt:has(input[value="' + ex.correct + '"])').classList.add('is-right');
+    if (+sel.value !== ex.correct) sel.closest('.drill-opt').classList.add('is-wrong');
+
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
+  if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
+  prog.answers[n] = codeVal; save();
+  let py;
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
+  const code = `import json as _json
+_res = {"ok": False, "msg": ""}
+_lenv = dict(_G)
+try:
+    exec(compile(${JSON.stringify(codeVal)}, "<answer>", "exec"), _lenv)
+except Exception as _e:
+    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}
+else:
+    try:
+        _fn = _lenv.get(${JSON.stringify(ex.name)})
+        assert _fn is not None, "函数 ${ex.name} 未定义（检查函数名拼写）"
+${ex.tind}
+        _res = {"ok": True, "msg": ""}
+    except AssertionError as _e:
+        _res = {"ok": False, "msg": str(_e)}
+    except Exception as _e:
+        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}
+_json.dumps(_res)`;
+  let out;
+  try { out = JSON.parse(await py.runPythonAsync(code)); }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
+  if (out.ok) {
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
+    if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+  } else {
+    let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
+  }
+}
+
+async function checkAll() {
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
+  if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
+  rt.textContent = '批量检查中…';
+  let pass = 0;
+  for (const e of filled) { await check(e.n); if (prog.solved.includes(e.n)) pass++; }
+  rt.textContent = '批量检查完成：' + pass + ' / ' + filled.length + ' 通过';
+}
+
+EX.forEach(e => {
+  const el = row(e.n);
+  el.querySelector('.drill-check').addEventListener('click', () => check(e.n));
+  el.querySelector('.drill-ans').addEventListener('click', () => {
+    const ab = ansbox(e.n);
+    if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
+    ab.hidden = !ab.hidden;
+  });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+});
+document.getElementById('btn-checkall').addEventListener('click', checkAll);
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!confirm('清空全部进度与已填代码？')) return;
+  prog = { solved: [], revealed: [], answers: {} }; save();
+  document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
+  document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
+  refreshUI();
+});
+refreshUI();
+
+</script>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进 + 本地保存组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加 1：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
+ *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
+ *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  /* ---- 本地保存：编辑器内 Cmd/Ctrl+S = 保存代码 ---- */
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
+        "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "opacity:0;transition:opacity 0.25s;pointer-events:none;";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = "0"; }, 1600);
+  }
+
+  function editorKey(ta, idx) {
+    var anchor = null;
+    try {
+      var drill = ta.closest(".drill");
+      if (drill && drill.dataset.n) anchor = "d" + drill.dataset.n;
+      if (!anchor && ta.id) anchor = ta.id;
+    } catch (e) { /* closest 不可用则退回序号 */ }
+    if (!anchor) anchor = "idx" + idx;
+    return "wb-code:" + location.pathname + ":" + anchor;
+  }
+
+  function saveCode(ta, key) {
+    var code = ta.value;
+    try { localStorage.setItem(key, code); } catch (e) { return; }
+    try {
+      document.dispatchEvent(new CustomEvent("wb-code-save", { detail: { ta: ta, code: code, key: key } }));
+    } catch (e) { /* 旧浏览器无 CustomEvent 则跳过桥接 */ }
+    toast("✓ 代码已保存（浏览器本地，刷新不丢）");
+  }
+
+  function enhance(ta, idx) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // 本地保存：恢复 + Cmd/Ctrl+S
+    var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
+    try {
+      var saved = localStorage.getItem(codeKey);
+      if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
+        ta.value = saved; // 引擎已恢复过的（≠ 初始值）不覆盖
+      }
+    } catch (e) { /* localStorage 不可用则跳过 */ }
+
+    var escUnlocked = false;
+    ta.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
+          (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); // 拦截浏览器"保存网页"
+        saveCode(ta, codeKey);
+        return;
+      }
+      if (e.key === "Escape") { escUnlocked = true; return; }
+      if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta, idx) {
+      try { enhance(ta, idx); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
+  }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();</script>
+<script>
+/* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+(function () {
+  var KEY = 'wb-theme-pref';
+  var pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  var root = document.documentElement;
+
+  function apply() {
+    if (pref === 'auto') root.removeAttribute('data-theme'); // 交给 prefers-color-scheme
+    else root.dataset.theme = pref;
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = { auto: '🌓 主题·自动', light: '☀️ 浅色', dark: '🌙 深色' }[pref];
+  }
+
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', function () { if (pref === 'auto') apply(); });
+
+  function toggle() {
+    pref = pref === 'auto' ? 'light' : (pref === 'light' ? 'dark' : 'auto');
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    apply();
+  }
+
+  function init() {
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.className = 'theme-toggle no-print';
+    btn.title = '切换主题：自动（跟随系统）→ 浅色 → 深色';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+<div id="wb-quicknav">
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：17★ 标准库长尾练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="../../index.html"><span>课程中心</span></a><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-unpacking-and-patterns.html"><span>2 解包、海象与模式匹配</span></a><a href="0003-comprehensions.html"><span>3 推导式与生成器表达式</span></a><a href="0004-functions.html"><span>4 函数进阶</span></a><a href="0005-classes.html"><span>5 类与 dataclass</span></a><a href="0006-exceptions.html"><span>6 异常与资源管理</span></a><a href="0007-object-model.html"><span>7 对象模型与独有语法</span></a><a href="0008-attribute-protocols.html"><span>8 属性协议与描述符</span></a><a href="0009-container-protocols.html"><span>9 容器与运算符协议</span></a><a href="0010-metaprogramming.html"><span>10 类创建与元编程</span></a><a href="0011-decorators.html"><span>11 装饰器与回调</span></a><a href="0012-generators.html"><span>12 生成器与流式输出</span></a><a href="0013-typing-advanced.html"><span>13 类型系统进阶</span></a><a href="0014-data-modeling.html"><span>14 枚举与数据建模</span></a><a href="0015-modules-packaging.html"><span>15 模块、项目结构与 typing</span></a><a href="0016-stdlib.html"><span>16 标准库实战</span></a><a href="0017-stdlib-extra.html"><span>17 标准库长尾</span></a><a href="0018-scripting.html"><span>18 脚本工程化</span></a><a href="0019-testing.html"><span>19 测试与自测</span></a><a href="0020-concurrency.html"><span>20 并发与 GIL</span></a><a href="0021-asyncio.html"><span>21 异步 asyncio</span></a><a href="0022-async-advanced.html"><span>22 异步进阶</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-patterns-drill.html"><span>2★ 解包与模式练习</span></a><a href="0003-expressions-drill.html"><span>3★ 表达式练习</span></a><a href="0004-functions-drill.html"><span>4★ 函数设计练习</span></a><a href="0005-classes-drill.html"><span>5★ 类与 dataclass 练习</span></a><a href="0006-exceptions-drill.html"><span>6★ 异常与资源管理练习</span></a><a href="0007-object-model-drill.html"><span>7★ 独有语法练习</span></a><a href="0008-attribute-drill.html"><span>8★ 属性协议练习</span></a><a href="0009-container-drill.html"><span>9★ 容器协议练习</span></a><a href="0010-metaprogramming-drill.html"><span>10★ 元编程练习</span></a><a href="0011-decorators-drill.html"><span>11★ 装饰器练习</span></a><a href="0012-generators-drill.html"><span>12★ 生成器练习</span></a><a href="0013-typing-drill.html"><span>13★ 类型进阶练习</span></a><a href="0014-modeling-drill.html"><span>14★ 数据建模练习</span></a><a href="0015-modules-drill.html"><span>15★ 模块与 typing 练习</span></a><a href="0016-stdlib-drill.html"><span>16★ 标准库练习</span></a><a href="0017-stdlib-extra-drill.html" aria-current="page"><span>17★ 标准库长尾练习</span></a><a href="0018-scripting-drill.html"><span>18★ 脚本工程化练习</span></a><a href="0019-testing-drill.html"><span>19★ 测试与自测练习</span></a><a href="0020-concurrency-drill.html"><span>20★ 并发与 GIL 练习</span></a><a href="0021-asyncio-drill.html"><span>21★ 异步练习</span></a><a href="0022-async-advanced-drill.html"><span>22★ 异步进阶练习</span></a><a href="0099-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+</div>
+
+<script>
+/* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */
+(function () {
+  var btn = document.getElementById('wb-quicknav-btn');
+  var menu = document.getElementById('wb-quicknav-menu');
+  if (!btn || !menu) return;
+  function close() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#wb-quicknav')) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) close();
+  });
+})();
+</script>
+<script>
+/* 本页子标题导航：自动收集正文 h2/h3 生成目录（2026-11-26） */
+(function () {
+  var root = document.querySelector('main') || document.querySelector('.wrap');
+  if (!root) return;
+  var heads = [].slice.call(root.querySelectorAll('h2, h3'));
+  if (heads.length < 2) return;
+  heads.forEach(function (h, i) { if (!h.id) h.id = 'sec-' + (i + 1); });
+  var box = document.createElement('details');
+  box.className = 'wb-toc';
+  var sum = document.createElement('summary');
+  sum.textContent = '本页目录';
+  box.appendChild(sum);
+  var nav = document.createElement('nav');
+  nav.className = 'wb-toc-body';
+  nav.setAttribute('aria-label', '本页目录');
+  heads.forEach(function (h) {
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    var clone = h.cloneNode(true);
+    [].slice.call(clone.querySelectorAll('.cat-done')).forEach(function (x) { x.remove(); });
+    a.textContent = clone.textContent.replace(/\s+/g, ' ').trim();
+    a.className = h.tagName === 'H3' ? 'lv3' : 'lv2';
+    nav.appendChild(a);
+  });
+  box.appendChild(nav);
+  var anchor = root.querySelector('h1');
+  if (anchor && anchor.parentNode === root) root.insertBefore(box, anchor.nextSibling);
+  else root.insertBefore(box, root.firstChild);
+  var mq = window.matchMedia('(min-width: 1180px)');
+  function sync() { box.open = mq.matches; }
+  sync();
+  if (mq.addEventListener) mq.addEventListener('change', sync);
+  else if (mq.addListener) mq.addListener(sync);
+  var links = {};
+  [].slice.call(nav.querySelectorAll('a')).forEach(function (a) {
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var current = null;
+  function setActive(id) {
+    if (current === id || !links[id]) return;
+    if (current && links[current]) links[current].classList.remove('active');
+    links[id].classList.add('active');
+    current = id;
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) setActive(e.target.id); });
+    }, { rootMargin: '-8% 0px -78% 0px' });
+    heads.forEach(function (h) { io.observe(h); });
+  }
+})();
+</script>
+</body>
+</html>
