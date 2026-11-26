@@ -22,7 +22,7 @@
   --tk-fn: #2b5fa8;
   --tk-dec: #7d5604;
   --sel-bg: rgba(110, 140, 220, 0.30);
-  --max-w: 42rem;
+  --max-w: 110rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
 @media (prefers-color-scheme: dark) {
@@ -113,10 +113,11 @@ pre {
 pre code { background: none; padding: 0; }
 pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
 .marginnote {
-  float: right;
-  clear: right;
-  width: 12rem;
-  margin: 0.3rem -14rem 1rem 1.5rem;
+  display: block;
+  width: auto;
+  margin: 0.8rem 0 1rem;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--line);
   font-size: 0.82rem;
   color: var(--ink-soft);
   line-height: 1.6;
