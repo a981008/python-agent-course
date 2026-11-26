@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 13 课 · 综合实战：手写 Nano Agent——ReAct 循环、工具注册与上下文拼接</title>
+<title>第 14 课 · 数值、异常进阶与测试：float 陷阱、Decimal、ExceptionGroup 与 pytest</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -598,16 +598,17 @@ def safe_divide(a, b):
 
 
 <div class="callout primary">
-<strong>卡住了？随时问。</strong>循环不终止、观察没进 context、LLM 调用次数对不上——直接在对话里贴报错和你的输入输出。
+<strong>卡住了？随时问。</strong><code>0.1+0.2 != 0.3</code>、Decimal 被 float 污染、ExceptionGroup 判分抓不到、裸 raise 写成 <code>raise e</code>——直接在对话里贴报错和你的输入输出。
 </div>
 
 <div class="lesson-nav">
   <a href="0013-nano-agent.html">← 第 13 课 · Nano Agent 实战</a>
   <a href="0000-course-outline.html">课程大纲</a>
+  <a href="0015-stdlib-gaps.html">第 15 课 · 标准库补漏 →</a>
 </div>
 
 <footer class="doc-footer">
-  <p id="cite-1">[1] ReAct 论文 · <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>（本课循环的原型）</p>
+  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/interactive.html">虚拟环境与打包</a> / <a href="https://docs.python.org/zh-cn/3.15/library/decimal.html">decimal — 十进制浮点运算</a>（金额计算的正确姿势）</p>
   <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
 </footer>
 </main>

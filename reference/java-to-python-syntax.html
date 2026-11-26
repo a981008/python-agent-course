@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,13 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +145,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +181,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +237,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +276,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,24 +312,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
 pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 
 
 /* 右上角：当前页小标题 + 快速跳转 */
@@ -594,6 +662,21 @@ report(1, 2, name=&quot;pay&quot;)
 def send(to: str, *, subject: str):   # * 之后的参数必须用关键字传
     ...                                # 强制调用可读性
 
+def resize(width, height, /, *, scale=1):  # / 之前只能按位置传
+    return width * height * scale
+resize(800, 600, scale=2)
+# resize(width=800, height=600) 会报 TypeError
+
+def collect(a, b, *rest, **options):  # 收集多余的位置/关键字实参
+    return a, b, rest, options
+values = [1, 2, 3]
+collect(*values, mode=&quot;fast&quot;)    # 解包列表；**mapping 解包关键字实参
+
+def greet(name: str) -&gt; str:
+    &quot;&quot;&quot;返回给指定用户的问候语。&quot;&quot;&quot;
+    return f&quot;你好，{name}&quot;
+greet.__doc__                        # 读取文档字符串；help(greet) 也能看到
+
 add = lambda x, y: x + y              # 匿名函数 → 单表达式 lambda
 sorted(pairs, key=lambda p: p[1])     # 最常见用途：自定义排序键
 
@@ -643,10 +726,19 @@ def pay(order_id: str) -&gt; bool: ...
 
 <h2>类与 dataclass</h2>
 
-<pre><code>class Payment:
+<pre><code>from decimal import Decimal
+
+class Payment:
+    currency = &quot;CNY&quot;               # 类变量：类似 Java static 字段
+
     def __init__(self, order_id: str, amount: float):   # → 构造器
         self.order_id = order_id        # 实例属性（无需预先声明字段）
         self.amount = amount
+
+    @classmethod
+    def from_yuan(cls, order_id: str, yuan: str):       # cls 收到实际子类
+        amount = int(Decimal(yuan) * 100)
+        return cls(order_id, amount)     # 工厂方法；子类调用会构造子类
 
     def is_paid(self) -&gt; bool:          # 实例方法：第一个参数是 self
         return self.status == &quot;PAID&quot;
@@ -713,7 +805,24 @@ class BizError(Exception):
         self.code = code
 
 raise BizError(40001, &quot;余额不足&quot;)
-# 注意：Python 无受检异常，一切异常都不强制声明</code></pre>
+# 注意：Python 无受检异常，一切异常都不强制声明
+
+# ExceptionGroup / except*：把多个独立异常打包，再按类型分别处理（3.11+）
+def parse_all(items):
+    errors = []
+    for item in items:
+        try:
+            int(item)
+        except (TypeError, ValueError) as exc:
+            errors.append(exc)
+    if errors:
+        raise ExceptionGroup(&quot;部分记录解析失败&quot;, errors)
+
+try:
+    parse_all([&quot;1&quot;, &quot;x&quot;, None])
+except* ValueError as group:
+    for exc in group.exceptions:
+        exc.add_note(&quot;请检查该记录的值&quot;)</code></pre>
 
 <h2>with 与资源管理</h2>
 
@@ -745,7 +854,14 @@ def main():
     ...
 
 if __name__ == &quot;__main__&quot;:      # 直接运行本文件时为 True，
-    main()                      # 被导入时不执行</code></pre>
+    main()                      # 被导入时不执行
+
+# 包内相对导入：. 表示当前包，.. 表示父包（不要写死绝对路径）
+# app/services/agent.py 中：
+from .client import Client         # 导入 app.services.client
+from ..models import AgentConfig   # 导入 app.models
+
+# import 时会生成/复用 __pycache__/*.pyc 字节码缓存；删缓存不会删源码</code></pre>
 
 <h2>类型提示（完整速查）</h2>
 
@@ -1001,9 +1117,55 @@ from functools import lru_cache, partial, wraps
 def fib(n): ...
 partial(int, base=16)             # 固定部分参数（→ 方法引用绑参）
 
-# 其他高频：pathlib（见下）、re 正则、heapq 小顶堆、bisect 二分、
-# decimal 精确十进制（金额！→ BigDecimal）、datetime（→ java.time）、
-# statistics 均值方差、logging（→ SLF4J）、uuid、hashlib、base64、sqlite3</code></pre>
+# Decimal：精确十进制运算（→ BigDecimal）； money 不要用 float
+from decimal import Decimal
+Decimal(&quot;0.1&quot;) + Decimal(&quot;0.2&quot;) == Decimal(&quot;0.3&quot;)   # True
+
+# argparse：声明 CLI 参数并自动生成 --help / 校验/报错
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument(&quot;--count&quot;, type=int, default=1)
+args = parser.parse_args()
+
+# logging：生产日志；不要用 print 调试线上任务
+import logging
+logging.basicConfig(level=logging.INFO, format=&quot;%(levelname)s %(message)s&quot;)
+logger = logging.getLogger(__name__)
+logger.info(&quot;agent started, count=%s&quot;, args.count)
+
+# string.Template：Prompt 模板；$name 不会与 JSON 的 {} 冲突
+from string import Template
+Template(&quot;你好，$name&quot;).substitute(name=&quot;旺财&quot;)
+
+# bisect / heapq：有序插入、二分查找与 TopK
+from bisect import bisect_left, insort
+import heapq
+nums = [1, 3, 5]
+insort(nums, 4)                      # [1, 3, 4, 5]
+bisect_left(nums, 4)                 # 2
+heapq.nlargest(2, [5, 1, 9, 3])      # [9, 5]
+
+# weakref：缓存/注册表避免强引用延长对象寿命
+import weakref
+ref = weakref.ref(obj)
+ref() is None                       # 原对象已回收时为 True
+
+# timeit / perf_counter：重复计时，避免把一次运行当性能结论
+from timeit import timeit
+from time import perf_counter
+seconds = timeit(lambda: sum(range(1000)), number=1000)
+start = perf_counter()
+# ...执行代码...
+elapsed = perf_counter() - start
+
+# pytest：真实测试文件；assert 会由 pytest 扩展出清晰差异
+def add(a: int, b: int) -&gt; int:
+    return a + b
+def test_add():
+    assert add(2, 3) == 5             # 命令行执行：pytest -q
+
+# 其他高频：pathlib（见下）、re 正则、datetime（→ java.time）、
+# statistics 均值方差、uuid、hashlib、base64、sqlite3</code></pre>
 
 <h2>pathlib 路径（官方教程 §10 · 替代 os.path）</h2>
 

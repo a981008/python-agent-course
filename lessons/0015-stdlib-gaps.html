@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 13 课 · 综合实战：手写 Nano Agent——ReAct 循环、工具注册与上下文拼接</title>
+<title>第 15 课 · 标准库补漏：CLI、日志、模板与高频容器工具</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -621,16 +621,17 @@ def top_k(nums, k):
 
 
 <div class="callout primary">
-<strong>卡住了？随时问。</strong>循环不终止、观察没进 context、LLM 调用次数对不上——直接在对话里贴报错和你的输入输出。
+<strong>卡住了？随时问。</strong>argparse 忘了 <code>parse_args(argv)</code>、Template 的 <code>$</code> 与 f-string 混用、heapq 取错方向——直接在对话里贴报错和你的输入输出。
 </div>
 
 <div class="lesson-nav">
   <a href="0014-numerics-and-testing.html">← 第 14 课 · 数值、异常进阶与测试</a>
   <a href="0000-course-outline.html">课程大纲</a>
+  <a href="0010-gaps-drill.html">10★ 官网补漏练习 · 22 题 →</a>
 </div>
 
 <footer class="doc-footer">
-  <p id="cite-1">[1] ReAct 论文 · <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>（本课循环的原型）</p>
+  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/library/logging.html">logging — 日志服务</a> / <a href="https://docs.python.org/zh-cn/3.15/library/argparse.html">argparse — 命令行参数解析</a>（本课两个主力模块）</p>
   <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
 </footer>
 </main>
