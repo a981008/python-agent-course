@@ -1,0 +1,263 @@
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #2e7d32;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --max-w: 42rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  float: right;
+  clear: right;
+  width: 12rem;
+  margin: 0.3rem -14rem 1rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  body { padding: 0; font-size: 11pt; background: #fff; }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
+.tk-kw { color: #a626a4; font-weight: 600; }
+.tk-str { color: #3f9a3f; }
+.tk-com { color: #98a0ab; font-style: italic; }
+.tk-num { color: #b76b01; }
+.tk-fn { color: #3d7bd9; }
+.tk-dec { color: #a8720a; }
+[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
+[data-theme="dark"] .tk-kw { color: #c792ea; }
+[data-theme="dark"] .tk-str { color: #9ece6a; }
+[data-theme="dark"] .tk-com { color: #6b7394; }
+[data-theme="dark"] .tk-num { color: #ff9e64; }
+[data-theme="dark"] .tk-fn { color: #7aa2f7; }
+[data-theme="dark"] .tk-dec { color: #ffc46b; }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }

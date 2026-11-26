@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程大纲 · Python（Java 后端转型 Agent）</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #2e7d32;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --warn: #b76b01;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --max-w: 42rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --warn: #ffc46b;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+    --warn: #ffc46b;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  float: right;
+  clear: right;
+  width: 12rem;
+  margin: 0.3rem -14rem 1rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  body { padding: 0; font-size: 11pt; background: var(--card); }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 课程状态芯片：点击在 未开始→进行中→已完成 间切换，localStorage 持久化 */
+.status-chip {
+  font: inherit; font-size: 0.8rem; font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 0.12rem 0.65rem; cursor: pointer; white-space: nowrap;
+}
+.status-chip[data-state="doing"] { color: var(--warn); border-color: var(--warn); }
+.status-chip[data-state="done"] { color: var(--ok); border-color: var(--ok); }
+.status-chip:hover { background: var(--accent-soft); }
+.status-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media print { .status-chip { border: none; padding: 0; cursor: default; } }
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
+.tk-kw { color: #a626a4; font-weight: 600; }
+.tk-str { color: #3f9a3f; }
+.tk-com { color: #98a0ab; font-style: italic; }
+.tk-num { color: #b76b01; }
+.tk-fn { color: #3d7bd9; }
+.tk-dec { color: #a8720a; }
+[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
+[data-theme="dark"] .tk-kw { color: #c792ea; }
+[data-theme="dark"] .tk-str { color: #9ece6a; }
+[data-theme="dark"] .tk-com { color: #6b7394; }
+[data-theme="dark"] .tk-num { color: #ff9e64; }
+[data-theme="dark"] .tk-fn { color: #7aa2f7; }
+[data-theme="dark"] .tk-dec { color: #ffc46b; }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+</style>
+</head>
+<body>
+<main>
+<h1>课程大纲 · Python 线</h1>
+<p class="meta">13 节课 · 从 Java 后端到能独立手写 Agent · 对应《一个月转型 Agent 学习计划》</p>
+
+<div class="callout win">
+<strong>使命锚点</strong>（来自 MISSION.md）：30 天转型 Agent，Python 要达到<strong>独立手写、面试不依赖 AI</strong>。每节课的验收标准都是可检验的动作——"能写出什么/能通过什么测试"，不是"看懂了"。
+</div>
+
+<div class="callout">
+<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的练习场贯穿全程；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成（浏览器本地自动保存，刷新不丢）。想开下一课直接在对话里说"继续学 Python"。
+</div>
+
+<h2 class="drill-cat">阶段一 · 语言基础（对应学习计划 W1-W2 前半）</h2>
+<table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<tr><td><strong>1</strong></td><td><a href="0001-from-java-to-first-function.html">从 Java 到第一个 Python 函数</a></td><td>缩进/类型提示/推导初见</td><td>独立重写 Java 工具方法并通过自动测试</td><td><button class="status-chip" data-key="1" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>1★</strong></td><td><a href="0001-basics-drill.html">练习场 · 20 题语言基础训练</a></td><td>变量与字符串 / 数字运算 / 条件 / 循环 / 函数与综合</td><td>20 题先写后看全对（含 #9 #11 边界题、#17 类型提示内省检查）</td><td><button class="status-chip" data-key="1★" data-main="0" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>2</strong></td><td><a href="0002-comprehensions-and-generators.html">列表推导与字典推导</a></td><td>四种推导式 + 生成器表达式</td><td>Stream 链 10 秒翻译成一行推导</td><td><button class="status-chip" data-key="2" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>2★</strong></td><td><a href="0002-expressions-drill.html">练习场 · 100 题表达式训练</a></td><td>9 大类持续刷题</td><td>累计 80+ 题先写后看全对</td><td><button class="status-chip" data-key="2★" data-main="0" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>3</strong></td><td><a href="0003-functions-deep.html">函数进阶：签名、陷阱与 lambda</a></td><td>默认参数/仅关键字/*args/**kwargs/可变默认参数坑</td><td>写出完整签名并通过防作弊测试</td><td><button class="status-chip" data-key="3" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>3★</strong></td><td><a href="0003-functions-drill.html">练习场 · 20 题函数设计训练</a></td><td>默认参数 / 仅关键字 / *args / **kwargs / 陷阱修复 / lambda 排序</td><td>20 题先写后看全对（含 #8 #19 防作弊题）</td><td><button class="status-chip" data-key="3★" data-main="0" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>4</strong></td><td><a href="0004-classes-and-dataclass.html">类与 dataclass</a></td><td>self/__init__/继承/@dataclass/Protocol</td><td>手写 AgentState 数据类并比较 record 写法</td><td><button class="status-chip" data-key="4" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>4★</strong></td><td><a href="0004-classes-drill.html">练习场 · 20 题类与 dataclass 训练</a></td><td>手写类 / @dataclass / 继承与 super / Protocol / 综合</td><td>20 题先写后看全对（含 #15 协议结构检查、#19 防作弊题）</td><td><button class="status-chip" data-key="4★" data-main="0" data-default="doing" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">● 进行中</button></td></tr>
+</table>
+
+<h2 class="drill-cat">阶段二 · 工程能力（对应学习计划 W2 后半-W3）</h2>
+<table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<tr><td><strong>5</strong></td><td><a href="0005-exceptions-and-context-managers.html">异常与资源管理</a></td><td>try/except/raise from/with/@contextmanager</td><td>给支付函数写三层防御（业务异常/重试/兜底）</td><td><button class="status-chip" data-key="5" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>5★</strong></td><td><a href="0005-exceptions-drill.html">练习场 · 20 题异常与资源管理训练</a></td><td>try/except/finally / 自定义异常与异常链 / 重试与精确捕获 / with 与 @contextmanager / 综合</td><td>20 题先写后看全对（含 #10 防作弊、#13 结构检查、#7 原因链验证）</td><td><button class="status-chip" data-key="5★" data-main="0" data-default="doing" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">● 进行中</button></td></tr>
+<tr><td><strong>6</strong></td><td><a href="0006-python-essentials-unique.html">Python 独有语法专题：切片、闭包与对象模型</a></td><td>切片深挖/bytes 与编码/LEGB 与 nonlocal/is 与 ==、可哈希/name mangling/Enum/REPL 内省</td><td>闭包计数器与切片操作全对，能讲清 is 与 == 的区别</td><td><button class="status-chip" data-key="6" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>6★</strong></td><td><a href="0006-essentials-drill.html">练习场 · 20 题独有语法训练</a></td><td>切片 / 闭包 nonlocal / is 与 ==、可哈希 / bytes 编码 / name mangling / 综合</td><td>20 题先写后看全对（含闭包状态独立防作弊测试）</td><td><button class="status-chip" data-key="6★" data-main="0" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>7</strong></td><td><a href="0007-modules-typing.html">模块、项目结构与 typing</a></td><td>import/__main__/项目布局/venv 与 pip/typing 全量</td><td>在 venv 里把练习代码重组为可 pip 安装的小项目</td><td><button class="status-chip" data-key="7" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>7★</strong></td><td><a href="0007-modules-drill.html">练习场 · 13 题模块与 typing 训练</a></td><td>__main__ 守卫 / 类型提示（str | None / Callable / TypedDict）/ keyword-only 参数</td><td>13 题先写后看全对（含签名内省类型提示检查、__main__ 守卫防作弊）</td><td><button class="status-chip" data-key="7★" data-main="0" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>8</strong></td><td><a href="0008-asyncio.html">异步 asyncio</a></td><td>async def/await/gather/wait_for 超时/create_task+wait 竞速/事件循环心智模型</td><td>并发调三个协程并解释和线程的差别</td><td><button class="status-chip" data-key="8" data-main="1" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>8★</strong></td><td><a href="0008-asyncio-drill.html">练习场 · 11 题异步 asyncio 训练</a></td><td>async/await / asyncio.gather 并发 / wait_for 超时 / 异步综合</td><td>11 题先写后看全对（判分测试内含 await，gather 并发计时防顺序写法）</td><td><button class="status-chip" data-key="8★" data-main="0" data-default="done" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">✓ 已完成</button></td></tr>
+<tr><td><strong>9</strong></td><td><a href="0009-stdlib.html">标准库实战</a></td><td>文件 I/O/json/pathlib/re/collections/datetime</td><td>日志文件解析小工具，零第三方依赖</td><td><button class="status-chip" data-key="9" data-main="1" data-default="doing" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">● 进行中</button></td></tr>
+<tr><td><strong>9★</strong></td><td><a href="0009-stdlib-drill.html">练习场 · 20 题标准库实战训练</a></td><td>json / 文件 I/O（真实临时文件读写）/ 正则 / collections / datetime</td><td>20 题先写后看全对（运行时真实读写文件验证）</td><td><button class="status-chip" data-key="9★" data-main="0" data-default="doing" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">● 进行中</button></td></tr>
+</table>
+
+<h2 class="drill-cat">阶段三 · Agent 应用（对应学习计划 W3-W4）</h2>
+<table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<tr><td><strong>10</strong></td><td><a href="0010-decorators.html">装饰器与回调</a></td><td>装饰器三段式/带参装饰器（工厂）/functools.wraps/@tool 注册模式</td><td>手写 @retry(times=3) 和 @log 装饰器</td><td><button class="status-chip" data-key="10" data-main="1" data-default="todo" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>11</strong></td><td><a href="0011-generators.html">生成器与流式输出</a></td><td>yield/迭代器协议/yield from/send 双向通信/惰性管道</td><td>手写 token 流式输出的生成器</td><td><button class="status-chip" data-key="11" data-main="1" data-default="todo" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>12</strong></td><td><a href="0012-fastapi.html">FastAPI 最小面</a></td><td>路由/Pydantic 模型/异步端点</td><td>把 Nano Agent 包成 HTTP 服务</td><td><button class="status-chip" data-key="12" data-main="1" data-default="todo" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>13</strong></td><td><a href="0013-nano-agent.html">综合实战：手写 Nano Agent</a></td><td>ReAct 循环/工具注册/上下文拼接</td><td>无 AI 辅助跑通一次完整 ReAct 循环</td><td><button class="status-chip" data-key="13" data-main="1" data-default="todo" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+</table>
+
+<h2 class="drill-cat">进度总览</h2>
+<p id="progress-note">已完成 <span id="done-count">8</span>/13 课 + 各课练习场 + 速查表。当前：第 9 课《标准库实战》。预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。</p>
+
+<footer class="doc-footer">
+  本大纲由 teach skill 维护，课程发布后状态会更新 · 返回 <a href="0009-stdlib.html">第 9 课</a>
+</footer>
+</main>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进 + 本地保存组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加 1：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
+ *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
+ *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  /* ---- 本地保存：编辑器内 Cmd/Ctrl+S = 保存代码 ---- */
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
+        "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
+        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "opacity:0;transition:opacity 0.25s;pointer-events:none;";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = "0"; }, 1600);
+  }
+
+  function editorKey(ta, idx) {
+    var anchor = null;
+    try {
+      var drill = ta.closest(".drill");
+      if (drill && drill.dataset.n) anchor = "d" + drill.dataset.n;
+      if (!anchor && ta.id) anchor = ta.id;
+    } catch (e) { /* closest 不可用则退回序号 */ }
+    if (!anchor) anchor = "idx" + idx;
+    return "wb-code:" + location.pathname + ":" + anchor;
+  }
+
+  function saveCode(ta, key) {
+    var code = ta.value;
+    try { localStorage.setItem(key, code); } catch (e) { return; }
+    try {
+      document.dispatchEvent(new CustomEvent("wb-code-save", { detail: { ta: ta, code: code, key: key } }));
+    } catch (e) { /* 旧浏览器无 CustomEvent 则跳过桥接 */ }
+    toast("✓ 代码已保存（浏览器本地，刷新不丢）");
+  }
+
+  function enhance(ta, idx) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // 本地保存：恢复 + Cmd/Ctrl+S
+    var codeKey = editorKey(ta, idx);
+    try {
+      var saved = localStorage.getItem(codeKey);
+      if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
+        ta.value = saved; // 引擎已恢复过的（≠ 初始值）不覆盖
+      }
+    } catch (e) { /* localStorage 不可用则跳过 */ }
+
+    ta.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
+          (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); // 拦截浏览器"保存网页"
+        saveCode(ta, codeKey);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta, idx) {
+      try { enhance(ta, idx); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();
+
+</script>
+<script>
+/* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+(function () {
+  var KEY = 'wb-theme-pref';
+  var pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  var root = document.documentElement;
+
+  function apply() {
+    if (pref === 'auto') root.removeAttribute('data-theme'); // 交给 prefers-color-scheme
+    else root.dataset.theme = pref;
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = { auto: '🌓 主题·自动', light: '☀️ 浅色', dark: '🌙 深色' }[pref];
+  }
+
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', function () { if (pref === 'auto') apply(); });
+
+  function toggle() {
+    pref = pref === 'auto' ? 'light' : (pref === 'light' ? 'dark' : 'auto');
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    apply();
+  }
+
+  function init() {
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.className = 'theme-toggle no-print';
+    btn.title = '切换主题：自动（跟随系统）→ 浅色 → 深色';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<script>
+/* lesson-status.js — 课程状态自主标记：点击芯片循环切换，localStorage 持久化，进度数字联动 */
+(function () {
+  var KEY = 'wb-lesson-status-v1';
+  var ORDER = ['todo', 'doing', 'done'];
+  var LABEL = { todo: '○ 未开始', doing: '● 进行中', done: '✓ 已完成' };
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+
+  function apply(chip, s) {
+    chip.dataset.state = s;
+    chip.textContent = LABEL[s];
+  }
+
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.status-chip'));
+  chips.forEach(function (chip) {
+    apply(chip, saved[chip.dataset.key] || chip.dataset.default || 'todo');
+    chip.addEventListener('click', function () {
+      var next = ORDER[(ORDER.indexOf(chip.dataset.state) + 1) % ORDER.length];
+      apply(chip, next);
+      saved[chip.dataset.key] = next;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    var done = 0, total = 0;
+    chips.forEach(function (c) {
+      if (c.dataset.main !== '1') return;
+      total++;
+      if (c.dataset.state === 'done') done++;
+    });
+    var el = document.getElementById('done-count');
+    if (el) el.textContent = String(done);
+    var note = document.getElementById('progress-note');
+    if (note && total) {
+      // 进度描述：主课全完为“已完成”，有进行中则提示当前课
+      var doing = chips.filter(function (c) { return c.dataset.main === '1' && c.dataset.state === 'doing'; });
+      var tail = doing.length ? '当前进行中：第 ' + doing[0].dataset.key + ' 课。' : '';
+      note.innerHTML = '已完成 <span id="done-count">' + done + '</span>/13 课 + 各课练习场 + 速查表。' + tail + '预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。';
+    }
+  }
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>

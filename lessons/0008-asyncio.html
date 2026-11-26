@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 课 · 异步 asyncio：async def、await 与事件循环</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #2e7d32;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --max-w: 42rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  float: right;
+  clear: right;
+  width: 12rem;
+  margin: 0.3rem -14rem 1rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  body { padding: 0; font-size: 11pt; background: var(--card); }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
+.tk-kw { color: #a626a4; font-weight: 600; }
+.tk-str { color: #3f9a3f; }
+.tk-com { color: #98a0ab; font-style: italic; }
+.tk-num { color: #b76b01; }
+.tk-fn { color: #3d7bd9; }
+.tk-dec { color: #a8720a; }
+[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
+[data-theme="dark"] .tk-kw { color: #c792ea; }
+[data-theme="dark"] .tk-str { color: #9ece6a; }
+[data-theme="dark"] .tk-com { color: #6b7394; }
+[data-theme="dark"] .tk-num { color: #ff9e64; }
+[data-theme="dark"] .tk-fn { color: #7aa2f7; }
+[data-theme="dark"] .tk-dec { color: #ffc46b; }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+
+
+</style>
+</head>
+<body>
+<main>
+<h1>第 8 课 · 异步 asyncio：async def、await 与事件循环</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 40 分钟 · 关掉 AI 补全再开始</p>
+
+<div class="callout win">
+<strong>本课的 win</strong>：拿下 Java 程序员最陌生的并发模型——协程。验收标准：并发调三个协程并讲清它和线程的差别。
+</div>
+
+<h2>一、心智模型：协程是"可暂停的函数"（4 分钟）</h2>
+
+<p>Java 近年也有对应物：<code>CompletableFuture</code>（异步但回调地狱）、虚拟线程（Loom，贴近协程）。Python 的模型更彻底：<strong>async def 定义的函数可以中途暂停、把控制权让给别人，等 IO 完成再回来</strong>。调度者叫<strong>事件循环</strong>（event loop）——单线程，谁在等 IO 就切换谁：</p>
+
+<pre><span class="lang-tag">对照 — Java → Python</span>
+Thread / virtual thread      →  协程（coroutine，更轻：不是线程，是可暂停的函数）
+ExecutorService.submit       →  asyncio.create_task(coro)
+CompletableFuture.allOf      →  asyncio.gather(c1, c2, c3)
+future.get()                 →  await coro
+sleep 不占线程                →  await asyncio.sleep(0.05)——事件循环趁这 0.05s 跑别人</pre>
+
+<p>一句本质：<strong>协程是"协作式"单线程并发</strong>——不是并行计算，是"等 IO 时别闲着"。1000 个协程可以活在 1 个线程里。</p>
+
+<h2>二、async def 与 await：最大的坑（5 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — 新手三连坑</span>
+async def fetch(name):
+    await asyncio.sleep(0.05)          # 模拟一次 IO
+    return f"data-{name}"
+
+fetch("a")                # ❌ 不会执行！只返回一个"协程对象"（≈ 一个没跑的 future）
+r = await fetch("a")      # ✅ await 才真正执行并拿到结果
+asyncio.run(main())       # 入口：事件循环从这里启动（Java 的 main 等价物）
+
+# 规则一：调用协程函数得到协程对象，不执行
+# 规则二：await 只能写在 async def 里面
+# 规则三：await 的瞬间 = 主动让出控制权，事件循环去跑别的协程</pre>
+
+<h2>三、gather：并发发起一批 IO（6 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — 三种并发耗时对比</span>
+import asyncio, time
+
+async def fetch(name):
+    await asyncio.sleep(0.05)          # 每个都"耗时" 0.05s
+
+async def main():
+    # 顺序版：0.05 × 3 = 0.15s —— await 一个才轮到下一个
+    a = await fetch("a"); b = await fetch("b"); c = await fetch("c")
+    # 并发版：总耗时 ≈ 0.05s —— 三个一起等 IO，事件循环统一调度
+    a, b, c = await asyncio.gather(fetch("a"), fetch("b"), fetch("c"))
+
+asyncio.run(main())
+
+# gather 特性一：结果按【传入顺序】返回，与完成先后无关
+# gather 特性二：加 return_exceptions=True 时，异常不会炸掉整批，而是作为结果返回
+#（LLM API 场景：并发请求 20 个模型 → gather 一把梭）</pre>
+
+<div class="marginnote">
+超时/重试/取消：<br>
+<a href="../reference/java-to-python-syntax.html">参考 · 速查表 · 标准库导览（asyncio 行）</a>
+</div>
+
+<h2>四、超时与竞速：wait_for 与 asyncio.wait（5 分钟）</h2>
+
+<p>gather 回答的是"怎么一起等"。生产代码还有两个高频问题：<strong>等太久怎么办</strong>（超时），<strong>谁快用谁</strong>（竞速）。都是 await 的变体，学起来很省力。</p>
+
+<h3>wait_for：给 await 加一个期限</h3>
+
+<pre><span class="lang-tag">PYTHON — wait_for：超时就放弃，别干等</span>
+try:
+    result = await asyncio.wait_for(fetch("a"), 1.0)   # 最多等 1 秒
+except asyncio.TimeoutError:
+    result = "timeout"       # 超时不炸程序——异常交给你，兜底方式自己定
+
+# 记住三件事：
+# ① 第二个参数是【秒数】
+# ② 超时抛的是 asyncio.TimeoutError（不是普通 TimeoutError 的唯一形态，用全名最稳）
+# ③ 超时后那个协程会被自动取消，不会漏在后台空跑
+# LLM API 场景：请求卡死 30 秒 → wait_for(coro, 10) 把控制权拿回来</pre>
+
+<h3>create_task + wait：谁先完成用谁</h3>
+
+<pre><span class="lang-tag">PYTHON — FIRST_COMPLETED：第一个完成就返回</span>
+async def race():
+    t1 = asyncio.create_task(fetch("a"))   # create_task = 立刻起跑、但不等待
+    t2 = asyncio.create_task(fetch("b"))   # （对照表里 ExecutorService.submit 的等价物）
+    done, pending = await asyncio.wait(
+        [t1, t2], return_when=asyncio.FIRST_COMPLETED)
+    winner = next(iter(done))              # done：已完成任务的集合
+    print(winner.result())                 # 任务的最终值要 .result() 取
+    for t in pending:                      # 输家还在跑？主动取消
+        t.cancel()
+
+# gather 等【全部】完成；wait 按 return_when 条件提前返回
+# 注意：wait 要传 create_task 的返回值（task），不要直接塞裸协程</pre>
+
+<p>记忆锚点：<strong>wait_for 管"最坏情况"，wait 管"最好情况"</strong>——前者给等待设上限，后者让最快的先走。下一节动手就用它们。</p>
+
+<h2>五、面试高频：协程 vs 线程（3 分钟）</h2>
+
+<pre><span class="lang-tag">一句话答法</span>
+协程：单线程 + 协作式调度 + 用户态切换，只适合【IO 密集】（网络/磁盘）——
+      切换成本纳秒级，10 万并发连接也扛得住
+线程：操作系统抢占式调度，适合阻塞式代码；Python 里因 GIL 同一时刻只有一个线程跑字节码
+CPU 密集任务（图像处理/大计算）：两个都别用 → 多进程 multiprocessing
+Agent 后端为什么全异步：整天 await LLM API 的网络响应，正是协程的主场</pre>
+
+<h2>六、动手：并发抓取与超时（8 分钟）</h2>
+
+<p>三个任务：<strong>协程函数</strong>（体会"调用不执行"）→ <strong>gather 并发</strong>（测试会真实计时，顺序写法超时当场现形）→ <strong>wait_for 超时</strong>。<code>Ctrl/Cmd + Enter</code> 快捷运行。判分环境预置了 <code>slow_ok</code> 协程工具。</p>
+
+<div class="py-lab" data-prelude="prelude-0008" data-tests="tests-0008">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> asyncio
+<span class="tk-kw">import</span> time
+
+
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> fetch(name):
+    <span class="tk-str">"""任务 1：await asyncio.sleep(0.05) 模拟一次 IO，然后返回 f"data-{name}" """</span>
+    ...  <span class="tk-com"># 两行</span>
+
+
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> fetch_all():
+    <span class="tk-str">"""任务 2：用 asyncio.gather 并发发起 fetch("a")、fetch("b")、fetch("c")，返回结果列表。
+    并发总耗时约 0.05s；顺序 await 三次要 0.15s——测试会计时"""</span>
+    ...  <span class="tk-com"># 一行</span>
+
+
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> with_timeout(factory, seconds):
+    <span class="tk-str">"""任务 3：factory() 超过 seconds 秒没完成，返回字符串 "timeout"；按时完成返回结果（wait_for 用法见上一节）"""</span>
+    ...  <span class="tk-com"># try / except 兜底</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">import asyncio
+import time
+
+
+async def fetch(name):
+    &quot;&quot;&quot;任务 1：await asyncio.sleep(0.05) 模拟一次 IO，然后返回 f&quot;data-{name}&quot; &quot;&quot;&quot;
+    ...  # 两行
+
+
+async def fetch_all():
+    &quot;&quot;&quot;任务 2：用 asyncio.gather 并发发起 fetch(&quot;a&quot;)、fetch(&quot;b&quot;)、fetch(&quot;c&quot;)，返回结果列表。
+    并发总耗时约 0.05s；顺序 await 三次要 0.15s——测试会计时&quot;&quot;&quot;
+    ...  # 一行
+
+
+async def with_timeout(factory, seconds):
+    &quot;&quot;&quot;任务 3：factory() 超过 seconds 秒没完成，返回字符串 &quot;timeout&quot;；按时完成返回结果（wait_for 用法见上一节）&quot;&quot;&quot;
+    ...  # try / except 兜底</textarea></div>
+  <div class="py-lab-bar">
+    <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
+    <button class="py-lab-btn ghost py-lab-reset">重置</button>
+    <span class="py-lab-status">首次运行需加载 Python 运行时，请耐心等待</span>
+  </div>
+  <pre class="py-lab-output" hidden></pre>
+</div>
+
+<p>写完并通过全部测试后，展开对照参考实现自评：</p>
+
+<details>
+<summary>参考实现（先自己写完再看）</summary>
+<pre><code># 任务 1 — 协程函数
+async def fetch(name):
+    await asyncio.sleep(0.05)      # 模拟一次 IO（网络/磁盘）
+    return f"data-{name}"
+
+# 任务 2 — gather 并发（一次发起，别写循环逐个 await）
+async def fetch_all():
+    return await asyncio.gather(fetch("a"), fetch("b"), fetch("c"))
+
+# 任务 3 — 超时控制
+async def with_timeout(factory, seconds):
+    try:
+        return await asyncio.wait_for(factory(), seconds)
+    except asyncio.TimeoutError:
+        return "timeout"</code></pre>
+<p>自评清单：① fetch 是 async def 吗？调用它（不 await）得到的是协程对象吗？② fetch_all 用的是一次 gather，而不是循环里逐个 await 吗？③ wait_for 的超时异常是 asyncio.TimeoutError，被捕获后返回 "timeout" 了吗？</p>
+</details>
+
+<h2>七、检索练习：先答后看（关补全）</h2>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q1 · <code>async def f(): return 1</code>，然后调用 <code>f()</code>（不 await），得到什么？</p>
+  <button class="quiz-opt" data-key="a">1——async def 就是普通函数</button>
+  <button class="quiz-opt" data-key="b">一个协程对象——函数体还没执行，要 await 或交给事件循环才跑</button>
+  <button class="quiz-opt" data-key="c">TypeError——async 函数不能直接调用</button>
+  <p class="quiz-explain" hidden>调用协程函数只会创建协程对象（≈ 一个没跑的 future），一行代码都不执行。这是新手第一大坑——忘了 await，什么都不会发生，顶多一条 "coroutine was never awaited" 警告。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q2 · <code>await</code> 可以写在哪里？</p>
+  <button class="quiz-opt" data-key="a">任何地方</button>
+  <button class="quiz-opt" data-key="b">只能写在 async def 定义的函数（协程）内部</button>
+  <button class="quiz-opt" data-key="c">只能写在 for 循环里</button>
+  <p class="quiz-explain" hidden>await 是协程内部的"让出点"，普通函数里写 await 直接 SyntaxError。想从普通代码进异步世界，入口是 asyncio.run(coro)。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q3 · <code>asyncio.gather(fa, fb)</code>，fa 要 1 秒、fb 只要 0.1 秒，返回的结果列表顺序是？</p>
+  <button class="quiz-opt" data-key="a">按完成先后：先 fb 的结果</button>
+  <button class="quiz-opt" data-key="b">按传入顺序：永远是 [fa 的结果, fb 的结果]</button>
+  <button class="quiz-opt" data-key="c">不确定，取决于调度</button>
+  <p class="quiz-explain" hidden>gather 保序：结果顺序 = 传入顺序，与完成先后无关。要"谁先完成先处理谁"得用 asyncio.as_completed 或 wait(FIRST_COMPLETED)。</p>
+</div>
+
+<h2>八、间隔复习（明天开始学习前做）</h2>
+
+<p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
+
+<div class="review" data-id="r1" data-mode="code" data-name="fetch">
+  <p class="review-q">① 协程默写：<code>async def fetch(name)</code> 返回 <code>f"data-{name}"</code>（判分环境已可 import asyncio/inspect）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> fetch(name):
+    <span class="tk-str">"""改成 async def；返回 f"data-{name}" """</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def fetch(name):
+    &quot;&quot;&quot;改成 async def；返回 f&quot;data-{name}&quot; &quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r2" data-mode="code" data-name="gather_two">
+  <p class="review-q">② 并发默写：<code>async def gather_two()</code> 用 <code>asyncio.gather</code> 并发跑 <code>slow_ok("a")</code>、<code>slow_ok("b")</code>（判分环境已预置 slow_ok，各睡 0.05s）——测试会计时，顺序 await 会超时</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">async</span> <span class="tk-kw">def</span> gather_two():
+    <span class="tk-str">"""return await asyncio.gather(slow_ok("a"), slow_ok("b"))"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">async def gather_two():
+    &quot;&quot;&quot;return await asyncio.gather(slow_ok(&quot;a&quot;), slow_ok(&quot;b&quot;))&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r3" data-mode="expr" data-name="">
+  <p class="review-q">③ 表达式判断：写一个表达式，用 inspect 判断 <code>asyncio.sleep</code> 是不是协程函数</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">inspect.iscoroutinefunction(asyncio.sleep)</pre><textarea class="review-code" spellcheck="false" rows="6">inspect.iscoroutinefunction(asyncio.sleep)</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<p>下一课是<strong>第 9 课 · 标准库实战</strong>——json、文件 I/O、re、collections、datetime，全程零第三方依赖写一个日志解析小工具。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
+
+<div class="callout primary">
+<strong>卡住了？随时问。</strong>"coroutine was never awaited" 警告、gather 结果顺序不对、超时总不触发——直接在对话里贴报错和你的输入输出。
+</div>
+
+<div class="lesson-nav">
+  <a href="0007-modules-typing.html">← 第 7 课 · 模块、项目结构与 typing</a>
+  <a href="0008-asyncio-drill.html">★ 练习场 · 11 题异步 asyncio</a>
+  <a href="0000-course-outline.html">课程大纲</a>
+  <a href="0009-stdlib.html">第 9 课 · 标准库实战 →</a>
+</div>
+
+<footer class="doc-footer">
+  <p id="cite-1">[1] 官方库参考 · <a href="https://docs.python.org/zh-cn/3.15/library/asyncio.html">asyncio</a>（协程、事件循环、gather、wait_for）</p>
+  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
+</footer>
+</main>
+
+<script type="text/x-python" id="prelude-0008">
+import asyncio
+
+async def slow_ok(tag, delay=0.05):
+    await asyncio.sleep(delay)
+    return "ok-" + tag
+</script>
+
+<script type="text/x-python" id="tests-0008">
+import json as _json
+import asyncio
+import inspect
+import time
+
+def _t(name, fn):
+    try:
+        fn()
+        print("TEST|" + _json.dumps({"name": name, "ok": True, "msg": ""}))
+    except Exception as e:
+        print("TEST|" + _json.dumps({"name": name, "ok": False, "msg": f"{type(e).__name__}: {e}"}))
+
+def _eq(actual, expected):
+    assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
+
+async def _ta(name, coro_fn):
+    try:
+        await coro_fn()
+        print("TEST|" + _json.dumps({"name": name, "ok": True, "msg": ""}))
+    except Exception as e:
+        print("TEST|" + _json.dumps({"name": name, "ok": False, "msg": f"{type(e).__name__}: {e}"}))
+
+if "fetch" in globals():
+    _t("任务1 · 是协程函数", lambda: _eq(inspect.iscoroutinefunction(fetch), True))
+    async def _coro_obj():
+        c = fetch("x")
+        assert inspect.iscoroutine(c), "调用 fetch 不 await 得到的是协程对象"
+        c.close()
+    await _ta("任务1 · 调用得到协程对象（不执行）", _coro_obj)
+    async def _r1():
+        _eq(await fetch("a"), "data-a")
+    await _ta("任务1 · await 拿到结果", _r1)
+else:
+    print("MISSING|fetch（任务 1 还没定义）")
+
+if "fetch_all" in globals():
+    async def _conc():
+        t0 = time.perf_counter()
+        r = await fetch_all()
+        dt = time.perf_counter() - t0
+        _eq(r, ["data-a", "data-b", "data-c"])
+        assert dt < 0.12, f"耗时 {dt:.2f}s——应 gather 并发（约 0.05s），顺序 await 三次会到 0.15s"
+    await _ta("任务2 · 并发收集三个结果（含计时防作弊）", _conc)
+else:
+    print("MISSING|fetch_all（任务 2 还没定义）")
+
+if "with_timeout" in globals():
+    async def _fast():
+        _eq(await with_timeout(lambda: slow_ok("a", 0.01), 0.2), "ok-a")
+    await _ta("任务3 · 快任务正常返回", _fast)
+    async def _slow():
+        _eq(await with_timeout(lambda: slow_ok("b", 0.3), 0.05), "timeout")
+    await _ta("任务3 · 慢任务超时返回 timeout", _slow)
+else:
+    print("MISSING|with_timeout（任务 3 还没定义）")
+</script>
+
+<script>
+/* quiz.js — 可复用检索练习组件
+ * 用法：
+ * <div class="quiz" data-answer="b">
+ *   <p class="quiz-q">问题</p>
+ *   <button class="quiz-opt" data-key="a">选项 A</button>
+ *   <button class="quiz-opt" data-key="b">选项 B</button>
+ *   <p class="quiz-explain" hidden>解析（答后显示）</p>
+ * </div>
+ * 在每课末尾以内联方式引入本文件内容（不要写 src 引用，见 NOTES.md）
+ */
+(function () {
+  function initQuiz(quiz) {
+    var answer = quiz.getAttribute("data-answer");
+    var opts = quiz.querySelectorAll(".quiz-opt");
+    var explain = quiz.querySelector(".quiz-explain");
+    var done = false;
+    opts.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (done) return;
+        done = true;
+        var key = btn.getAttribute("data-key");
+        opts.forEach(function (b) {
+          b.disabled = true;
+          if (b.getAttribute("data-key") === answer) b.classList.add("is-right");
+        });
+        if (key !== answer) btn.classList.add("is-wrong");
+        if (explain) explain.hidden = false;
+        quiz.dispatchEvent(new CustomEvent("quiz:answered", {
+          bubbles: true, detail: { correct: key === answer }
+        }));
+      });
+    });
+  }
+  function initAll() { document.querySelectorAll(".quiz").forEach(initQuiz); }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script>
+/* pylab.js — 浏览器内 Python 运行组件（基于 Pyodide/WASM，CDN: unpkg）
+ *
+ * 用法（每课自包含，内联引入）：
+ *   div.py-lab[data-prelude][data-tests]
+ *     textarea.py-lab-editor（默认代码）
+ *     button.py-lab-run / button.py-lab-reset / span.py-lab-status
+ *     pre.py-lab-output
+ *   两个 text/x-python 脚本块：prelude（前置代码，用户不可见但参与运行）与 tests（用 print("TEST|" + json) 报告结果）
+ */
+(function () {
+  var PYODIDE_URL = "https://unpkg.com/pyodide@0.29.5/pyodide.js";
+  var PYODIDE_INDEX = "https://unpkg.com/pyodide@0.29.5/";
+  var pyodidePromise = null;
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getPyodide() {
+    if (!pyodidePromise) {
+      pyodidePromise = loadScript(PYODIDE_URL).then(function () {
+        return window.loadPyodide({ indexURL: PYODIDE_INDEX });
+      });
+    }
+    return pyodidePromise;
+  }
+
+  function escapeHtml(t) {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function initLab(lab) {
+    var editor = lab.querySelector(".py-lab-editor");
+    var runBtn = lab.querySelector(".py-lab-run");
+    var resetBtn = lab.querySelector(".py-lab-reset");
+    var status = lab.querySelector(".py-lab-status");
+    var out = lab.querySelector(".py-lab-output");
+    if (!editor || !runBtn || !out) return;
+    var starter = editor.getAttribute("data-starter") !== null
+      ? editor.getAttribute("data-starter")
+      : editor.value;
+
+
+    // Ctrl/Cmd+Enter 快捷运行（Tab 插入空格由 pyhl.js 统一处理）
+    editor.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runBtn.click(); }
+    });
+
+    resetBtn && resetBtn.addEventListener("click", function () {
+      editor.value = starter;
+      out.hidden = true;
+      status.textContent = "已重置为初始代码";
+    });
+
+    runBtn.addEventListener("click", function () {
+      runBtn.disabled = true;
+      status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      out.hidden = false;
+      out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
+
+      var prelude = "";
+      var tests = "";
+      if (lab.getAttribute("data-prelude")) {
+        var p = document.getElementById(lab.getAttribute("data-prelude"));
+        if (p) prelude = p.textContent + "\n";
+      }
+      if (lab.getAttribute("data-tests")) {
+        var t = document.getElementById(lab.getAttribute("data-tests"));
+        if (t) tests = "\n" + t.textContent + "\n";
+      }
+
+      var stdoutLines = [];
+      getPyodide().then(function (py) {
+        py.setStdout({ batched: function (s) { stdoutLines.push(s); } });
+        py.setStderr({ batched: function (s) { stdoutLines.push("[stderr] " + s); } });
+        var code = prelude + "# ==== 你的代码 ====\n" + editor.value + "\n" + tests;
+        return py.runPythonAsync(code);
+      }).then(function () {
+        var html = "";
+        if (stdoutLines.length) {
+          html += stdoutLines.map(function (l) {
+            if (l.indexOf("TEST|") === 0) {
+              try {
+                var r = JSON.parse(l.slice(5));
+                return r.ok
+                  ? '<span class="lab-pass">✅ ' + escapeHtml(r.name) + '</span>'
+                  : '<span class="lab-fail">❌ ' + escapeHtml(r.name) + '</span>\n' +
+                    '<span class="lab-info">    ' + escapeHtml(r.msg) + '</span>';
+              } catch (e2) { return escapeHtml(l); }
+            }
+            if (l.indexOf("MISSING|") === 0) {
+              return '<span class="lab-fail">⚠️ ' + escapeHtml(l.slice(8)) + '</span>';
+            }
+            return escapeHtml(l);
+          }).join("\n");
+        }
+        if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
+        out.innerHTML = html;
+        status.textContent = "运行完成";
+      }).catch(function (err) {
+        var msg = (err && (err.message || String(err))) || "未知错误";
+        out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
+          (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
+            ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
+            : '');
+        status.textContent = "运行出错";
+      }).finally(function () {
+        runBtn.disabled = false;
+      });
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll(".py-lab").forEach(initLab);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script type="text/x-python" id="review-env">
+import asyncio
+import inspect
+
+async def slow_ok(tag, delay=0.05):
+    await asyncio.sleep(delay)
+    return "ok-" + tag
+
+</script>
+<script>
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "fetch", "task": "① 协程默写：<code>async def fetch(name)</code> 返回 <code>f\"data-{name}\"</code>（判分环境已可 import asyncio/inspect）", "starter": "def fetch(name):\n    \"\"\"改成 async def；返回 f\"data-{name}\" \"\"\"\n    ...", "ref": "async def fetch(name):\n    return f\"data-{name}\"", "tind": "        assert inspect.iscoroutinefunction(_fn), \"应该用 async def 定义（协程函数）\"\n        _r = await _fn(\"a\")\n        assert _r == \"data-a\", f\"实际 {_r!r}\""}, {"id": "r2", "mode": "code", "name": "gather_two", "task": "② 并发默写：<code>async def gather_two()</code> 用 <code>asyncio.gather</code> 并发跑 <code>slow_ok(\"a\")</code>、<code>slow_ok(\"b\")</code>（判分环境已预置 slow_ok，各睡 0.05s）——测试会计时，顺序 await 会超时", "starter": "async def gather_two():\n    \"\"\"return await asyncio.gather(slow_ok(\"a\"), slow_ok(\"b\"))\"\"\"\n    ...", "ref": "async def gather_two():\n    return await asyncio.gather(slow_ok(\"a\"), slow_ok(\"b\"))", "tind": "        import time as _time\n        _t0 = _time.perf_counter()\n        _r = await _fn()\n        _dt = _time.perf_counter() - _t0\n        assert _r == [\"ok-a\", \"ok-b\"], f\"实际 {_r!r}\"\n        assert _dt < 0.09, f\"耗时 {_dt:.2f}s——应 gather 并发（约 0.05s），顺序 await 会到 0.1s\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式判断：写一个表达式，用 inspect 判断 <code>asyncio.sleep</code> 是不是协程函数", "starter": "inspect.iscoroutinefunction(asyncio.sleep)", "ref": "inspect.iscoroutinefunction(asyncio.sleep)   # True：判\"是不是 async def 定义的\"", "tind": "        assert _val is True, f\"asyncio.sleep 是协程函数，应为 True，实际 {_val!r}\""}];
+</script>
+<script>
+/* review.js — 间隔复习在线评判引擎（Pyodide）
+ * 页面需提供：
+ *   - 预置数据块：script 标签，type="text/x-python"，id="review-env"（可选）
+ *   - window.REVIEW = [{ id, mode: 'expr'|'code', name, tind, ref }]   // tind 为缩进 8 空格的测试代码
+ *   - .review 块：data-id / data-mode / data-name，含 .review-code、.review-btn、.review-refbtn、.review-status、.review-ref
+ * expr 模式：用户代码 eval 为 _val，测试引用 _val 与 env 全局变量
+ * code 模式：用户代码 exec 进独立命名空间，取 data-name 函数为 _fn，测试引用 _fn
+ */
+(function () {
+  if (!window.REVIEW || !window.REVIEW.length) return;
+  var ENV_CODE = (document.getElementById('review-env') || { textContent: '' }).textContent;
+  var pyodide = null, loading = null;
+
+  function ensurePy() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (!loading) {
+      loading = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        document.head.appendChild(s);
+        s.onload = function () {
+          loadPyodide().then(function (py) {
+            var ready = ENV_CODE.trim() ? py.runPythonAsync(ENV_CODE) : Promise.resolve();
+            return ready.then(function () { return py.runPythonAsync('_G = dict(globals())'); })
+              .then(function () { pyodide = py; resolve(py); });
+          }).catch(reject);
+        };
+        s.onerror = function () { reject(new Error('CDN 加载失败，请检查网络')); };
+      });
+      loading.catch(function () { loading = null; });
+    }
+    return loading;
+  }
+
+  function buildCode(cfg, userCode) {
+    if (cfg.mode === 'expr') {
+      return 'import json as _json\n' +
+        '_res = {"ok": False, "msg": ""}\n' +
+        'try:\n' +
+        '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
+        'except Exception as _e:\n' +
+        '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        'else:\n' +
+        '    try:\n' +
+        cfg.tind + '\n' +
+        '        _res = {"ok": True, "msg": ""}\n' +
+        '    except AssertionError as _e:\n' +
+        '        _res = {"ok": False, "msg": str(_e)}\n' +
+        '    except Exception as _e:\n' +
+        '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        '_json.dumps(_res)';
+    }
+    return 'import json as _json\n' +
+      '_res = {"ok": False, "msg": ""}\n' +
+      '_lenv = dict(_G)\n' +
+      'try:\n' +
+      '    exec(compile(' + JSON.stringify(userCode) + ', "<review>", "exec"), _lenv)\n' +
+      '    _fn = _lenv.get(' + JSON.stringify(cfg.name) + ')\n' +
+      'except Exception as _e:\n' +
+      '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      'else:\n' +
+      '    try:\n' +
+      '        assert _fn is not None, "函数未定义：检查函数名拼写"\n' +
+      cfg.tind + '\n' +
+      '        _res = {"ok": True, "msg": ""}\n' +
+      '    except AssertionError as _e:\n' +
+      '        _res = {"ok": False, "msg": str(_e)}\n' +
+      '    except Exception as _e:\n' +
+      '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      '_json.dumps(_res)';
+  }
+
+  function check(id) {
+    var el = document.querySelector('.review[data-id="' + id + '"]');
+    var cfg = window.REVIEW.filter(function (r) { return r.id === id; })[0];
+    if (!el || !cfg) return;
+    var ta = el.querySelector('.review-code');
+    var st = el.querySelector('.review-status');
+    var v = ta.value.trim();
+    if (!v) { st.className = 'review-status info'; st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info';
+    st.textContent = '判分中…';
+    ensurePy().then(function (py) {
+      return py.runPythonAsync(buildCode(cfg, v));
+    }).then(function (out) {
+      var res = JSON.parse(out);
+      if (res.ok) {
+        st.className = 'review-status pass';
+        st.textContent = '✓ 通过——这道题已进长期记忆';
+      } else {
+        var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
+        st.className = 'review-status fail';
+        st.textContent = '✗ ' + msg;
+      }
+    }).catch(function (e) {
+      st.className = 'review-status fail';
+      st.textContent = e.message;
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    window.REVIEW.forEach(function (cfg) {
+      var el = document.querySelector('.review[data-id="' + cfg.id + '"]');
+      if (!el) return;
+      var btn = el.querySelector('.review-btn');
+      var refBtn = el.querySelector('.review-refbtn');
+      var ref = el.querySelector('.review-ref');
+      if (btn) btn.addEventListener('click', function () { check(cfg.id); });
+      if (refBtn && ref) refBtn.addEventListener('click', function () {
+        if (ref.hidden) { ref.textContent = '参考答案：\n' + cfg.ref; ref.hidden = false; refBtn.textContent = '收起参考'; }
+        else { ref.hidden = true; refBtn.textContent = '参考'; }
+      });
+      var ta = el.querySelector('.review-code');
+      if (ta) ta.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(cfg.id); }
+      });
+    });
+  });
+})();
+
+</script>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进 + 本地保存组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加 1：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
+ *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
+ *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  /* ---- 本地保存：编辑器内 Cmd/Ctrl+S = 保存代码 ---- */
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
+        "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
+        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "opacity:0;transition:opacity 0.25s;pointer-events:none;";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = "0"; }, 1600);
+  }
+
+  function editorKey(ta, idx) {
+    var anchor = null;
+    try {
+      var drill = ta.closest(".drill");
+      if (drill && drill.dataset.n) anchor = "d" + drill.dataset.n;
+      if (!anchor && ta.id) anchor = ta.id;
+    } catch (e) { /* closest 不可用则退回序号 */ }
+    if (!anchor) anchor = "idx" + idx;
+    return "wb-code:" + location.pathname + ":" + anchor;
+  }
+
+  function saveCode(ta, key) {
+    var code = ta.value;
+    try { localStorage.setItem(key, code); } catch (e) { return; }
+    try {
+      document.dispatchEvent(new CustomEvent("wb-code-save", { detail: { ta: ta, code: code, key: key } }));
+    } catch (e) { /* 旧浏览器无 CustomEvent 则跳过桥接 */ }
+    toast("✓ 代码已保存（浏览器本地，刷新不丢）");
+  }
+
+  function enhance(ta, idx) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // 本地保存：恢复 + Cmd/Ctrl+S
+    var codeKey = editorKey(ta, idx);
+    try {
+      var saved = localStorage.getItem(codeKey);
+      if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
+        ta.value = saved; // 引擎已恢复过的（≠ 初始值）不覆盖
+      }
+    } catch (e) { /* localStorage 不可用则跳过 */ }
+
+    ta.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
+          (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); // 拦截浏览器"保存网页"
+        saveCode(ta, codeKey);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta, idx) {
+      try { enhance(ta, idx); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();
+
+</script>
+<script>
+/* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+(function () {
+  var KEY = 'wb-theme-pref';
+  var pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  var root = document.documentElement;
+
+  function apply() {
+    if (pref === 'auto') root.removeAttribute('data-theme'); // 交给 prefers-color-scheme
+    else root.dataset.theme = pref;
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = { auto: '🌓 主题·自动', light: '☀️ 浅色', dark: '🌙 深色' }[pref];
+  }
+
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', function () { if (pref === 'auto') apply(); });
+
+  function toggle() {
+    pref = pref === 'auto' ? 'light' : (pref === 'light' ? 'dark' : 'auto');
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    apply();
+  }
+
+  function init() {
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.className = 'theme-toggle no-print';
+    btn.title = '切换主题：自动（跟随系统）→ 浅色 → 深色';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>

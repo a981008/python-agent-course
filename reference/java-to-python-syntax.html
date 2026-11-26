@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参考 · Python 全语法速查表（Java 视角）</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #2e7d32;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --max-w: 42rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  float: right;
+  clear: right;
+  width: 12rem;
+  margin: 0.3rem -14rem 1rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  body { padding: 0; font-size: 11pt; background: var(--card); }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
+.tk-kw { color: #a626a4; font-weight: 600; }
+.tk-str { color: #3f9a3f; }
+.tk-com { color: #98a0ab; font-style: italic; }
+.tk-num { color: #b76b01; }
+.tk-fn { color: #3d7bd9; }
+.tk-dec { color: #a8720a; }
+[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
+[data-theme="dark"] .tk-kw { color: #c792ea; }
+[data-theme="dark"] .tk-str { color: #9ece6a; }
+[data-theme="dark"] .tk-com { color: #6b7394; }
+[data-theme="dark"] .tk-num { color: #ff9e64; }
+[data-theme="dark"] .tk-fn { color: #7aa2f7; }
+[data-theme="dark"] .tk-dec { color: #ffc46b; }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+</style>
+</head>
+<body>
+<main>
+<h1>Python 全语法速查表（Java 视角）</h1>
+<p class="meta">参考文档 #1 · 覆盖日常手写代码所需的完整语言面 + Python 独有语法与标准库 · 打印友好</p>
+
+<p>这是面向 Java 后端的<strong>完整语法参考</strong>：左边的手感来自 Java，右边给出 Python 等价物或对应习惯。用法不变——<strong>打印出来贴手边</strong>，手写卡壳先查这张表；同一个语法查过三次就该背下来。</p>
+
+<h2>变量与赋值</h2>
+
+<pre><code>x = 5                    # 不声明类型，动态类型
+x: int = 5               # 可选的类型标注
+a, b = 1, 2              # 多重赋值
+a, b = b, a              # 交换变量（Java 要借助临时变量）
+
+MAX_LIMIT: Final = 99    # 常量约定：全大写 + Final 提示
+                         # （from typing import Final）
+
+del x                    # 删除变量
+# 注意：没有 i++ / i--，自增自减写 x += 1 / x -= 1
+# None 表示&quot;没有值&quot; → Java 的 null</code></pre>
+
+<h2>数字与运算符</h2>
+
+<pre><code>7 / 2        # 3.5   真除法（Java 的 int/int 是截断！）
+7 // 2       # 3     整除（向下取整）
+7 % 2        # 1     取余
+2 ** 10      # 1024  幂 → Math.pow()
+divmod(7, 2) # (3, 1) 商和余数一起拿（元组解包接收）
+round(2.675, 2)      # 四舍五入到 2 位
+abs(-3); min(1, 2); max(1, 2)
+
+int(&quot;42&quot;)    # → Integer.parseInt()
+str(3.14)    # → String.valueOf()
+bool([])     # False：空容器/0/空串/None 都是假
+
+0.1 + 0.2 == 0.3    # False！浮点误差（Java 一样）
+# 金额计算：用&quot;分&quot;为单位的 int，或 decimal.Decimal
+
+(y := f())   # 海象运算符（3.8+）：赋值同时取值，省一行
+if (n := len(data)) &gt; 10:
+    print(f&quot;数据过长: {n}&quot;)</code></pre>
+
+<h2>字符串（不可变，类似 Java String）</h2>
+
+<pre><code>s = &quot;hello, 世界&quot;
+
+# 索引与切片（同 list）
+s[0]; s[-1]; s[7:]; s[::-1]
+&quot;ell&quot; in s           # → contains()
+len(s)
+
+# 常用方法
+s.upper(); s.lower(); s.strip()
+s.replace(&quot;l&quot;, &quot;L&quot;)          # → replace()（返回新串）
+s.split(&quot;,&quot;)                 # → split()
+&quot;,&quot;.join([&quot;a&quot;, &quot;b&quot;])         # → String.join()
+s.startswith(&quot;he&quot;); s.endswith(&quot;界&quot;)
+s.find(&quot;l&quot;)                  # → indexOf()，找不到返回 -1
+
+# f-string（格式化首选 → String.format）
+name, amount = &quot;订单A&quot;, 1234.567
+f&quot;{name} 金额 {amount:.2f}&quot;   # 订单A 金额 1234.57
+f&quot;{1234567:,}&quot;               # 1,234,567 千分位
+f&quot;{0.856:.1%}&quot;               # 85.6% 百分比
+
+# 三引号多行字符串 / 原始字符串
+sql = &quot;&quot;&quot;
+    SELECT * FROM orders
+    WHERE amount &gt; 100
+&quot;&quot;&quot;
+path = r&quot;C:\raw\path&quot;      # r 前缀：反斜杠不转义（正则/路径常用）
+ord(&quot;A&quot;), chr(65)            # 字符 ↔ 码点</code></pre>
+
+<h2>容器总览：Java → Python 映射</h2>
+
+<table><tr><th>Java</th><th>Python</th><th>注意</th></tr>
+<tr><td><code>ArrayList&lt;T&gt;</code></td><td><code>list：[1, 2, 3]</code></td><td>可变、有序</td></tr>
+<tr><td><code>HashMap&lt;K,V&gt;</code></td><td><code>dict：{"a": 1}</code></td><td>有序（3.7+），键必须可哈希</td></tr>
+<tr><td><code>HashSet&lt;T&gt;</code></td><td><code>set：{1, 2, 3}</code></td><td>去重，空集写 set()（{} 是空 dict）</td></tr>
+<tr><td><code>int[] / 不可变序列</code></td><td><code>tuple：(1, 2, 3)</code></td><td>不可变，可哈希，能当 dict 键</td></tr>
+<tr><td><code>list.get(i)</code></td><td><code>lst[i]</code></td><td>支持负索引 lst[-1]、切片 lst[1:3]</td></tr>
+<tr><td><code>map.getOrDefault(k, 0)</code></td><td><code>d.get(k, 0)</code></td><td>键不存在不报错</td></tr>
+</table>
+
+<h2>list 常用操作</h2>
+
+<pre><code>nums = [1, 2, 3]
+
+# 增
+nums.append(4)          # 尾部添加 → add()
+nums.insert(0, 0)       # 指定位置插入 → add(index, e)
+nums.extend([5, 6])     # 批量追加 → addAll()
+
+# 删
+nums.pop()              # 弹出并返回尾部元素
+nums.pop(0)             # 弹出指定下标
+nums.remove(2)          # 按值删除第一个 2 → remove(Object)
+nums.clear()            # → clear()
+
+# 查
+len(nums)               # → size()
+2 in nums               # → contains()
+nums.index(2)           # → indexOf()
+nums[0], nums[-1]       # 首 / 尾
+nums[1:3]               # 切片：下标 1 到 2，不含 3
+
+# 排序 / 聚合
+nums.sort()             # 原地排序 → Collections.sort()
+sorted(nums)            # 返回新列表（不改原列表）
+nums.sort(reverse=True) # 降序
+nums.sort(key=len)      # 按自定义规则排（面试高频）
+max(nums); min(nums); sum(nums)
+nums.count(2)           # 值出现次数
+nums.reverse()          # 原地反转</code></pre>
+
+<h2>dict 常用操作</h2>
+
+<pre><code>d = {&quot;a&quot;: 1, &quot;b&quot;: 2}
+
+# 增改查
+d[&quot;c&quot;] = 3              # → put()
+d.get(&quot;x&quot;, 0)           # → getOrDefault()，不报错
+d[&quot;a&quot;]                  # 直接取值，键不存在抛 KeyError
+&quot;a&quot; in d                # → containsKey()
+
+# 删
+d.pop(&quot;a&quot;)              # → remove()，返回被删的值
+del d[&quot;b&quot;]              # 直接删
+
+# 遍历（→ entrySet）
+for k in d:
+    print(k)
+for k, v in d.items():
+    print(k, v)
+
+# 视图 / 合并 / 推导
+d.keys(); d.values(); d.items()
+merged = d | {&quot;c&quot;: 9}           # 合并成新 dict（3.9+）
+d.update({&quot;c&quot;: 9})              # 原地合并 → putAll()
+inverse = {v: k for k, v in d.items()}   # 键值对调</code></pre>
+
+<h2>set 常用操作</h2>
+
+<pre><code>s = {1, 2, 3}
+empty = set()           # 注意：{} 是空 dict，空 set 必须 set()
+
+# 增删查
+s.add(4)                # → add()
+s.discard(2)            # 删除，不存在不报错
+s.remove(2)             # 删除，不存在抛 KeyError
+1 in s
+
+# 集合运算
+a &amp; b                   # 交集 → retainAll()
+a | b                   # 并集 → addAll()
+a - b                   # 差集 → removeAll()
+a ^ b                   # 对称差（只在一方出现）
+
+# 最常见用途：去重
+unique = list(set(lst))            # 不保证顺序
+unique = list(dict.fromkeys(lst))  # 去重且保序</code></pre>
+
+<h2>tuple 与解包</h2>
+
+<pre><code>t = (1, 2, 3)
+t[0]; len(t); 1 in t    # 读操作与 list 相同
+# 没有 append/pop/sort——不可变；可哈希，能当 dict 键
+
+# 解包（Python 特色）
+a, b = 1, 2
+a, b = b, a             # 交换
+x, *rest = [1, 2, 3]    # x=1, rest=[2, 3]
+first, second, *_ = t   # 忽略剩余
+
+def min_max(nums):
+    return min(nums), max(nums)   # 返回多值（元组）
+lo, hi = min_max([3, 1, 2])       # 调用方解包</code></pre>
+
+<h2>推导式与生成器</h2>
+
+<pre><code># 列表推导 → stream().map().filter().collect()
+squares = [x * x for x in range(10)]
+evens   = [x for x in nums if x % 2 == 0]
+labels  = [&quot;偶&quot; if x % 2 == 0 else &quot;奇&quot; for x in nums]  # 带转换
+flat    = [x for row in matrix for x in row]            # 展平二维
+
+# dict / set 推导
+d = {order_id: amount for order_id, amount in pairs}
+s = {x % 3 for x in nums}
+
+# 生成器表达式：惰性求值，不占额外内存
+total = sum(x * x for x in big_list)     # 直接传给聚合函数
+lazy   = (x * x for x in big_list)       # 注意是圆括号
+
+# yield：生成器函数 → 惰性序列（流式输出的基础）
+def countdown(n):
+    while n &gt; 0:
+        yield n          # 暂停并交出一个值，下次调用继续
+        n -= 1
+
+for i in countdown(3):
+    print(i)</code></pre>
+
+<h2>条件判断：if / elif / else</h2>
+
+<pre><code># 结构：冒号 + 缩进，条件不用括号
+if score &gt;= 90:
+    grade = &quot;A&quot;
+elif score &gt;= 60:        # → else if
+    grade = &quot;B&quot;
+else:
+    grade = &quot;C&quot;
+
+# 三元表达式 → cond ? a : b
+level = &quot;高&quot; if amount &gt; 100 else &quot;低&quot;
+
+# 逻辑运算符：and / or / not → &amp;&amp; / || / !
+if amount &gt; 0 and status == &quot;PAID&quot; or not paid:
+    ...
+
+# 链式比较（Python 特色）
+if 0 &lt; amount &lt;= 100:
+    ...
+
+# 判空：is None（不要用 == None）
+if x is None:
+    ...
+if x is not None:
+    ...
+
+# truthiness：空容器/空串/0/None 都为假
+if not lst:              # → lst.isEmpty()
+    ...
+if name:                 # 非空字符串才进入
+    ...</code></pre>
+
+<h2>match / case（3.10+，对应 switch）</h2>
+
+<pre><code>match event_type:
+    case &quot;click&quot;:                    # 普通匹配
+        handle_click()
+    case &quot;key&quot; | &quot;touch&quot;:            # 多值匹配
+        handle_input()
+    case {&quot;type&quot;: &quot;pay&quot;, &quot;amount&quot;: amt}:   # 匹配 dict 结构并解包
+        charge(amt)
+    case _:                          # → default
+        raise ValueError(&quot;unknown&quot;)</code></pre>
+
+<h2>循环：for / while / break / continue</h2>
+
+<pre><code>for i in range(n):       # → for (int i = 0; i &lt; n; i++)
+    print(i)
+for x in lst:            # → 增强 for
+    print(x)
+for i, x in enumerate(lst):       # 需要下标时
+    print(i, x)
+for order_id, amount in zip(ids, amounts):   # 平行遍历两个序列
+    print(order_id, amount)
+
+count = 3
+while count &gt; 0:
+    count -= 1           # 没有 i++
+
+for i in range(10):
+    if i == 3:
+        continue         # 相同
+    if i == 8:
+        break            # 相同
+
+for order in orders:
+    if order.amount &gt;= 100:
+        found = order
+        break
+else:                    # Python 特色：循环没被 break 才执行
+    found = None         # 表达&quot;没找到&quot;的兜底
+
+range(1, 10, 2)          # 起点, 终点(不含), 步长 → 1,3,5,7,9
+list(range(5))           # → [0, 1, 2, 3, 4]</code></pre>
+
+<h2>函数</h2>
+
+<pre><code>def greet(name: str, greeting: str = &quot;你好&quot;) -&gt; str:
+    return f&quot;{greeting}, {name}&quot;
+
+greet(&quot;小明&quot;)                    # 位置参数
+greet(&quot;小明&quot;, greeting=&quot;早&quot;)     # 关键字参数（Java 没有）
+# 默认参数 + 关键字参数 = Java 方法重载的大部分场景
+
+def report(*args, **kwargs):     # 可变参数 → varargs + Map&lt;String,Object&gt;
+    print(args, kwargs)          # args=(1,2)  kwargs={&#x27;name&#x27;:&#x27;pay&#x27;}
+report(1, 2, name=&quot;pay&quot;)
+
+def send(to: str, *, subject: str):   # * 之后的参数必须用关键字传
+    ...                                # 强制调用可读性
+
+add = lambda x, y: x + y              # 匿名函数 → 单表达式 lambda
+sorted(pairs, key=lambda p: p[1])     # 最常见用途：自定义排序键
+
+# 作用域：函数内读外部变量可以；要赋值需要声明
+count = 0
+def inc():
+    global count                      # 很少用；优先用返回值传状态
+    count += 1</code></pre>
+
+<h2>装饰器（Agent 代码高频模式）</h2>
+
+<pre><code>import functools
+
+def log_call(fn):
+    @functools.wraps(fn)              # 保留原函数的元信息
+    def wrapper(*args, **kwargs):
+        print(f&quot;调用 {fn.__name__}, 参数 {args}&quot;)
+        return fn(*args, **kwargs)
+    return wrapper
+
+@log_call                     # 等价于 pay = log_call(pay)
+def pay(order_id: str) -&gt; bool:
+    return True
+
+# 读法：@ 是语法糖。LangChain 的 @tool、FastAPI 的 @app.get
+# 本质都是&quot;用装饰器注册函数&quot;
+
+# ── 带参数的装饰器 = 装饰器工厂：先收参数、再收函数，三层结构 ──
+# 你见过的 @dataclass(frozen=True)、@app.get(&quot;/pay&quot;)、@retry(times=3) 都属于这类
+def retry(times: int):                    # 第 1 层：装饰器工厂，收装饰器参数
+    def decorator(fn):                    # 第 2 层：普通装饰器，收函数
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):     # 第 3 层：包装器，真正执行
+            for i in range(times):
+                try:
+                    return fn(*args, **kwargs)
+                except Exception:
+                    if i == times - 1:
+                        raise             # 用尽次数向上抛（保留原异常）
+        return wrapper
+    return decorator
+
+@retry(times=3)            # 等价于 pay = retry(times=3)(pay)：先调用工厂得到装饰器
+def pay(order_id: str) -&gt; bool: ...
+
+# 写带参装饰器记法：套三层，参数一层比一层靠里；@log_call 是零参数特例（只有两层）</code></pre>
+
+<h2>类与 dataclass</h2>
+
+<pre><code>class Payment:
+    def __init__(self, order_id: str, amount: float):   # → 构造器
+        self.order_id = order_id        # 实例属性（无需预先声明字段）
+        self.amount = amount
+
+    def is_paid(self) -&gt; bool:          # 实例方法：第一个参数是 self
+        return self.status == &quot;PAID&quot;
+
+    @staticmethod
+    def validate(amount: float) -&gt; bool:    # → static 方法
+        return amount &gt; 0
+
+    @property
+    def yuan(self) -&gt; float:            # 像字段一样访问：p.yuan
+        return self.amount / 100        # （计算属性，无需 get 前缀）
+
+class Refund(Payment):                  # → extends
+    def __init__(self, order_id, amount, reason):
+        super().__init__(order_id, amount)
+        self.reason = reason
+
+# dataclass：省掉样板代码的数据类（→ record / Lombok @Data）
+from dataclasses import dataclass
+
+@dataclass
+class Order:
+    order_id: str
+    amount: float
+    status: str = &quot;INIT&quot;        # 默认值
+
+# 自动生成 __init__ / __repr__ / __eq__
+o = Order(&quot;ORD-1&quot;, 99.9)
+
+# ── dataclass 的选项（也是&quot;带参数的装饰器&quot;的实例）──
+@dataclass(frozen=True)        # 不可变：赋值抛 FrozenInstanceError（→ record）
+@dataclass(order=True)         # 生成 &lt; &lt;= &gt; &gt;= 比较（按字段顺序逐个比）
+@dataclass(kw_only=True)       # 全部字段只能按关键字传（3.10+，避免位置歧义）
+@dataclass(slots=True)         # 锁定属性集合省内存（3.10+，同 __slots__）
+class Point:
+    x: int
+    y: int
+
+# 选项可组合：@dataclass(frozen=True, order=True)
+# frozen 后才有真正的 __hash__，可做 dict 键 / 进 set
+# from dataclasses import field, asdict
+# tags: list[str] = field(default_factory=list)   # 可变默认值必须用它（见&quot;函数&quot;节）
+# asdict(p)                                       # → 转 dict（Jackson 序列化前常做）</code></pre>
+
+<h2>异常</h2>
+
+<pre><code>try:
+    risky()
+except ValueError as e:            # → catch
+    ...
+except (KeyError, IndexError):     # 多个类型一起捕获
+    ...
+except Exception as e:
+    raise RuntimeError(&quot;支付失败&quot;) from e   # 保留原因链 → initCause
+else:
+    ...                            # 没抛异常才执行
+finally:
+    ...                            # 一定执行
+
+# 自定义异常 → extends Exception
+class BizError(Exception):
+    def __init__(self, code: int, msg: str):
+        super().__init__(msg)
+        self.code = code
+
+raise BizError(40001, &quot;余额不足&quot;)
+# 注意：Python 无受检异常，一切异常都不强制声明</code></pre>
+
+<h2>with 与资源管理</h2>
+
+<pre><code># → Java 的 try-with-resources，退出块时自动清理
+with open(&quot;data.txt&quot;, encoding=&quot;utf-8&quot;) as f:
+    data = f.read()
+# f 在块外已关闭
+
+# 自定义可管理资源：实现 __enter__ / __exit__
+# 标准库 contextlib.contextmanager 可以用生成器快速创建
+from contextlib import contextmanager
+
+@contextmanager
+def timer(name: str):
+    import time
+    start = time.time()
+    yield                          # with 块执行期间停在这
+    print(f&quot;{name} 耗时 {time.time() - start:.3f}s&quot;)</code></pre>
+
+<h2>模块与导入</h2>
+
+<pre><code>import json                     # 导入整个模块 → import
+import numpy as np              # 别名
+from pathlib import Path        # 只导入某个类 → 单类型导入
+from dataclasses import dataclass, field
+
+# 入口判断 → main 方法
+def main():
+    ...
+
+if __name__ == &quot;__main__&quot;:      # 直接运行本文件时为 True，
+    main()                      # 被导入时不执行</code></pre>
+
+<h2>类型提示（完整速查）</h2>
+
+<pre><code># 基础（运行时不校验，供 IDE 与 mypy 使用）
+def f(a: int, b: str | None = None) -&gt; list[int]:
+    ...                          # str | None → Optional&lt;String&gt;
+
+# 容器类型
+ids: list[str] = []
+conf: dict[str, int] = {}
+pair: tuple[str, float] = (&quot;ORD-1&quot;, 9.9)
+tags: set[str] = set()
+
+# 函数类型
+from typing import Callable
+Callback = Callable[[str], bool]           # 接收 str 返回 bool
+
+# Protocol：结构化接口 → interface（无需显式 implements）
+from typing import Protocol
+class Payable(Protocol):
+    def pay(self, amount: float) -&gt; bool: ...
+
+def charge(p: Payable, amount: float) -&gt; bool:
+    return p.pay(amount)        # 有 pay 方法的对象都能传入
+
+# 泛型函数（3.12+ 新语法）
+def first[T](items: list[T]) -&gt; T:
+    return items[0]</code></pre>
+
+<h2>异步 async / await（Agent 与流式输出的基础）</h2>
+
+<pre><code>import asyncio
+
+async def fetch(order_id: str) -&gt; dict:     # async def 定义协程
+    await asyncio.sleep(0.1)                 # await 等待耗时操作
+    return {&quot;id&quot;: order_id}                  # （期间事件循环可跑别的协程）
+
+async def main():
+    # 并发执行多个协程 → CompletableFuture.allOf
+    results = await asyncio.gather(
+        fetch(&quot;ORD-1&quot;),
+        fetch(&quot;ORD-2&quot;),
+    )
+    print(results)
+
+asyncio.run(main())                          # 启动事件循环
+# 心智模型：类似 Java 虚拟线程/WebFlux，但语法是一等公民</code></pre>
+
+<h2>内置函数速查</h2>
+
+<pre><code>类型：len type isinstance int str float bool list dict set tuple
+聚合：sum min max abs round divmod any all
+迭代：range enumerate zip sorted min(key=) max(key=)
+       sorted(data, key=len, reverse=True)
+函数式：map(f, lst) filter(f, lst)   # 返回惰性迭代器
+检查：isinstance(x, (int, float))    # → instanceof
+其他：print(..., sep=&quot;,&quot;) input() repr(x) dir(x) help(x)
+# print 的 sep / end 参数：
+print(&quot;a&quot;, &quot;b&quot;, sep=&quot;-&quot;)   # a-b</code></pre>
+
+<h2>切片（Python 独有 · 官方教程 §3.1.3）</h2>
+
+<pre><code># 序列切片 seq[start:stop:step] —— Java 只能 list.subList()，取尾、步长都要手写循环
+letters = [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;, &#x27;d&#x27;, &#x27;e&#x27;, &#x27;f&#x27;]
+letters[1:4]        # [&#x27;b&#x27;, &#x27;c&#x27;, &#x27;d&#x27;]     含头不含尾 → subList(1, 4)
+letters[:3]         # [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]     省略 start = 从头
+letters[3:]         # [&#x27;d&#x27;, &#x27;e&#x27;, &#x27;f&#x27;]     省略 stop = 到尾（Java 取尾要算索引）
+letters[-2:]        # [&#x27;e&#x27;, &#x27;f&#x27;]          负索引从尾部数（Java 没有）
+letters[::2]        # [&#x27;a&#x27;, &#x27;c&#x27;, &#x27;e&#x27;]     步长 2
+letters[::-1]       # [&#x27;f&#x27;, ..., &#x27;a&#x27;]     反转，等价 Collections.reverse
+s = &quot;hello world&quot;
+s[6:]               # &#x27;world&#x27;             字符串同样支持
+nums = [1, 2, 3]
+copy = nums[:]      # 浅拷贝整个序列（Java: new ArrayList&lt;&gt;(nums)）
+copy is nums        # False：切片总是产生新对象
+# 切片越界不抛异常（Java IndexOutOfBoundsException）
+letters[10:]        # []  空列表
+# 可赋值：直接改片段
+nums[1:3] = [20, 30]      # [1, 20, 30]</code></pre>
+
+<h2>bytes 与编码（Java: byte[] + Charset）</h2>
+
+<pre><code># bytes：不可变字节串；bytearray：可变版本
+b = b&quot;hello&quot;              # 字面量前缀 b，每个元素是 int（Java: byte[]）
+b[0]                      # 104 —— 注意是整数，不是 char
+len(b)                    # 5：字节数，不是字符数
+# str ↔ bytes 必须显式编解码（Java: getBytes(Charset) / new String(bytes, UTF_8)）
+s = &quot;中文&quot;
+data = s.encode(&quot;utf-8&quot;)  # b&#x27;\xe4\xb8\xad\xe6\x96\x87&#x27;
+data.decode(&quot;utf-8&quot;)      # &#x27;中文&#x27;
+data.decode(&quot;utf-8&quot;, errors=&quot;replace&quot;)   # 容错解码
+# 网络与文件 I/O 的默认单位是 bytes，读文本要指定 encoding
+with open(&quot;a.txt&quot;, encoding=&quot;utf-8&quot;) as f:   # 忘写 encoding 在 Windows 会用 GBK！
+    text = f.read()</code></pre>
+
+<h2>迭代器与生成器协议（官方教程 §5.8 / §9.8）</h2>
+
+<pre><code># for 循环的本质：iter() 拿迭代器，反复 next() 直到 StopIteration
+it = iter([1, 2, 3])        # 任何可迭代对象都能 iter()
+next(it)                    # 1
+next(it)                    # 2
+next(it, &quot;完&quot;)              # 3；第二个参数是耗尽默认值，不抛异常
+
+# 自定义迭代器：实现 __iter__ / __next__（→ Java 的 Iterable/Iterator）
+class Countdown:
+    def __init__(self, n): self.n = n
+    def __iter__(self): return self          # 迭代器返回自身
+    def __next__(self):
+        if self.n &lt;= 0: raise StopIteration
+        self.n -= 1
+        return self.n + 1
+
+# yield from：委托给子生成器（递归/组合流式管道）
+def tree(node):
+    yield node.name
+    for child in node.children:
+        yield from tree(child)      # 展开子生成器的所有值
+
+# 生成器的双向通信：send() 把值送回 yield 表达式
+def echo():
+    while True:
+        got = yield          # yield 的值 = send() 传入的值
+        print(&quot;收到:&quot;, got)</code></pre>
+
+<h2>作用域与闭包：LEGB 与 nonlocal（官方教程 §4.7 / §9.2）</h2>
+
+<pre><code># LEGB 查找顺序：Local → Enclosing → Global → Builtins
+x = &quot;global&quot;
+def outer():
+    x = &quot;enclosing&quot;
+    def inner():
+        x = &quot;local&quot;          # 就近遮蔽，不会改外层
+        return x
+    return inner()
+
+# 闭包：内部函数记住外层变量（→ Java 匿名类只能捕获 final）
+def make_counter():
+    count = 0
+    def inc():
+        nonlocal count       # 没有它，赋值会创建新的局部变量！
+        count += 1
+        return count
+    return inc
+c = make_counter()
+c(); c()                     # 1, 2 —— 状态保存在闭包里
+
+# global：函数内给模块级变量赋值必须声明（只读不需要）
+# 常见坑：循环变量被闭包共享
+funcs = [lambda: i for i in range(3)]
+[f() for f in funcs]         # [2, 2, 2]！三处都引用同一个 i
+funcs = [lambda i=i: i for i in range(3)]   # 用默认参数冻结当前值</code></pre>
+
+<h2>对象模型：id / 可哈希 / 引用计数（官方教程 §3.1）</h2>
+
+<pre><code># 一切皆对象；变量只是名字贴在对象上（→ Java 引用语义，但无基本类型/包装类型之分）
+a = [1, 2]; b = a
+b.append(3); a               # [1, 2, 3] —— 同一个对象
+id(a) == id(b)               # True：对象身份（→ System.identityHashCode）
+import copy
+c = copy.deepcopy(a)         # 深拷贝（Java: 序列化克隆）
+
+# 可哈希才能做 dict 键 / 进 set：数字、字符串、tuple（含不可变元素）可以；list/dict/set 不行
+{(1, 2): &quot;point&quot;}            # tuple 当键 OK
+# 小整数与短字符串有缓存（-5..256），is 判断可能碰巧为 True —— 别依赖，判等一律 ==
+
+# 引用计数 + 循环垃圾回收（→ JVM GC，但 CPython 主靠引用计数，对象无引用立刻回收）
+import sys
+sys.getrefcount(a)           # 比直觉多 1（参数引用）
+del a                        # 只删名字，不删对象（对象无引用才销毁）
+
+# __slots__：锁定属性集合，省内存、禁动态加属性（→ Java 的字段固定声明）
+class Point:
+    __slots__ = (&quot;x&quot;, &quot;y&quot;)</code></pre>
+
+<h2>私有变量与 name mangling（官方教程 §9.6）</h2>
+
+<pre><code># Python 没有private/protected 关键字，全靠约定 + 改名机制
+class Account:
+    def __init__(self):
+        self.owner = &quot;公开&quot;          # → public
+        self._balance = 0            # 单下划线：约定&quot;内部使用&quot;，外部仍能访问
+        self.__pin = &quot;1234&quot;          # 双下划线：触发 name mangling
+
+acct = Account()
+acct._balance          # 能访问，但 IDE/约定都会警告你（→ @VisibleForTesting 的味道）
+acct.__pin             # AttributeError！
+acct._Account__pin     # mangling 后的真实名字：_类名__属性（不要这样写，知道即可）
+
+# 双下划线防的是&quot;子类无意覆盖&quot;，不是真正的访问控制
+# 属性统一走 @property（→ getter/setter，但调用方写法不变，见&quot;类与 dataclass&quot;节）</code></pre>
+
+<h2>Enum 枚举（官方教程 §10 · stdlib）</h2>
+
+<pre><code>from enum import Enum, auto
+
+# → Java 的 enum，但成员是类属性，值任意
+class Status(Enum):
+    PENDING = auto()         # auto() 自动编号
+    PAID = &quot;paid&quot;
+    SHIPPED = &quot;shipped&quot;
+
+Status.PAID                 # &lt;Status.PAID: &#x27;paid&#x27;&gt;
+Status.PAID.value           # &#x27;paid&#x27;
+Status(&quot;paid&quot;)              # 按值反查（Java: valueOf 语义，查不到抛 ValueError）
+Status.PAID.name            # &#x27;PAID&#x27;
+list(Status)                # 可迭代所有成员
+# 比较：同 enum 用 is；整数枚举用 IntEnum 可以直接比大小/进 dict
+class Level(IntEnum):
+    LOW = 1
+    HIGH = 2
+Level.HIGH &gt; Level.LOW      # True</code></pre>
+
+<h2>文件与 JSON I/O（官方教程 §7）</h2>
+
+<pre><code># with 块结束自动关闭（→ try-with-resources，没有 close()）
+with open(&quot;data.txt&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    content = f.read()               # 一次性读完
+    lines = f.readlines()            # 按行列表（文件指针已到尾，二选一）
+with open(&quot;out.txt&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    f.write(&quot;hello\n&quot;)
+
+# 逐行流式读（大文件友好，→ BufferedReader.lines()）
+with open(&quot;data.txt&quot;, encoding=&quot;utf-8&quot;) as f:
+    for line in f:
+        process(line.strip())
+
+# JSON：→ Jackson，标准库自带
+import json
+d = {&quot;name&quot;: &quot;旺财&quot;, &quot;tags&quot;: [&quot;dog&quot;, &quot;pet&quot;]}
+s = json.dumps(d, ensure_ascii=False, indent=2)   # 序列化 → obj to string
+d2 = json.loads(s)                                # 反序列化 → string to obj
+json.dump(d, open(&quot;a.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;), ensure_ascii=False)
+d3 = json.load(open(&quot;a.json&quot;, encoding=&quot;utf-8&quot;))</code></pre>
+
+<h2>标准库导览（官方教程 §10 · Agent/后端高频）</h2>
+
+<pre><code># collections：容器增强
+from collections import Counter, defaultdict, deque, OrderedDict
+Counter(&quot;banana&quot;)                 # {&#x27;a&#x27;:3, &#x27;n&#x27;:2, &#x27;b&#x27;:1} —— 词频统计一步到位
+Counter(words).most_common(3)     # Top-3（→ Streams + groupingBy）
+defaultdict(list)[&quot;k&quot;].append(1)  # 键不存在自动建默认值（→ computeIfAbsent）
+dq = deque([1, 2, 3], maxlen=3)   # 双端队列：popleft() O(1)（→ ArrayDeque）
+
+# itertools：迭代器算子（→ Stream API 的惰性版）
+from itertools import chain, groupby, islice, product, combinations
+list(chain([1, 2], [3]))                    # [1, 2, 3] —— 拼接多个可迭代
+list(islice(gen, 5))                        # 前 5 个（→ limit(5)）
+list(combinations([1, 2, 3], 2))            # 组合
+
+# functools：函数工具（Agent 代码高频）
+from functools import lru_cache, partial, wraps
+@lru_cache(maxsize=None)          # → Guava Cache 的 memoize；递归/重复查询神器
+def fib(n): ...
+partial(int, base=16)             # 固定部分参数（→ 方法引用绑参）
+
+# 其他高频：pathlib（见下）、re 正则、heapq 小顶堆、bisect 二分、
+# decimal 精确十进制（金额！→ BigDecimal）、datetime（→ java.time）、
+# statistics 均值方差、logging（→ SLF4J）、uuid、hashlib、base64、sqlite3</code></pre>
+
+<h2>pathlib 路径（官方教程 §10 · 替代 os.path）</h2>
+
+<pre><code>from pathlib import Path
+
+# → java.nio.file.Path，但运算符更顺手
+p = Path(&quot;data&quot;) / &quot;raw&quot; / &quot;a.txt&quot;     # / 拼路径（跨平台，不再手写 File.separator）
+p.name            # &#x27;a.txt&#x27;
+p.stem            # &#x27;a&#x27;
+p.suffix          # &#x27;.txt&#x27;
+p.parent          # data/raw
+p.exists()        # exists
+p.read_text(encoding=&quot;utf-8&quot;)          # 读文本一步到位（内部自动 with）
+p.write_text(&quot;hi&quot;)                     # 写文本
+p.read_bytes() / p.write_bytes(b&quot;...&quot;) # 二进制版本
+Path(&quot;.&quot;).glob(&quot;**/*.py&quot;)              # → Files.walk 递归找文件
+Path.home() / &quot;.ssh&quot;                   # 用户目录
+# 旧代码里的 os.path.join / os.path.exists 都可以换成 pathlib</code></pre>
+
+<h2>虚拟环境与包管理（官方教程 §11 · Java: Maven/Gradle 对应）</h2>
+
+<pre><code># Python 依赖按&quot;每个项目一个虚拟环境&quot;隔离（全局装包是大忌）
+# 创建与激活（对应 mvn 的本地仓库概念，但物理隔离在每个项目里）
+#   python3 -m venv .venv          # 创建虚拟环境到项目目录
+#   source .venv/bin/activate      # macOS/Linux 激活（Windows: .venv\Scripts\activate）
+#   which python                   # 确认指向 .venv/bin/python
+#   deactivate                     # 退出
+
+# pip：装包（→ mvn install，但装进当前虚拟环境）
+#   pip install requests
+#   pip install &quot;pydantic&gt;=2.0,&lt;3&quot;
+#   pip freeze &gt; requirements.txt        # 锁定版本清单（→ pom.xml 依赖列表）
+#   pip install -r requirements.txt      # 按清单复原环境
+#   pip list / pip show requests
+
+# 现代 CLI（比 pip 更快、带锁文件，类 Gradle 体验）：uv / poetry
+# 记住一条：跑任何脚本前先确认虚拟环境已激活——Agent 项目全是第三方包</code></pre>
+
+<h2>REPL 与内省（官方教程 §2 / §12）</h2>
+
+<pre><code># 交互式解释器：直接敲 python3 进入，语句立刻执行并回显（Java 没有的开发节奏）
+# &gt;&gt;&gt; 2 + 2
+# 4
+
+# _ 是上一个表达式的结果（REPL 独有）
+# &gt;&gt;&gt; 40 + 2
+# 42
+# &gt;&gt;&gt; _ + 1
+# 43
+
+# help()：看文档；dir()：列出对象的所有属性/方法（→ IDE 自动补全的手动版）
+# &gt;&gt;&gt; help(str.split)
+# &gt;&gt;&gt; dir(&quot;abc&quot;)                 # 字符串有哪些方法
+# &gt;&gt;&gt; type(x), isinstance(x, int)
+
+# 脚本自省：python3 -i script.py 出错后停在交互态，变量还在现场可以直接查
+# 模块里最常见的第一行判断（&quot;被 import 不执行主逻辑&quot;，见&quot;模块与导入&quot;节）：
+# if __name__ == &quot;__main__&quot;:
+#     main()</code></pre>
+
+<h2>常见坑清单（Java 程序员专属）</h2>
+
+<pre><code># 坑 1：可变默认参数——默认值只在函数定义时创建一次！
+def add_item(item, items=[]):        # 错：多次调用共享同一个列表
+def add_item(item, items=None):      # 对
+    if items is None:
+        items = []
+
+# 坑 2：is 与 == 的区别
+a = [1]; b = [1]
+a == b    # True：值相等 → equals()
+a is b    # False：不是同一对象 → 引用比较
+# 判等永远写 ==；is 只用于 None / True / False
+
+# 坑 3：浅拷贝
+shallow = lst.copy()      # 或 lst[:]：只复制第一层
+import copy
+deep = copy.deepcopy(obj) # 嵌套结构要用深拷贝
+
+# 坑 4：浮点算钱会出事（Java 一样）
+0.1 + 0.2 != 0.3          # True！
+# 金额：int 存&quot;分&quot; 或 decimal.Decimal
+
+# 坑 5：for 循环中修改正在遍历的列表
+# 先复制：for x in lst[:] / lst.copy()</code></pre>
+
+<h2>术语对照（英文拼写易错点）</h2>
+<p>手写时最容易拼错的几个：<code>def</code>（不是 function）、<code>lambda</code>、<code>elif</code>（不是 else if）、<code>None</code>（不是 null）、<code>True/False</code>（大写开头）、<code>self</code>（实例方法第一个参数）、<code>raise</code>（不是 throw）、<code>except</code>（不是 catch）。</p>
+
+<footer class="doc-footer">
+  权威出处：
+  <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">官方教程</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/tutorial/controlflow.html">控制流</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/tutorial/datastructures.html">数据结构</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/tutorial/errors.html">异常</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/tutorial/classes.html">类</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/library/stdtypes.html">内置类型</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/library/typing.html">typing</a> ·
+  <a href="https://docs.python.org/zh-cn/3.15/library/asyncio.html">asyncio</a><br>
+  返回：<a href="../lessons/0001-from-java-to-first-function.html">第 1 课 · 从 Java 到第一个 Python 函数</a>
+</footer>
+</main>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  function enhance(ta) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // Tab → 4 空格（所有编辑器统一）
+    ta.addEventListener("keydown", function (e) {
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta) {
+      try { enhance(ta); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();
+
+</script>
+</body>
+</html>

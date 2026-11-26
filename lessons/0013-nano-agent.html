@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 课 · 综合实战：手写 Nano Agent——ReAct 循环、工具注册与上下文拼接</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #2e7d32;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --max-w: 42rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  float: right;
+  clear: right;
+  width: 12rem;
+  margin: 0.3rem -14rem 1rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  body { padding: 0; font-size: 11pt; background: var(--card); }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
+.tk-kw { color: #a626a4; font-weight: 600; }
+.tk-str { color: #3f9a3f; }
+.tk-com { color: #98a0ab; font-style: italic; }
+.tk-num { color: #b76b01; }
+.tk-fn { color: #3d7bd9; }
+.tk-dec { color: #a8720a; }
+[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
+[data-theme="dark"] .tk-kw { color: #c792ea; }
+[data-theme="dark"] .tk-str { color: #9ece6a; }
+[data-theme="dark"] .tk-com { color: #6b7394; }
+[data-theme="dark"] .tk-num { color: #ff9e64; }
+[data-theme="dark"] .tk-fn { color: #7aa2f7; }
+[data-theme="dark"] .tk-dec { color: #ffc46b; }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+
+
+</style>
+</head>
+<body>
+<main>
+<h1>第 13 课 · 综合实战：手写 Nano Agent——ReAct 循环、工具注册与上下文拼接</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 35 分钟 · 关掉 AI 补全再开始</p>
+
+<div class="callout win">
+<strong>本课的 win</strong>：Python 线收官——把 12 节课的零件装成一台能跑的机器。验收标准：无 AI 辅助跑通一次完整 ReAct 循环（思考 → 调工具 → 观察 → 回答）。
+</div>
+
+<h2>一、零件清单：每节课各贡献了什么（3 分钟）</h2>
+
+<pre><span class="lang-tag">12 节课 → Nano Agent 的零件表</span>
+函数与类型提示（第 1/7 课）   →  工具函数签名（LLM 靠名字和签名选工具）
+字典与推导（第 2 课）        →  对话历史、工具注册表
+*args/**kwargs（第 3 课）    →  万能参数透传：分发任意工具调用
+dataclass（第 4 课）        →  消息/工具的结构化形态
+try/except（第 5 课）       →  单步失败不炸整个循环
+切片/闭包/Enum（第 6 课）    →  上下文裁剪、状态机
+模块与 __main__（第 7 课）   →  拆文件、可导入可运行
+asyncio（第 8 课）          →  并发调多个工具/LLM（进阶）
+json/re/collections（第 9 课）→  解析 LLM 输出、统计计数
+装饰器 @tool（第 10 课）    →  工具自动注册
+生成器（第 11 课）          →  token 流式输出（进阶）
+FastAPI 形态（第 12 课）    →  把循环包成 HTTP 服务（下一版）</pre>
+
+<h2>二、ReAct 循环：Agent 的心脏（5 分钟）</h2>
+
+<pre><span class="lang-tag">ReAct = Reason + Act 的循环</span>
+  问题 ──→ LLM 思考："我需要查天气"
+     │
+     ├─ 行动 ACT     调工具 get_weather("北京")
+     │
+     ├─ 观察 OBSERVE  工具返回 "北京: 晴 26°C"，追加进对话历史
+     │
+     └─ 回到 LLM：带着观察再想 → 直到它说 FINAL，循环结束
+
+# 循环每一步都是普通 Python：
+#   历史是一个 list[str]（≈ messages 数组）
+#   工具分发是 dict[name] + **kwargs（第 10 课注册表 + 第 3 课透传）
+#   异常兜底是 try/except（第 5 课）
+# MAX_STEPS 步数上限防失控循环——真实 Agent 必备</pre>
+
+<div class="marginnote">
+本课全部语法均为已学内容，卡壳时按课号查对应节：<br>
+<a href="../reference/java-to-python-syntax.html">参考 · Python 全语法速查表（35 节）</a>
+</div>
+
+<h2>三、本课的极简协议（4 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — Nano Agent 协议</span>
+fake_llm(context) 的回复只有两种格式：
+  CALL 工具名 {"参数": "值"}      ← 行动：去调工具
+  FINAL 答案文本                  ← 完成：循环结束
+
+parse_llm(text) → ("call", 工具名, 参数dict) / ("final", None, 答案文本)
+context = ["问题: ...", "观察: ...", ...]   # 每步追加，≈ messages
+MAX_STEPS = 5                                # 步数上限
+
+# 假 LLM 是脚本化的：没观察过就要求调工具，观察过就给最终答案
+# 真实项目里换成本课不变的其他一切——调 API、解析 JSON，形态完全一样</pre>
+
+<h2>四、动手：三步装出 Nano Agent（10 分钟）</h2>
+
+<p>预置了 <code>WEATHER</code> 数据、脚本化 <code>fake_llm</code>、第 10 课验收成果 <code>@tool</code> 注册器（直接复用）和步数上限 <code>MAX_STEPS</code>。三个任务：<strong>写工具函数</strong> → <strong>解析 LLM 回复</strong> → <strong>组装 ReAct 主循环</strong>。测试会计数 LLM 调用次数——硬编码答案会被当场抓住。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+
+<div class="py-lab" data-prelude="prelude-0013" data-tests="tests-0013">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-dec">@tool</span>
+<span class="tk-kw">def</span> get_weather(city):
+    <span class="tk-str">"""任务 1：查天气工具——从 WEATHER（预置 dict）取值，返回 f"{city}: {天气}"；
+    城市 WEATHER 里没有时抛 KeyError（让上层去兜底）"""</span>
+    ...  <span class="tk-com"># 一行 return（字典下标取值）</span>
+
+
+<span class="tk-kw">def</span> parse_llm(text):
+    <span class="tk-str">"""任务 2：解析假 LLM 回复——"CALL 名字 {json}" 开头返回
+    ("call", 名字, 参数 dict)（大括号那段用 json.loads）；
+    "FINAL 答案" 开头返回 ("final", None, 答案文本)"""</span>
+    ...  <span class="tk-com"># 两个 if 分支</span>
+
+
+<span class="tk-kw">def</span> run_react(question):
+    <span class="tk-str">"""任务 3：ReAct 主循环——context = ["问题: " + question] 起步；
+    循环（最多 MAX_STEPS 步）：fake_llm(context) → parse_llm →
+    final 返回答案文本；call 则 TOOLS[名字](**参数) 的结果
+    以 "观察: 结果" 追加进 context；步数耗尽 raise RuntimeError("步数耗尽")"""</span>
+    ...  <span class="tk-com"># while + if/else + 追加观察</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">@tool
+def get_weather(city):
+    &quot;&quot;&quot;任务 1：查天气工具——从 WEATHER（预置 dict）取值，返回 f&quot;{city}: {天气}&quot;；
+    城市 WEATHER 里没有时抛 KeyError（让上层去兜底）&quot;&quot;&quot;
+    ...  # 一行 return（字典下标取值）
+
+
+def parse_llm(text):
+    &quot;&quot;&quot;任务 2：解析假 LLM 回复——&quot;CALL 名字 {json}&quot; 开头返回
+    (&quot;call&quot;, 名字, 参数 dict)（大括号那段用 json.loads）；
+    &quot;FINAL 答案&quot; 开头返回 (&quot;final&quot;, None, 答案文本)&quot;&quot;&quot;
+    ...  # 两个 if 分支
+
+
+def run_react(question):
+    &quot;&quot;&quot;任务 3：ReAct 主循环——context = [&quot;问题: &quot; + question] 起步；
+    循环（最多 MAX_STEPS 步）：fake_llm(context) → parse_llm →
+    final 返回答案文本；call 则 TOOLS[名字](**参数) 的结果
+    以 &quot;观察: 结果&quot; 追加进 context；步数耗尽 raise RuntimeError(&quot;步数耗尽&quot;)&quot;&quot;&quot;
+    ...  # while + if/else + 追加观察</textarea></div>
+  <div class="py-lab-bar">
+    <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
+    <button class="py-lab-btn ghost py-lab-reset">重置</button>
+    <span class="py-lab-status">首次运行需加载 Python 运行时，请耐心等待</span>
+  </div>
+  <pre class="py-lab-output" hidden></pre>
+</div>
+
+<p>写完并通过全部测试后，展开对照参考实现自评：</p>
+
+<details>
+<summary>参考实现（先自己写完再看）</summary>
+<pre><code># 任务 1 — 工具函数（@tool 是第 10 课的注册器，预置可复用）
+@tool
+def get_weather(city):
+    return f"{city}: {WEATHER[city]}"
+
+# 任务 2 — 解析 LLM 回复（第 9 课的 json）
+def parse_llm(text):
+    if text.startswith("CALL "):
+        body = text[len("CALL "):]
+        name, _, arg_json = body.partition(" ")
+        return ("call", name, json.loads(arg_json))
+    if text.startswith("FINAL "):
+        return ("final", None, text[len("FINAL "):])
+    raise ValueError("无法解析的回复: " + text)
+
+# 任务 3 — ReAct 主循环（第 5 课的异常兜底 + 第 10 课的注册表）
+def run_react(question):
+    context = ["问题: " + question]
+    for _ in range(MAX_STEPS):
+        kind, name, arg = parse_llm(fake_llm(context))
+        if kind == "final":
+            return arg
+        observation = TOOLS[name](**arg)          # **kwargs 万能透传（第 3 课）
+        context.append("观察: " + str(observation))
+    raise RuntimeError("步数耗尽")</code></pre>
+<p>自评清单：① 工具真的用 @tool 注册进 TOOLS 了吗？② parse_llm 两个分支的元组形状一致吗？③ 主循环有没有步数上限？"观察: " 的格式和 fake_llm 的判断对上了吗？</p>
+</details>
+
+<h2>五、检索练习：先答后看（关补全）</h2>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q1 · ReAct 循环里 "Act + Observe" 指的是什么？</p>
+  <button class="quiz-opt" data-key="a">LLM 自己执行代码并查看输出</button>
+  <button class="quiz-opt" data-key="b">调用工具，把工具结果作为"观察"追加进对话历史，再交给 LLM</button>
+  <button class="quiz-opt" data-key="c">把问题重复问 LLM 两遍</button>
+  <p class="quiz-explain" hidden>Act = 从工具注册表分发一次调用；Observe = 把结果 append 进 context（≈ messages）。LLM 每轮都带着全部历史重新思考，直到给出 FINAL。循环体就是普通 Python：list + dict + try/except。</p>
+</div>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q2 · 工具注册用 <code>@tool</code> 装饰器注册表，最大的好处是？</p>
+  <button class="quiz-opt" data-key="a">工具跑得更快</button>
+  <button class="quiz-opt" data-key="b">不用写函数名了</button>
+  <button class="quiz-opt" data-key="c">加新工具零改主循环——注册表自动收集（开闭原则）</button>
+  <p class="quiz-explain" hidden>主循环只认 TOOLS 这个 dict：新工具 = 写函数 + @tool。这正是 LangChain/OpenAI function calling 的注册形态，也是第 10 课注册模式的落地。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q3 · 测试里用"脚本化假 LLM"而不是真调 API，为什么？</p>
+  <button class="quiz-opt" data-key="a">确定性：测的是循环逻辑本身，不测模型、不花钱、不超时</button>
+  <button class="quiz-opt" data-key="b">假 LLM 更聪明</button>
+  <button class="quiz-opt" data-key="c">真 API 在浏览器里跑不了</button>
+  <p class="quiz-explain" hidden>fake_llm 按进度返回脚本化回复，让"调用次数 = 2"这样的断言可精确验证。真实项目里只需把 fake_llm 换成 API 调用——协议（CALL/FINAL）与循环一行不用改。</p>
+</div>
+
+<h2>六、间隔复习（明天开始学习前做）</h2>
+
+<p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
+
+<div class="review" data-id="r1" data-mode="code" data-name="parse_final">
+  <p class="review-q">① 协议默写：<code>parse_final(text)</code>——text 以 <code>"FINAL "</code> 开头返回其后文本；否则返回 None</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> parse_final(text):
+    <span class="tk-str">"""FINAL 开头 → 其后文本；否则 None"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def parse_final(text):
+    &quot;&quot;&quot;FINAL 开头 → 其后文本；否则 None&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r2" data-mode="code" data-name="dispatch">
+  <p class="review-q">② 分发默写：<code>dispatch(tools, name, kwargs)</code>——从注册表取工具并以 <code>**kwargs</code> 调用返回结果；名字不存在抛 KeyError</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> dispatch(tools, name, kwargs):
+    <span class="tk-str">"""从注册表取工具并调用参数字典；名字不存在 KeyError"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def dispatch(tools, name, kwargs):
+    &quot;&quot;&quot;从注册表取工具并调用参数字典；名字不存在 KeyError&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r3" data-mode="expr" data-name="">
+  <p class="review-q">③ 表达式默写：解析工具参数 JSON（判分环境已 <code>import json</code>）——把 <code>'{"city": "北京", "n": 2}'</code> 解析后按键排序取 <code>items()</code> 列表</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-fn">sorted</span>(json.loads(<span class="tk-str">'{"city": "北京", "n": 2}'</span>).items())</pre><textarea class="review-code" spellcheck="false" rows="6">sorted(json.loads('{&quot;city&quot;: &quot;北京&quot;, &quot;n&quot;: 2}').items())</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<p>🎉 <strong>13 课完结</strong>。回<a href="0000-course-outline.html">课程大纲</a>把状态标成"已完成"，然后回到《一个月转型 Agent 学习计划》主线：LangGraph / RAG 已经没有语言障碍了。后续可自选：给 Nano Agent 加生成器流式输出（第 11 课）或 FastAPI 服务化（第 12 课）。</p>
+
+<div class="callout primary">
+<strong>卡住了？随时问。</strong>循环不终止、观察没进 context、LLM 调用次数对不上——直接在对话里贴报错和你的输入输出。
+</div>
+
+<div class="lesson-nav">
+  <a href="0012-fastapi.html">← 第 12 课 · FastAPI 最小面</a>
+  <a href="0000-course-outline.html">课程大纲</a>
+</div>
+
+<footer class="doc-footer">
+  <p id="cite-1">[1] ReAct 论文 · <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>（本课循环的原型）</p>
+  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
+</footer>
+</main>
+
+<script type="text/x-python" id="prelude-0013">
+import json
+
+
+WEATHER = {"北京": "晴 26°C", "上海": "小雨 22°C", "广州": "多云 30°C"}
+
+TOOLS = {}
+
+
+def tool(fn):
+    """第 10 课的 @tool 注册器（验收成果直接复用）"""
+    TOOLS[fn.__name__] = fn
+    return fn
+
+
+MAX_STEPS = 5
+LLM_CALLS = []
+
+
+def fake_llm(context):
+    """脚本化假 LLM：没观察过就要求调工具，观察过就给最终答案（真实项目换成 API 调用）"""
+    LLM_CALLS.append(1)
+    if any(m.startswith("观察: ") for m in context):
+        return "FINAL 北京今天晴，26 度"
+    return 'CALL get_weather {"city": "北京"}'
+
+</script>
+
+<script type="text/x-python" id="tests-0013">
+import json as _json
+import inspect
+
+def _t(name, fn):
+    try:
+        fn()
+        print("TEST|" + _json.dumps({"name": name, "ok": True, "msg": ""}))
+    except Exception as e:
+        print("TEST|" + _json.dumps({"name": name, "ok": False, "msg": f"{type(e).__name__}: {e}"}))
+
+def _eq(actual, expected):
+    assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
+
+if "get_weather" in globals():
+    _t("任务1 · 工具已注册进 TOOLS", lambda: _eq("get_weather" in TOOLS, True))
+    _t("任务1 · 查北京", lambda: _eq(get_weather("北京"), "北京: 晴 26°C"))
+    def _t1k():
+        try:
+            get_weather("火星")
+            assert False, "未知城市应抛 KeyError（让上层兜底）"
+        except KeyError:
+            pass
+    _t("任务1 · 未知城市抛 KeyError", _t1k)
+else:
+    print("MISSING|get_weather（任务 1 还没定义）")
+
+if "parse_llm" in globals():
+    _t("任务2 · 解析 CALL", lambda: _eq(parse_llm('CALL get_weather {"city": "北京"}'),
+                                       ("call", "get_weather", {"city": "北京"})))
+    _t("任务2 · 解析 FINAL", lambda: _eq(parse_llm("FINAL 北京晴"), ("final", None, "北京晴")))
+else:
+    print("MISSING|parse_llm（任务 2 还没定义）")
+
+if "run_react" in globals():
+    def _t3():
+        LLM_CALLS.clear()
+        r = run_react("北京今天天气怎么样？")
+        assert r == "北京今天晴，26 度", f"应返回 FINAL 的答案文本，实际 {r!r}"
+        assert len(LLM_CALLS) == 2, f"应恰好两次调用 LLM（行动→完成），实际 {len(LLM_CALLS)}——不许硬编码答案"
+    _t("任务3 · ReAct 全流程（LLM 调用次数防作弊）", _t3)
+else:
+    print("MISSING|run_react（任务 3 还没定义）")
+</script>
+
+<script>
+/* quiz.js — 可复用检索练习组件
+ * 用法：
+ * <div class="quiz" data-answer="b">
+ *   <p class="quiz-q">问题</p>
+ *   <button class="quiz-opt" data-key="a">选项 A</button>
+ *   <button class="quiz-opt" data-key="b">选项 B</button>
+ *   <p class="quiz-explain" hidden>解析（答后显示）</p>
+ * </div>
+ * 在每课末尾以内联方式引入本文件内容（不要写 src 引用，见 NOTES.md）
+ */
+(function () {
+  function initQuiz(quiz) {
+    var answer = quiz.getAttribute("data-answer");
+    var opts = quiz.querySelectorAll(".quiz-opt");
+    var explain = quiz.querySelector(".quiz-explain");
+    var done = false;
+    opts.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (done) return;
+        done = true;
+        var key = btn.getAttribute("data-key");
+        opts.forEach(function (b) {
+          b.disabled = true;
+          if (b.getAttribute("data-key") === answer) b.classList.add("is-right");
+        });
+        if (key !== answer) btn.classList.add("is-wrong");
+        if (explain) explain.hidden = false;
+        quiz.dispatchEvent(new CustomEvent("quiz:answered", {
+          bubbles: true, detail: { correct: key === answer }
+        }));
+      });
+    });
+  }
+  function initAll() { document.querySelectorAll(".quiz").forEach(initQuiz); }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script>
+/* pylab.js — 浏览器内 Python 运行组件（基于 Pyodide/WASM，CDN: unpkg）
+ *
+ * 用法（每课自包含，内联引入）：
+ *   div.py-lab[data-prelude][data-tests]
+ *     textarea.py-lab-editor（默认代码）
+ *     button.py-lab-run / button.py-lab-reset / span.py-lab-status
+ *     pre.py-lab-output
+ *   两个 text/x-python 脚本块：prelude（前置代码，用户不可见但参与运行）与 tests（用 print("TEST|" + json) 报告结果）
+ */
+(function () {
+  var PYODIDE_URL = "https://unpkg.com/pyodide@0.29.5/pyodide.js";
+  var PYODIDE_INDEX = "https://unpkg.com/pyodide@0.29.5/";
+  var pyodidePromise = null;
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getPyodide() {
+    if (!pyodidePromise) {
+      pyodidePromise = loadScript(PYODIDE_URL).then(function () {
+        return window.loadPyodide({ indexURL: PYODIDE_INDEX });
+      });
+    }
+    return pyodidePromise;
+  }
+
+  function escapeHtml(t) {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function initLab(lab) {
+    var editor = lab.querySelector(".py-lab-editor");
+    var runBtn = lab.querySelector(".py-lab-run");
+    var resetBtn = lab.querySelector(".py-lab-reset");
+    var status = lab.querySelector(".py-lab-status");
+    var out = lab.querySelector(".py-lab-output");
+    if (!editor || !runBtn || !out) return;
+    var starter = editor.getAttribute("data-starter") !== null
+      ? editor.getAttribute("data-starter")
+      : editor.value;
+
+
+    // Ctrl/Cmd+Enter 快捷运行（Tab 插入空格由 pyhl.js 统一处理）
+    editor.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runBtn.click(); }
+    });
+
+    resetBtn && resetBtn.addEventListener("click", function () {
+      editor.value = starter;
+      out.hidden = true;
+      status.textContent = "已重置为初始代码";
+    });
+
+    runBtn.addEventListener("click", function () {
+      runBtn.disabled = true;
+      status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      out.hidden = false;
+      out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
+
+      var prelude = "";
+      var tests = "";
+      if (lab.getAttribute("data-prelude")) {
+        var p = document.getElementById(lab.getAttribute("data-prelude"));
+        if (p) prelude = p.textContent + "\n";
+      }
+      if (lab.getAttribute("data-tests")) {
+        var t = document.getElementById(lab.getAttribute("data-tests"));
+        if (t) tests = "\n" + t.textContent + "\n";
+      }
+
+      var stdoutLines = [];
+      getPyodide().then(function (py) {
+        py.setStdout({ batched: function (s) { stdoutLines.push(s); } });
+        py.setStderr({ batched: function (s) { stdoutLines.push("[stderr] " + s); } });
+        var code = prelude + "# ==== 你的代码 ====\n" + editor.value + "\n" + tests;
+        return py.runPythonAsync(code);
+      }).then(function () {
+        var html = "";
+        if (stdoutLines.length) {
+          html += stdoutLines.map(function (l) {
+            if (l.indexOf("TEST|") === 0) {
+              try {
+                var r = JSON.parse(l.slice(5));
+                return r.ok
+                  ? '<span class="lab-pass">✅ ' + escapeHtml(r.name) + '</span>'
+                  : '<span class="lab-fail">❌ ' + escapeHtml(r.name) + '</span>\n' +
+                    '<span class="lab-info">    ' + escapeHtml(r.msg) + '</span>';
+              } catch (e2) { return escapeHtml(l); }
+            }
+            if (l.indexOf("MISSING|") === 0) {
+              return '<span class="lab-fail">⚠️ ' + escapeHtml(l.slice(8)) + '</span>';
+            }
+            return escapeHtml(l);
+          }).join("\n");
+        }
+        if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
+        out.innerHTML = html;
+        status.textContent = "运行完成";
+      }).catch(function (err) {
+        var msg = (err && (err.message || String(err))) || "未知错误";
+        out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
+          (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
+            ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
+            : '');
+        status.textContent = "运行出错";
+      }).finally(function () {
+        runBtn.disabled = false;
+      });
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll(".py-lab").forEach(initLab);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script type="text/x-python" id="review-env">
+import json
+</script>
+<script>
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "① 协议默写：<code>parse_final(text)</code>——text 以 <code>\"FINAL \"</code> 开头返回其后文本；否则返回 None", "starter": "def parse_final(text):\n    \"\"\"FINAL 开头 → 其后文本；否则 None\"\"\"\n    ...", "ref": "def parse_final(text):\n    if text.startswith(\"FINAL \"):\n        return text[len(\"FINAL \"):]\n    return None", "tind": "        assert _fn(\"FINAL 完成\") == \"完成\", f\"实际 {_fn('FINAL 完成')!r}\"\n        assert _fn(\"CALL x {}\") is None, \"非 FINAL 应返回 None\"\n        assert _fn(\"FINAL \") == \"\", \"FINAL 后无文本应给空串\""}, {"id": "r2", "mode": "code", "name": "dispatch", "task": "② 分发默写：<code>dispatch(tools, name, kwargs)</code>——从注册表取工具并以 <code>**kwargs</code> 调用返回结果；名字不存在抛 KeyError", "starter": "def dispatch(tools, name, kwargs):\n    \"\"\"从注册表取工具并调用参数字典；名字不存在 KeyError\"\"\"\n    ...", "ref": "def dispatch(tools, name, kwargs):\n    return tools[name](**kwargs)", "tind": "        _t2 = {\"add\": lambda a, b: a + b}\n        assert _fn(_t2, \"add\", {\"a\": 1, \"b\": 2}) == 3, f\"实际 {_fn(_t2, 'add', {'a': 1, 'b': 2})!r}\"\n        try:\n            _fn(_t2, \"nope\", {})\n            assert False, \"未知工具应抛 KeyError\"\n        except KeyError:\n            pass"}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：解析工具参数 JSON（判分环境已 <code>import json</code>）——把 <code>'{\"city\": \"北京\", \"n\": 2}'</code> 解析后按键排序取 <code>items()</code> 列表", "starter": "sorted(json.loads('{\"city\": \"北京\", \"n\": 2}').items())", "ref": "sorted(json.loads('{\"city\": \"北京\", \"n\": 2}').items())   # [(\"city\", \"北京\"), (\"n\", 2)]", "tind": "        assert _val == [(\"city\", \"北京\"), (\"n\", 2)], f\"实际 {_val!r}\""}];
+</script>
+<script>
+/* review.js — 间隔复习在线评判引擎（Pyodide）
+ * 页面需提供：
+ *   - 预置数据块：script 标签，type="text/x-python"，id="review-env"（可选）
+ *   - window.REVIEW = [{ id, mode: 'expr'|'code', name, tind, ref }]   // tind 为缩进 8 空格的测试代码
+ *   - .review 块：data-id / data-mode / data-name，含 .review-code、.review-btn、.review-refbtn、.review-status、.review-ref
+ * expr 模式：用户代码 eval 为 _val，测试引用 _val 与 env 全局变量
+ * code 模式：用户代码 exec 进独立命名空间，取 data-name 函数为 _fn，测试引用 _fn
+ */
+(function () {
+  if (!window.REVIEW || !window.REVIEW.length) return;
+  var ENV_CODE = (document.getElementById('review-env') || { textContent: '' }).textContent;
+  var pyodide = null, loading = null;
+
+  function ensurePy() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (!loading) {
+      loading = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        document.head.appendChild(s);
+        s.onload = function () {
+          loadPyodide().then(function (py) {
+            var ready = ENV_CODE.trim() ? py.runPythonAsync(ENV_CODE) : Promise.resolve();
+            return ready.then(function () { return py.runPythonAsync('_G = dict(globals())'); })
+              .then(function () { pyodide = py; resolve(py); });
+          }).catch(reject);
+        };
+        s.onerror = function () { reject(new Error('CDN 加载失败，请检查网络')); };
+      });
+      loading.catch(function () { loading = null; });
+    }
+    return loading;
+  }
+
+  function buildCode(cfg, userCode) {
+    if (cfg.mode === 'expr') {
+      return 'import json as _json\n' +
+        '_res = {"ok": False, "msg": ""}\n' +
+        'try:\n' +
+        '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
+        'except Exception as _e:\n' +
+        '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        'else:\n' +
+        '    try:\n' +
+        cfg.tind + '\n' +
+        '        _res = {"ok": True, "msg": ""}\n' +
+        '    except AssertionError as _e:\n' +
+        '        _res = {"ok": False, "msg": str(_e)}\n' +
+        '    except Exception as _e:\n' +
+        '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        '_json.dumps(_res)';
+    }
+    return 'import json as _json\n' +
+      '_res = {"ok": False, "msg": ""}\n' +
+      '_lenv = dict(_G)\n' +
+      'try:\n' +
+      '    exec(compile(' + JSON.stringify(userCode) + ', "<review>", "exec"), _lenv)\n' +
+      '    _fn = _lenv.get(' + JSON.stringify(cfg.name) + ')\n' +
+      'except Exception as _e:\n' +
+      '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      'else:\n' +
+      '    try:\n' +
+      '        assert _fn is not None, "函数未定义：检查函数名拼写"\n' +
+      cfg.tind + '\n' +
+      '        _res = {"ok": True, "msg": ""}\n' +
+      '    except AssertionError as _e:\n' +
+      '        _res = {"ok": False, "msg": str(_e)}\n' +
+      '    except Exception as _e:\n' +
+      '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      '_json.dumps(_res)';
+  }
+
+  function check(id) {
+    var el = document.querySelector('.review[data-id="' + id + '"]');
+    var cfg = window.REVIEW.filter(function (r) { return r.id === id; })[0];
+    if (!el || !cfg) return;
+    var ta = el.querySelector('.review-code');
+    var st = el.querySelector('.review-status');
+    var v = ta.value.trim();
+    if (!v) { st.className = 'review-status info'; st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info';
+    st.textContent = '判分中…';
+    ensurePy().then(function (py) {
+      return py.runPythonAsync(buildCode(cfg, v));
+    }).then(function (out) {
+      var res = JSON.parse(out);
+      if (res.ok) {
+        st.className = 'review-status pass';
+        st.textContent = '✓ 通过——这道题已进长期记忆';
+      } else {
+        var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
+        st.className = 'review-status fail';
+        st.textContent = '✗ ' + msg;
+      }
+    }).catch(function (e) {
+      st.className = 'review-status fail';
+      st.textContent = e.message;
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    window.REVIEW.forEach(function (cfg) {
+      var el = document.querySelector('.review[data-id="' + cfg.id + '"]');
+      if (!el) return;
+      var btn = el.querySelector('.review-btn');
+      var refBtn = el.querySelector('.review-refbtn');
+      var ref = el.querySelector('.review-ref');
+      if (btn) btn.addEventListener('click', function () { check(cfg.id); });
+      if (refBtn && ref) refBtn.addEventListener('click', function () {
+        if (ref.hidden) { ref.textContent = '参考答案：\n' + cfg.ref; ref.hidden = false; refBtn.textContent = '收起参考'; }
+        else { ref.hidden = true; refBtn.textContent = '参考'; }
+      });
+      var ta = el.querySelector('.review-code');
+      if (ta) ta.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(cfg.id); }
+      });
+    });
+  });
+})();
+
+</script>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进 + 本地保存组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加 1：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
+ *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
+ *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  /* ---- 本地保存：编辑器内 Cmd/Ctrl+S = 保存代码 ---- */
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
+        "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
+        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "opacity:0;transition:opacity 0.25s;pointer-events:none;";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = "0"; }, 1600);
+  }
+
+  function editorKey(ta, idx) {
+    var anchor = null;
+    try {
+      var drill = ta.closest(".drill");
+      if (drill && drill.dataset.n) anchor = "d" + drill.dataset.n;
+      if (!anchor && ta.id) anchor = ta.id;
+    } catch (e) { /* closest 不可用则退回序号 */ }
+    if (!anchor) anchor = "idx" + idx;
+    return "wb-code:" + location.pathname + ":" + anchor;
+  }
+
+  function saveCode(ta, key) {
+    var code = ta.value;
+    try { localStorage.setItem(key, code); } catch (e) { return; }
+    try {
+      document.dispatchEvent(new CustomEvent("wb-code-save", { detail: { ta: ta, code: code, key: key } }));
+    } catch (e) { /* 旧浏览器无 CustomEvent 则跳过桥接 */ }
+    toast("✓ 代码已保存（浏览器本地，刷新不丢）");
+  }
+
+  function enhance(ta, idx) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // 本地保存：恢复 + Cmd/Ctrl+S
+    var codeKey = editorKey(ta, idx);
+    try {
+      var saved = localStorage.getItem(codeKey);
+      if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
+        ta.value = saved; // 引擎已恢复过的（≠ 初始值）不覆盖
+      }
+    } catch (e) { /* localStorage 不可用则跳过 */ }
+
+    ta.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
+          (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); // 拦截浏览器"保存网页"
+        saveCode(ta, codeKey);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta, idx) {
+      try { enhance(ta, idx); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();
+
+</script>
+<script>
+/* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+(function () {
+  var KEY = 'wb-theme-pref';
+  var pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  var root = document.documentElement;
+
+  function apply() {
+    if (pref === 'auto') root.removeAttribute('data-theme'); // 交给 prefers-color-scheme
+    else root.dataset.theme = pref;
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = { auto: '🌓 主题·自动', light: '☀️ 浅色', dark: '🌙 深色' }[pref];
+  }
+
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', function () { if (pref === 'auto') apply(); });
+
+  function toggle() {
+    pref = pref === 'auto' ? 'light' : (pref === 'light' ? 'dark' : 'auto');
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    apply();
+  }
+
+  function init() {
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.className = 'theme-toggle no-print';
+    btn.title = '切换主题：自动（跟随系统）→ 浅色 → 深色';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>
