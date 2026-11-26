@@ -1,17 +1,108 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="5; url=lessons/0000-course-outline.html">
-  <title>Python → Agent 课程</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 3rem auto; max-width: 40rem; line-height: 1.7; padding: 0 1rem; color: #222; }
-    a { color: #2563eb; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>课程中心 · Python 学习路线</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --ok: #15803d;
+    --ok-soft: #ecfdf5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111417;
+      --card: #1a1f24;
+      --ink: #e5e7eb;
+      --muted: #9ca3af;
+      --line: #2c333b;
+      --accent: #60a5fa;
+      --accent-soft: #16233a;
+      --ok: #4ade80;
+      --ok-soft: #12251a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  main { max-width: 68rem; margin: 0 auto; padding: 4.5rem 1.5rem 5rem; }
+  .eyebrow { margin: 0 0 .7rem; color: var(--accent); font-size: .82rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.18; letter-spacing: -.03em; }
+  .lead { max-width: 46rem; margin: 1.1rem 0 2.8rem; color: var(--muted); font-size: 1.05rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; }
+  .card {
+    display: flex; flex-direction: column; min-height: 16rem;
+    padding: 1.5rem; border: 1px solid var(--line); border-radius: 1rem;
+    background: var(--card); text-decoration: none; color: inherit;
+    transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+  a.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37, 99, 235, .12); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .badge { display: inline-flex; align-items: center; padding: .18rem .55rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+  .badge.live { color: var(--ok); background: var(--ok-soft); }
+  .badge.soon { color: var(--muted); background: var(--bg); border: 1px solid var(--line); }
+  .icon { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: .7rem; background: var(--accent-soft); color: var(--accent); font-size: 1.25rem; font-weight: 800; }
+  .card h2 { margin: 1.35rem 0 .45rem; font-size: 1.2rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .92rem; }
+  .card .meta { margin-top: auto; padding-top: 1.4rem; color: var(--accent); font-size: .86rem; font-weight: 650; }
+  .card.soon { opacity: .72; }
+  footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .82rem; }
+  footer a { color: inherit; }
+</style>
 </head>
 <body>
-  <p>将在 <span id="jump-countdown">5</span> 秒后进入课程大纲…若没有自动跳转，请点击 <a href="lessons/0000-course-outline.html">课程大纲</a>。</p>
-<script>(function(){var el=document.getElementById('jump-countdown'),n=5;var t=setInterval(function(){el.textContent=String(--n);if(n<=0)clearInterval(t);},1000);})();</script>
+<main>
+  <p class="eyebrow">Course Center</p>
+  <h1>课程中心</h1>
+  <p class="lead">先把 Python 语法与工程能力练扎实，再进入 LangChain、FastAPI 等应用课程。所有课件自包含，双击即可学习。</p>
+
+  <div class="grid">
+    <a class="card" href="python/lessons/0000-course-outline.html">
+      <div class="card-top">
+        <span class="icon">Py</span>
+        <span class="badge live">已上线</span>
+      </div>
+      <h2>Python 语法与工程能力</h2>
+      <p>22 课 + 22 个课配套练习场 + R1★ 复盘场：解包与模式、对象与协议、元编程、类型、标准库、测试、并发与 asyncio。</p>
+      <span class="meta">进入课程大纲 →</span>
+    </a>
+
+    <div class="card soon">
+      <div class="card-top">
+        <span class="icon">LC</span>
+        <span class="badge soon">筹备中</span>
+      </div>
+      <h2>LangChain</h2>
+      <p>模型调用、工具注册、链与 Agent 编排，建立在 Python 语法课之后。</p>
+      <span class="meta">即将开放</span>
+    </div>
+
+    <div class="card soon">
+      <div class="card-top">
+        <span class="icon">FA</span>
+        <span class="badge soon">筹备中</span>
+      </div>
+      <h2>FastAPI</h2>
+      <p>路由、Pydantic 模型、异步接口与工程化服务，作为应用层课程。</p>
+      <span class="meta">即将开放</span>
+    </div>
+  </div>
+
+  <footer>
+    Python 语法课程：22 课 + 22 个课配套练习场 + R1★ 复盘场（391 题）。后续课程会沿用同一套课件与练习场结构。
+  </footer>
+</main>
 </body>
 </html>

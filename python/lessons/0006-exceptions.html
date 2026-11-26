@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 6 课 · 异常与资源管理：try/except、raise from 与 with</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #256b29;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
+  --max-w: 110rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  display: block;
+  width: auto;
+  margin: 0.8rem 0 1rem;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: var(--on-accent);
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: var(--on-accent);
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+
+
+
+/* 右上角：当前页小标题 + 快速跳转 */
+#wb-quicknav { position: fixed; top: .6rem; right: .8rem; z-index: 200; font-family: inherit; }
+#wb-quicknav-btn {
+  display: flex; align-items: center; gap: .45rem; max-width: min(22rem, 70vw);
+  padding: .32rem .75rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.08); opacity: .95;
+}
+#wb-quicknav-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+#wb-quicknav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#wb-quicknav-btn .wb-qn-arrow { color: var(--accent); font-size: .7rem; }
+#wb-quicknav-menu {
+  position: absolute; right: 0; top: calc(100% + .4rem);
+  width: min(24rem, calc(100vw - 1.6rem)); max-height: min(70vh, 34rem); overflow: auto;
+  padding: .45rem; border: 1px solid var(--line); border-radius: .75rem;
+  background: var(--card); color: var(--ink); box-shadow: 0 12px 32px rgba(0,0,0,.18);
+}
+#wb-quicknav-menu[hidden] { display: none; }
+.wb-qn-group { padding: .4rem .55rem .15rem; font-size: .68rem; font-weight: 800; letter-spacing: .06em; color: var(--ink-soft); }
+#wb-quicknav-menu a {
+  display: flex; justify-content: space-between; gap: .75rem; align-items: baseline;
+  padding: .3rem .55rem; border-radius: .4rem; color: var(--ink); text-decoration: none; font-size: .82rem;
+}
+#wb-quicknav-menu a:hover { background: var(--accent-soft); }
+#wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
+#wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
+@media print { #wb-quicknav { display: none; } }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---- 全宽布局 + 本页子标题导航（2026-11-26） ---- */
+.wb-toc { margin: 1rem 0 1.6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 0.65rem 0.95rem; font-size: 0.86rem; }
+.wb-toc > summary { cursor: pointer; font-weight: 700; color: var(--ink-soft); }
+.wb-toc-body { margin-top: 0.5rem; max-height: 16rem; overflow-y: auto; }
+.wb-toc a { display: block; padding: 0.16rem 0; border-bottom: none; color: var(--ink-soft); line-height: 1.45; }
+.wb-toc a:hover { color: var(--accent); background: none; }
+.wb-toc a.active { color: var(--accent); font-weight: 700; }
+.wb-toc a.lv3 { padding-left: 0.9rem; font-size: 0.8rem; }
+h2[id^="sec-"], h3[id^="sec-"] { scroll-margin-top: 1rem; }
+@media (min-width: 1180px) {
+  main, .wrap { padding-right: 17.5rem; }
+  .wb-toc {
+    position: fixed; top: 4rem;
+    right: max(1.5rem, calc((100vw - 110rem) / 2));
+    width: 15rem;
+    max-height: calc(100vh - 5.5rem);
+    overflow-y: auto;
+    margin: 0; padding: 0 0 0 1rem;
+    border: none; border-left: 2px solid var(--line); border-radius: 0; background: none;
+    font-size: 0.8rem;
+    z-index: 5;
+  }
+  .wb-toc > summary { display: none; }
+  .wb-toc-body { margin-top: 0; max-height: none; overflow: visible; }
+}
+@media (max-width: 700px) { body { padding-top: 4.2rem; } }
+@media print {
+  main { display: block; max-width: none; }
+  .wb-toc { display: none; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>第 6 课 · 异常、数值精度与资源管理：try/except、Decimal 与 with</h1>
+<p class="meta">Mission: Python 语法与工程能力 · 预计 35 分钟 · 关掉 AI 补全再开始</p>
+
+<div class="callout win">
+<strong>本课的 win</strong>：给一个支付函数搭出<strong>三层防御</strong>——自定义业务异常、失败重试、上下文管理器兜底。这套结构在 Agent 调用链（模型超时重试、工具异常兜底）里每天都会用到。另补两块高频盲区：金额必须用 Decimal，批量失败用 ExceptionGroup。
+</div>
+
+<h2>一、心智模型：checked 异常没了（4 分钟）</h2>
+
+<p>Java 把异常分 checked/unchecked，方法签名还要 <code>throws</code> 声明。Python 只有<strong>运行时异常</strong>：没有 throws 声明、没有编译器逼你接——异常也是对象，全部继承自 <code>BaseException</code>，业务异常统一继承 <code>Exception</code>。先对齐语法：</p>
+
+<div class="table-scroll"><table>
+<tr><th>Java</th><th>Python</th><th>说明</th></tr>
+<tr><td><code>try / catch / finally</code></td><td><code>try / except / finally</code></td><td>catch → except，一字之差</td></tr>
+<tr><td><code>catch (IOException e)</code></td><td><code>except OSError as e:</code></td><td><code>as e</code> 拿到异常对象</td></tr>
+<tr><td><code>throw new XxxError("...")</code></td><td><code>raise XxxError("...")</code></td><td>throw → raise</td></tr>
+<tr><td><code>throws IOException</code></td><td>无</td><td>想声明就写进 docstring</td></tr>
+<tr><td><code>class XxxError extends Exception</code></td><td><code>class XxxError(Exception)</code></td><td>自定义异常同款手法</td></tr>
+<tr><td>try-with-resources</td><td><code>with</code></td><td>资源管理，第四节细讲</td></tr>
+</table></div>
+
+<p>另一个思路差异：Java 习惯<strong>先检查再动手</strong>（LBYL，look before you leap），Python 习惯<strong>先动手再接异常</strong>（EAFP，easier to ask forgiveness than permission）——面试爱问这个：</p>
+
+<pre><span class="lang-tag" data-pyhl="1">LBYL — Java 习惯：先问再动</span><code><span data-pyhl="1"><span class="tk-kw">if</span> <span class="tk-str">"user"</span> <span class="tk-kw">in</span> session:
+    name = session[<span class="tk-str">"user"</span>]
+<span class="tk-kw">else</span>:
+    name = <span class="tk-str">"游客"</span></span></code><span class="lang-tag" data-pyhl="1">EAFP — Python 习惯：先动再接</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    name = session[<span class="tk-str">"user"</span>]
+<span class="tk-kw">except</span> KeyError:
+    name = <span class="tk-str">"游客"</span></span></code></pre>
+
+<p>取单个键用 <code>session.get("user", "游客")</code> 更简单；但逻辑一复杂（取值还要处理），EAFP 就赢了——不用把检查条件抄两遍。</p>
+
+<h2>二、try/except/else/finally 完整结构（6 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — 四个块各管一件事</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    result = call_model(prompt)          <span class="tk-com"># 冒险的代码</span>
+<span class="tk-kw">except</span> TimeoutError <span class="tk-kw">as</span> e:                <span class="tk-com"># 精确捕获，可写多个 except</span>
+    result = fallback
+<span class="tk-kw">except</span> (KeyError, TypeError):            <span class="tk-com"># 元组 = 一口气捕获多种</span>
+    result = <span class="tk-kw">None</span>
+<span class="tk-kw">else</span>:                                    <span class="tk-com"># 无异常时才执行（成功路径）</span>
+    log.info(<span class="tk-str">"成功"</span>)
+<span class="tk-kw">finally</span>:                                 <span class="tk-com"># 无论如何都执行（清理）</span>
+    release(resource)</span></code></pre>
+
+<p>三条纪律，都是 Java 带过来的好习惯，Python 里更严格：</p>
+<p>① <strong>精确捕获</strong>，别裸 <code>except:</code>——它会连 <code>KeyboardInterrupt</code>、<code>SystemExit</code> 一起吞（它们直接继承 <code>BaseException</code>，不走 <code>Exception</code>）；兜底用 <code>except Exception as e</code>。</p>
+<p>② <strong>except 里别吞异常不留痕</strong>——至少记日志；需要向上传播时 <code>raise</code>（裸 raise 保留原 traceback）。</p>
+<p>③ <strong>finally 放清理</strong>——或者直接用第四节的 with，让语言替你写 finally。</p>
+
+<p>常见内建异常类型（面试手写代码会碰到）：</p>
+<div class="table-scroll"><table>
+<tr><th>Python</th><th>何时抛</th><th>Java 近亲</th></tr>
+<tr><td><code>ValueError</code></td><td>类型对但值不对</td><td><code>IllegalArgumentException</code></td></tr>
+<tr><td><code>TypeError</code></td><td>类型不对</td><td><code>ClassCastException</code> 近似</td></tr>
+<tr><td><code>KeyError</code> / <code>IndexError</code></td><td>键/下标越界</td><td><code>IndexOutOfBoundsException</code></td></tr>
+<tr><td><code>FileNotFoundError</code></td><td>文件不存在</td><td><code>FileNotFoundException</code></td></tr>
+<tr><td><code>RuntimeError</code></td><td>一般运行时错误</td><td><code>RuntimeException</code></td></tr>
+</table></div>
+
+<h2>三、raise 与 raise ... from ...：异常链（6 分钟）</h2>
+
+<div class="marginnote">
+完整异常语法与内建类型：<br>
+<a href="../reference/java-to-python-syntax.html">参考 · 全语法速查表 · 异常处理</a>
+</div>
+
+<pre><span class="lang-tag">PYTHON — 包装底层异常，保留原因</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    resp = http_post(url, payload)
+<span class="tk-kw">except</span> ConnectionError <span class="tk-kw">as</span> e:
+    <span class="tk-kw">raise</span> ModelCallError(<span class="tk-str">"模型调用失败"</span>) <span class="tk-kw">from</span> e   <span class="tk-com"># 异常链：__cause__ = e</span></span></code></pre>
+
+<p><code>from e</code> 对应 Java 的 <code>initCause</code>：traceback 会把两个异常都打出来（"The above exception was the direct cause of..."），底层网络错误的信息一点不丢。Agent 项目里，工具层错误包装成业务错误时必须这样做——否则排查问题等于盲人摸象。</p>
+
+<p><strong>自定义异常要成体系</strong>：先建一个业务异常基类，具体异常继承它。这样上层捕获基类就能兜住一整族，和 Java 完全同款：</p>
+
+<pre><span class="lang-tag">PYTHON — 异常层次</span><code><span data-pyhl="1"><span class="tk-kw">class</span> AgentError(Exception):
+    <span class="tk-str">"""本项目业务异常基类"""</span>
+
+<span class="tk-kw">class</span> ModelCallError(AgentError): ...
+<span class="tk-kw">class</span> ToolExecError(AgentError): ...
+
+<span class="tk-kw">try</span>:
+    run_agent()
+<span class="tk-kw">except</span> AgentError:          <span class="tk-com"># 一网打尽本项目的业务异常</span>
+    alert_oncall()</span></code></pre>
+
+<h2>四、金额与精度：float 是近似，Decimal 是精确（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 0.1 + 0.2 为什么不等于 0.3</span><code><span data-pyhl="1"><span class="tk-num">0.1</span> + <span class="tk-num">0.2</span>                <span class="tk-com"># 0.30000000000000004</span>
+<span class="tk-num">0.1</span> + <span class="tk-num">0.2</span> == <span class="tk-num">0.3</span>         <span class="tk-com"># False</span>
+
+<span class="tk-com"># 原因：0.1 在二进制里是无限循环小数，只能用近似值表示。</span>
+<span class="tk-com"># 这不是 Python 的 bug —— Java 的 double、C 的 float 都一样（IEEE 754）。</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 金额的正确答案：Decimal，且用字符串构造</span><code><span data-pyhl="1"><span class="tk-kw">from</span> decimal <span class="tk-kw">import</span> Decimal, ROUND_HALF_UP
+
+Decimal(<span class="tk-str">"0.1"</span>) + Decimal(<span class="tk-str">"0.2"</span>)         <span class="tk-com"># Decimal('0.3') —— 精确十进制</span>
+Decimal(<span class="tk-num">0.1</span>)                            <span class="tk-com"># ✗ 错：把已经近似的 float 带进精确类型</span>
+
+<span class="tk-com"># 量化到"分"：</span>
+Decimal(<span class="tk-str">"19.99"</span>).quantize(Decimal(<span class="tk-str">"0.01"</span>), rounding=ROUND_HALF_UP)
+
+<span class="tk-com"># 纪律：金额一律 Decimal，且用字符串或整数构造。</span>
+<span class="tk-kw">def</span> money_total(prices):
+    total = <span class="tk-fn">sum</span>(prices, Decimal(<span class="tk-str">"0"</span>))
+    <span class="tk-kw">return</span> total.quantize(Decimal(<span class="tk-str">"0.01"</span>), rounding=ROUND_HALF_UP)</span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">JAVA 对照 — 同一套 BigDecimal 纪律</span><code><span data-pyhl="java"><span class="tk-kw">new</span> <span class="tk-dec">BigDecimal</span>(<span class="tk-str">"0.1"</span>)     →  <span class="tk-dec">Decimal</span>(<span class="tk-str">"0.1"</span>)      精确
+<span class="tk-kw">new</span> <span class="tk-dec">BigDecimal</span>(<span class="tk-num">0.1</span>)       →  <span class="tk-dec">Decimal</span>(<span class="tk-num">0.1</span>)        把 <span class="tk-kw">double</span> 误差带进来
+<span class="tk-fn">setScale</span>(<span class="tk-num">2</span>, <span class="tk-dec">RoundingMode</span>.<span class="tk-dec">HALF_UP</span>)  →  <span class="tk-fn">quantize</span>(..., rounding=<span class="tk-dec">ROUND_HALF_UP</span>)
+equals vs compareTo       →  <span class="tk-dec">Decimal</span> 的 == 同时比较数值与指数，慎用</span></code></pre>
+
+<div class="marginnote">
+面试追问"那算钱怎么办"：答案就是 Decimal + 字符串构造 + 明确舍入模式。float 只用于科学计算和近似统计。
+</div>
+
+<h2>五、批量异常：ExceptionGroup 与 except*（4 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 3.11+：一次抛出一组失败</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    <span class="tk-kw">raise</span> ExceptionGroup(<span class="tk-str">"批量失败"</span>, [ValueError(<span class="tk-str">"a"</span>), KeyError(<span class="tk-str">"b"</span>)])
+<span class="tk-kw">except</span>* ValueError <span class="tk-kw">as</span> eg:
+    <span class="tk-fn">print</span>(<span class="tk-str">"值错误:"</span>, eg.exceptions)       <span class="tk-com"># (ValueError('a'),)</span>
+<span class="tk-kw">except</span>* KeyError <span class="tk-kw">as</span> eg:
+    <span class="tk-fn">print</span>(<span class="tk-str">"键错误:"</span>, eg.exceptions)       <span class="tk-com"># (KeyError('b'),)</span>
+
+<span class="tk-com"># except* 不是 except 的别名：</span>
+<span class="tk-com">#   每个分支独立处理同一组里的一类异常，未匹配的留给后面的 except*</span>
+<span class="tk-com">#   和 asyncio.gather(return_exceptions=True) / TaskGroup 是天然搭档</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — add_note：给异常补充上下文（仍保持原类型）</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    <span class="tk-num">1</span> / <span class="tk-num">0</span>
+<span class="tk-kw">except</span> ZeroDivisionError <span class="tk-kw">as</span> e:
+    e.add_note(<span class="tk-str">"分母来自配置文件 config.yaml"</span>)
+    <span class="tk-kw">raise</span>                                 <span class="tk-com"># 裸 raise，保留原 traceback</span>
+
+<span class="tk-com"># e.__notes__ == ['分母来自配置文件 config.yaml']</span>
+<span class="tk-com"># 注意：是 raise，不是 raise e —— 后者会把栈从这里重置</span></span></code></pre>
+
+<p>设计取舍：普通业务错误继续用"一个异常 + <code>raise ... from ...</code> 链"；只有<strong>并发/批量任务同时失败</strong>时才需要 ExceptionGroup，否则调用方要多写一层 <code>except*</code>，得不偿失。</p>
+
+<h2>六、with 与上下文管理器：让语言替你写 finally（6 分钟）</h2>
+
+<p>Java 的 try-with-resources 需要 <code>AutoCloseable</code>；Python 的 <code>with</code> 需要<strong>上下文管理器</strong>——实现 <code>__enter__</code>/<code>__exit__</code> 两个方法的对象。日常很少手写类，用 <code>@contextmanager</code> 把一个函数变成 CM：</p>
+
+<pre><span class="lang-tag">PYTHON — yield 一分为二</span><code><span data-pyhl="1"><span class="tk-kw">from</span> contextlib <span class="tk-kw">import</span> contextmanager
+
+<span class="tk-dec">@contextmanager</span>
+<span class="tk-kw">def</span> tagged(name):
+    <span class="tk-fn">print</span>(<span class="tk-str">"进入"</span>, name)        <span class="tk-com"># yield 之前 = __enter__（with 进入时执行）</span>
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">yield</span> name              <span class="tk-com"># yield 的值 = as 后面的变量</span>
+    <span class="tk-kw">finally</span>:
+        <span class="tk-fn">print</span>(<span class="tk-str">"退出"</span>, name)     <span class="tk-com"># yield 之后 = __exit__（离开时必执行）</span>
+
+<span class="tk-kw">with</span> tagged(<span class="tk-str">"数据库事务"</span>) <span class="tk-kw">as</span> t:
+    do_something()              <span class="tk-com"># 即使这里抛异常，"退出"也会打印</span></span></code></pre>
+
+<p>结构记法：<strong>yield 前是入口、yield 后是出口、yield 的值就是 as</strong>。清理逻辑放 <code>finally</code>（或 yield 后面）——<strong>等会动手要写的"兜底层"正是这个套路</strong>：包住一段危险代码，指定的异常就地消化。</p>
+
+<p>标准库里现成的 CM 优先用：<code>open()</code> 文件、<code>contextlib.suppress(...)</code>（等会动手就会手写一个；日常直接用它，别重复造轮子）、<code>contextlib.closing()</code>。</p>
+
+<h2>七、动手：给支付函数搭三层防御（8 分钟）</h2>
+
+<p>三个任务分别对应三层：<strong>业务异常层</strong>（自定义异常 + raise）→ <strong>重试层</strong>（try/except 循环）→ <strong>兜底层</strong>（@contextmanager，刚讲过）。<code>Ctrl/Cmd + Enter</code> 快捷运行。任务 2 有防作弊测试：把所有异常都吞了重试会当场抓住；任务 3 会验证你真的用了 <code>@contextmanager</code>。</p>
+
+<div class="py-lab" data-prelude="prelude-0006" data-tests="tests-0006">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">class</span> InsufficientBalanceError(Exception):
+    <span class="tk-str">"""任务 1：业务异常——继承 Exception"""</span>
+    ...
+
+
+<span class="tk-kw">def</span> withdraw(balance: <span class="tk-fn">float</span>, amount: <span class="tk-fn">float</span>) -&gt; <span class="tk-fn">float</span>:
+    <span class="tk-str">"""amount &gt; balance 时 raise InsufficientBalanceError("余额不足")；否则返回新余额"""</span>
+    ...  <span class="tk-com"># 一个 if + 一个 raise + 一行 return</span>
+
+
+<span class="tk-kw">def</span> retry_call(fn, times: <span class="tk-fn">int</span> = <span class="tk-num">3</span>):
+    <span class="tk-str">"""任务 2：调用 fn()；抛 ValueError 就重试，最多 times 次；用尽后把最后一次异常原样抛出"""</span>
+    ...  <span class="tk-com"># for + try/except 结构</span>
+
+
+<span class="tk-com"># 任务 3：先从 contextlib 导入 contextmanager</span>
+
+
+<span class="tk-dec">@contextmanager</span>
+<span class="tk-kw">def</span> suppress_error(exc_type):
+    <span class="tk-str">"""with 内部抛 exc_type 就吞掉；其他异常照常向外抛"""</span>
+    ...  <span class="tk-com"># try / yield / except 三件套</span>
+</pre><textarea class="py-lab-editor" spellcheck="false" rows="26">class InsufficientBalanceError(Exception):
+    &quot;&quot;&quot;任务 1：业务异常——继承 Exception&quot;&quot;&quot;
+    ...
+
+
+def withdraw(balance: float, amount: float) -&gt; float:
+    &quot;&quot;&quot;amount &gt; balance 时 raise InsufficientBalanceError(&quot;余额不足&quot;)；否则返回新余额&quot;&quot;&quot;
+    ...  # 一个 if + 一个 raise + 一行 return
+
+
+def retry_call(fn, times: int = 3):
+    &quot;&quot;&quot;任务 2：调用 fn()；抛 ValueError 就重试，最多 times 次；用尽后把最后一次异常原样抛出&quot;&quot;&quot;
+    ...  # for + try/except 结构
+
+
+# 任务 3：先从 contextlib 导入 contextmanager
+
+
+@contextmanager
+def suppress_error(exc_type):
+    &quot;&quot;&quot;with 内部抛 exc_type 就吞掉；其他异常照常向外抛&quot;&quot;&quot;
+    ...  # try / yield / except 三件套
+</textarea></div>
+  <div class="py-lab-bar">
+    <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
+    <button class="py-lab-btn ghost py-lab-reset">重置</button>
+    <span class="py-lab-status">首次运行需加载 Python 运行时，请耐心等待</span>
+  </div>
+  <pre class="py-lab-output" hidden></pre>
+</div>
+
+<p>写完并通过全部测试后，展开对照参考实现自评：</p>
+
+<details>
+<summary>参考实现（先自己写完再看）</summary>
+<pre><code><span class="tk-com"># 任务 1 — 业务异常层</span>
+<span class="tk-kw">class</span> InsufficientBalanceError(Exception):
+    <span class="tk-kw">pass</span>
+
+<span class="tk-kw">def</span> withdraw(balance: <span class="tk-fn">float</span>, amount: <span class="tk-fn">float</span>) -&gt; <span class="tk-fn">float</span>:
+    <span class="tk-kw">if</span> amount &gt; balance:
+        <span class="tk-kw">raise</span> InsufficientBalanceError(f"余额不足: {balance} &lt; {amount}")
+    <span class="tk-kw">return</span> balance - amount
+
+<span class="tk-com"># 任务 2 — 重试层</span>
+<span class="tk-kw">def</span> retry_call(fn, times: <span class="tk-fn">int</span> = <span class="tk-num">3</span>):
+    last = <span class="tk-kw">None</span>
+    <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(times):
+        <span class="tk-kw">try</span>:
+            <span class="tk-kw">return</span> fn()
+        <span class="tk-kw">except</span> ValueError <span class="tk-kw">as</span> e:
+            last = e
+    <span class="tk-kw">raise</span> last
+
+<span class="tk-com"># 任务 3 — 兜底层（上下文管理器）</span>
+<span class="tk-kw">from</span> contextlib <span class="tk-kw">import</span> contextmanager
+
+<span class="tk-dec">@contextmanager</span>
+<span class="tk-kw">def</span> suppress_error(exc_type):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">yield</span>
+    <span class="tk-kw">except</span> exc_type:
+        <span class="tk-kw">pass</span>
+</code></pre>
+<p>自评清单：① <code>raise</code> 出的异常带着"余额不足"消息吗？② 重试循环里是"用尽才抛最后一次异常"，不是"第一次失败就抛"？③ 非 <code>ValueError</code> 的异常没有重试（精确捕获的意义）？④ <code>yield</code> 写在了 <code>try</code> 里、<code>except</code> 只吞指定类型？</p>
+</details>
+
+<h2>八、检索练习：先答后看（关补全）</h2>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q1 · 为什么不能写裸 <code>except:</code>？</p>
+  <button class="quiz-opt" data-key="a">语法错误，except 必须带异常类型</button>
+  <button class="quiz-opt" data-key="b">会连 KeyboardInterrupt、SystemExit 一起吞掉</button>
+  <button class="quiz-opt" data-key="c">性能比 except Exception 慢</button>
+  <p class="quiz-explain" hidden>裸 except 捕获 BaseException 全家，包括 Ctrl+C（KeyboardInterrupt）和退出（SystemExit）——程序连"关不掉"。兜底请写 except Exception as e，它只接业务异常。</p>
+</div>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q2 · <code>raise NewError("包装") from e</code> 里的 <code>from e</code> 是干什么的？</p>
+  <button class="quiz-opt" data-key="a">把 e 的消息拼接进新异常</button>
+  <button class="quiz-opt" data-key="b">捕获 e 类型的新写法</button>
+  <button class="quiz-opt" data-key="c">建立异常链：保留原始异常作为原因（__cause__）</button>
+  <p class="quiz-explain" hidden>对应 Java 的异常 cause / initCause。traceback 会同时显示两个异常（"The above exception was the direct cause..."），Agent 调用链里把底层网络错误包装成业务错误时必用。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q3 · <code>@contextmanager</code> 装饰的函数里，<code>yield</code> 的值去了哪里？</p>
+  <button class="quiz-opt" data-key="a">成为 with ... as 变量的值</button>
+  <button class="quiz-opt" data-key="b">成为异常对象</button>
+  <button class="quiz-opt" data-key="c">被丢弃，只能 yield None</button>
+  <p class="quiz-explain" hidden>yield 前面的代码相当于 __enter__，后面相当于 __exit__；yield 的值就是 as 后面拿到的值。清理逻辑写在 yield 之后的 finally 里——即使 with 内部抛异常也会执行。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q4 · <code>Decimal("0.1")</code> 与 <code>Decimal(0.1)</code> 的区别是？</p>
+  <button class="quiz-opt" data-key="a">前者精确表示 0.1；后者把已经近似的 float 误差带进 Decimal</button>
+  <button class="quiz-opt" data-key="b">两者完全等价</button>
+  <button class="quiz-opt" data-key="c">后者会抛 TypeError</button>
+  <p class="quiz-explain" hidden>Decimal 从字符串构造时能精确读入十进制位数；从 float 构造则会把二进制近似的真实值（0.1000000000000000055…）原样记下来。算钱永远用字符串或整数构造。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q5 · <code>except*</code> 与 <code>except</code> 的关键区别是？</p>
+  <button class="quiz-opt" data-key="a">没有区别，只是新写法</button>
+  <button class="quiz-opt" data-key="b">except* 按异常类型分别处理 ExceptionGroup 里的成员，每个分支独立执行</button>
+  <button class="quiz-opt" data-key="c">except* 只能捕获语法错误</button>
+  <p class="quiz-explain" hidden>except* 是 3.11 为 ExceptionGroup 引入的：同一组里不同类型可以各自命中一个分支，未匹配的继续留给后面的 except*。</p>
+</div>
+
+<h2>九、间隔复习（明天开始学习前做）</h2>
+
+<p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
+
+<div class="review" data-id="r1" data-mode="code" data-name="pay">
+  <p class="review-q">① 自定义异常 + raise：先定义 <code>PaymentError(Exception)</code>；<code>pay(amount)</code> 在 amount &lt;= 0 时抛 PaymentError("金额必须为正")，否则返回 "ok"</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">class</span> PaymentError(Exception):
+    <span class="tk-str">"""业务异常"""</span>
+
+
+<span class="tk-kw">def</span> pay(amount):
+    <span class="tk-str">"""amount &lt;= 0 抛 PaymentError("金额必须为正")；否则返回 "ok" """</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">class PaymentError(Exception):
+    &quot;&quot;&quot;业务异常&quot;&quot;&quot;
+
+
+def pay(amount):
+    &quot;&quot;&quot;amount &lt;= 0 抛 PaymentError(&quot;金额必须为正&quot;)；否则返回 &quot;ok&quot; &quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r2" data-mode="code" data-name="retry">
+  <p class="review-q">② 重试模板默写：<code>retry(fn, times=3)</code>——调用 fn()，抛 ValueError 就重试，用尽次数后把最后一次异常抛出</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> retry(fn, times=<span class="tk-num">3</span>):
+    <span class="tk-str">"""ValueError 重试；用尽次数后抛最后一次异常"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def retry(fn, times=3):
+    &quot;&quot;&quot;ValueError 重试；用尽次数后抛最后一次异常&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r3" data-mode="code" data-name="suppress">
+  <p class="review-q">③ @contextmanager 默写：先从 contextlib 导入 contextmanager，再定义 <code>suppress(exc_type)</code>——with 内部抛 exc_type 就吞掉，其他异常照常向外抛</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-com"># 从 contextlib 导入 contextmanager</span>
+
+
+<span class="tk-dec">@contextmanager</span>
+<span class="tk-kw">def</span> suppress(exc_type):
+    <span class="tk-str">"""with 内部抛 exc_type 就吞掉；其他异常照常向外抛"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7"># 从 contextlib 导入 contextmanager
+
+
+@contextmanager
+def suppress(exc_type):
+    &quot;&quot;&quot;with 内部抛 exc_type 就吞掉；其他异常照常向外抛&quot;&quot;&quot;
+    ...</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r4" data-mode="code" data-name="money_total">
+  <p class="review-q">④ 默写：<code>money_total(prices)</code>——Decimal 列表求和后量化到分（判分环境已预置 <code>CENT</code>、<code>Decimal</code>、<code>ROUND_HALF_UP</code>）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> money_total(prices):
+    <span class="tk-str">"""Decimal 列表求和，quantize 到 CENT"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="6">def money_total(prices):
+    &quot;&quot;&quot;Decimal 列表求和，quantize 到 CENT&quot;&quot;&quot;
+    ...
+</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<p>下一课是<a href="0007-object-model.html"><strong>第 7 课 · Python 独有语法专题：切片、闭包与对象模型</strong></a>——Java 没有或本质不同的东西：切片深挖、bytes 与编码、LEGB 与 nonlocal、is 与 == 的对象模型、name mangling、Enum 和 REPL 内省。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
+
+<div class="callout primary">
+<strong>卡住了？随时问。</strong>traceback 看不懂、异常链为什么打印了两个异常——直接在对话里贴报错。
+</div>
+
+<div class="lesson-nav">
+  <a href="0005-classes.html">← 第 5 课 · 类与 dataclass</a>
+  <a href="0006-exceptions-drill.html">★ 练习场 · 20 题异常与资源管理</a>
+  <a href="0000-course-outline.html">课程大纲</a>
+  <a href="0007-object-model.html">第 7 课 · Python 独有语法与对象模型 →</a>
+</div>
+
+<footer class="doc-footer">
+  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/errors.html">错误和异常</a>（try/except/finally、raise、异常链）</p>
+  <p id="cite-2">[2] 官方库参考 · <a href="https://docs.python.org/zh-cn/3.15/library/contextlib.html">contextlib</a>（@contextmanager、suppress）</p>
+  <p>主资料：<a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
+</footer>
+</main>
+
+<script type="text/x-python" id="prelude-0006">
+# 本课三个任务都是纯函数/类定义，无需预置数据
+</script>
+
+<script type="text/x-python" id="tests-0006">
+import json as _json
+
+def _t(name, fn):
+    try:
+        fn()
+        print("TEST|" + _json.dumps({"name": name, "ok": True, "msg": ""}))
+    except Exception as e:
+        print("TEST|" + _json.dumps({"name": name, "ok": False, "msg": f"{type(e).__name__}: {e}"}))
+
+def _eq(actual, expected):
+    assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
+
+def _raises(fn, type_name, contains=None):
+    try:
+        fn()
+    except Exception as e:
+        assert type(e).__name__ == type_name, f"应抛 {type_name}，实际 {type(e).__name__}: {e}"
+        assert isinstance(e, Exception), f"{type_name} 应继承 Exception"
+        if contains:
+            assert contains in str(e), f"异常消息应包含 {contains!r}，实际 {str(e)!r}"
+        return
+    raise AssertionError(f"应抛 {type_name}，但没有抛出任何异常")
+
+if "withdraw" in globals():
+    _t("任务1 · 正常扣款返回新余额", lambda: _eq(withdraw(100.0, 30.0), 70.0))
+    _t("任务1 · 余额不足抛业务异常（含消息）", lambda: _raises(lambda: withdraw(100.0, 120.0), "InsufficientBalanceError", "余额不足"))
+    def _inherits():
+        try:
+            withdraw(0.0, 1.0)
+        except Exception as e:
+            assert isinstance(e, Exception), "业务异常应继承 Exception"
+            return
+        raise AssertionError("应抛异常但没有抛出")
+    _t("任务1 · 异常继承 Exception", _inherits)
+else:
+    print("MISSING|withdraw（任务 1 还没定义）")
+
+if "retry_call" in globals():
+    _calls = []
+    def _flaky():
+        _calls.append(1)
+        if len(_calls) < 3:
+            raise ValueError("还没好")
+        return "ok"
+    _t("任务2 · 第三次成功返回结果", lambda: _eq(retry_call(_flaky), "ok"))
+    def _count():
+        assert len(_calls) == 3, f"应恰好调用 3 次，实际 {len(_calls)}"
+    _t("任务2 · 重试次数恰好 3", _count)
+    def _never():
+        raise ValueError("永远失败")
+    _t("任务2 · 用尽次数抛最后一次异常", lambda: _raises(lambda: retry_call(_never), "ValueError"))
+    def _first_try():
+        c = []
+        def _ok():
+            c.append(1)
+            return "好"
+        _eq(retry_call(_ok), "好")
+        assert len(c) == 1, f"一次成功不应重试，实际调用 {len(c)} 次"
+    _t("任务2 · 一次成功不重试", _first_try)
+    def _other_exc():
+        c = []
+        def _broken():
+            c.append(1)
+            raise TypeError("不重试的类型")
+        try:
+            retry_call(_broken)
+        except TypeError:
+            pass
+        assert len(c) == 1, f"非 ValueError 不应重试，实际调用 {len(c)} 次"
+    _t("任务2 · 非 ValueError 不重试（防作弊）", _other_exc)
+else:
+    print("MISSING|retry_call（任务 2 还没定义）")
+
+if "suppress_error" in globals():
+    _t("任务3 · 是上下文管理器（@contextmanager）", lambda: _eq(all(hasattr(suppress_error(ValueError), a) for a in ("__enter__", "__exit__")), True))
+    def _swallow():
+        ran = []
+        with suppress_error(ValueError):
+            ran.append(1)
+            raise ValueError("吞我")
+            ran.append(2)
+        assert ran == [1], "with 内部执行顺序不对"
+    _t("任务3 · ValueError 被吞掉", _swallow)
+    def _propagate():
+        with suppress_error(ValueError):
+            raise TypeError("别吞我")
+    _t("任务3 · 其他异常照常向外抛", lambda: _raises(_propagate, "TypeError"))
+    def _noop():
+        with suppress_error(ValueError):
+            pass
+    _t("任务3 · 无异常时正常通过", _noop)
+else:
+    print("MISSING|suppress_error（任务 3 还没定义）")
+
+</script>
+
+<script>
+/* quiz.js — 可复用检索练习组件
+ * 用法：
+ * <div class="quiz" data-answer="b">
+ *   <p class="quiz-q">问题</p>
+ *   <button class="quiz-opt" data-key="a">选项 A</button>
+ *   <button class="quiz-opt" data-key="b">选项 B</button>
+ *   <p class="quiz-explain" hidden>解析（答后显示）</p>
+ * </div>
+ * 在每课末尾以内联方式引入本文件内容（不要写 src 引用，见 NOTES.md）
+ */
+(function () {
+  function initQuiz(quiz) {
+    var answer = quiz.getAttribute("data-answer");
+    var opts = quiz.querySelectorAll(".quiz-opt");
+    var explain = quiz.querySelector(".quiz-explain");
+    var done = false;
+    quiz.setAttribute("role", "radiogroup");
+    var qEl = quiz.querySelector(".quiz-q");
+    if (qEl && !quiz.getAttribute("aria-labelledby")) {
+      if (!qEl.id) qEl.id = "quizq-" + (Math.random() * 1e9 | 0);
+      quiz.setAttribute("aria-labelledby", qEl.id);
+    }
+    opts.forEach(function (b) { b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); });
+    opts.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (done) return;
+        done = true;
+        var key = btn.getAttribute("data-key");
+        opts.forEach(function (b) {
+          b.disabled = true;
+          if (b.getAttribute("data-key") === answer) b.classList.add("is-right");
+        });
+        if (key !== answer) btn.classList.add("is-wrong");
+        if (explain) explain.hidden = false;
+        opts.forEach(function (b) { b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+        var liveEl = quiz.querySelector(".quiz-live");
+        if (liveEl) liveEl.textContent = (key === answer ? "回答正确。" : "回答错误，正确答案是 " + answer + "。") +
+          (explain ? explain.textContent : "");
+        quiz.dispatchEvent(new CustomEvent("quiz:answered", {
+          bubbles: true, detail: { correct: key === answer }
+        }));
+        if (window.WBProgress) {
+          var allQ = document.querySelectorAll(".quiz");
+          WBProgress.mark({ kind: "quiz", unit: "q" + (Array.prototype.indexOf.call(allQ, quiz) + 1),
+                            total: allQ.length, passed: key === answer });
+        }
+      });
+    });
+  }
+  function initAll() { document.querySelectorAll(".quiz").forEach(initQuiz); }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script>
+/* pylab.js — 浏览器内 Python 运行组件（基于 Pyodide/WASM，CDN: unpkg）
+ *
+ * 用法（每课自包含，内联引入）：
+ *   div.py-lab[data-prelude][data-tests]
+ *     textarea.py-lab-editor（默认代码）
+ *     button.py-lab-run / button.py-lab-reset / span.py-lab-status
+ *     pre.py-lab-output
+ *   两个 text/x-python 脚本块：prelude（前置代码，用户不可见但参与运行）与 tests（用 print("TEST|" + json) 报告结果）
+ */
+(function () {
+  var PYODIDE_URL = "https://unpkg.com/pyodide@0.29.5/pyodide.js";
+  var PYODIDE_INDEX = "https://unpkg.com/pyodide@0.29.5/";
+  var pyodidePromise = null;
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.integrity = "sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6"; s.crossOrigin = "anonymous";
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getPyodide() {
+    if (!pyodidePromise) {
+      pyodidePromise = loadScript(PYODIDE_URL).then(function () {
+        return window.loadPyodide({ indexURL: PYODIDE_INDEX });
+      }).catch(function (e) { pyodidePromise = null; throw e; });
+    }
+    return pyodidePromise;
+  }
+
+  function escapeHtml(t) {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function initLab(lab) {
+    var editor = lab.querySelector(".py-lab-editor");
+    var runBtn = lab.querySelector(".py-lab-run");
+    var resetBtn = lab.querySelector(".py-lab-reset");
+    var status = lab.querySelector(".py-lab-status");
+    var out = lab.querySelector(".py-lab-output");
+    if (!editor || !runBtn || !out) return;
+    var starter = editor.getAttribute("data-starter") !== null
+      ? editor.getAttribute("data-starter")
+      : editor.value;
+
+
+    // Ctrl/Cmd+Enter 快捷运行（Tab 插入空格由 pyhl.js 统一处理）
+    editor.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runBtn.click(); }
+    });
+
+    resetBtn && resetBtn.addEventListener("click", function () {
+      if (editor.value === starter) { status.textContent = "当前已是初始代码"; return; }
+      if (!confirm("重置为初始代码？当前修改将被覆盖（可先按 Ctrl/Cmd+S 保存）。")) return;
+      editor.value = starter;
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof editor.__wbClearCode === 'function') editor.__wbClearCode();
+      out.hidden = true;
+      status.textContent = "已重置为初始代码";
+    });
+
+    runBtn.addEventListener("click", function () {
+      runBtn.disabled = true;
+      status.setAttribute('aria-live','polite'); status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      out.hidden = false;
+      out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
+
+      var prelude = "";
+      var tests = "";
+      if (lab.getAttribute("data-prelude")) {
+        var p = document.getElementById(lab.getAttribute("data-prelude"));
+        if (p) prelude = p.textContent + "\n";
+      }
+      if (lab.getAttribute("data-tests")) {
+        var t = document.getElementById(lab.getAttribute("data-tests"));
+        if (t) tests = "\n" + t.textContent + "\n";
+      }
+
+      var stdoutLines = [];
+      getPyodide().then(function (py) {
+        py.setStdout({ batched: function (s) { stdoutLines.push(s); } });
+        py.setStderr({ batched: function (s) { stdoutLines.push("[stderr] " + s); } });
+        var code = prelude + "# ==== 你的代码 ====\n" + editor.value + "\n" + tests;
+        return py.runPythonAsync(code);
+      }).then(function () {
+        var html = "";
+        if (stdoutLines.length) {
+          html += stdoutLines.map(function (l) {
+            if (l.indexOf("TEST|") === 0) {
+              try {
+                var r = JSON.parse(l.slice(5));
+                return r.ok
+                  ? '<span class="lab-pass">✅ ' + escapeHtml(r.name) + '</span>'
+                  : '<span class="lab-fail">❌ ' + escapeHtml(r.name) + '</span>\n' +
+                    '<span class="lab-info">    ' + escapeHtml(r.msg) + '</span>';
+              } catch (e2) { return escapeHtml(l); }
+            }
+            if (l.indexOf("MISSING|") === 0) {
+              return '<span class="lab-fail">⚠️ ' + escapeHtml(l.slice(8)) + '</span>';
+            }
+            return escapeHtml(l);
+          }).join("\n");
+        }
+        if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
+        out.innerHTML = html;
+        status.textContent = "运行完成";
+        var _t = stdoutLines.filter(function (l) { return l.indexOf("TEST|") === 0; });
+        var _m = stdoutLines.some(function (l) { return l.indexOf("MISSING|") === 0; });
+        var _all = _t.length > 0 && !_m && _t.every(function (l) {
+          try { return JSON.parse(l.slice(5)).ok === true; } catch (e) { return false; }
+        });
+        if (window.WBProgress) WBProgress.mark({ kind: 'pylab', passed: _all });
+      }).catch(function (err) {
+        var msg = (err && (err.message || String(err))) || "未知错误";
+        out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
+          (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
+            ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
+            : '');
+        status.setAttribute('aria-live','assertive'); status.textContent = "运行出错";
+        var retry = out.querySelector('button.wb-retry');
+        if (!retry) {
+          retry = document.createElement('button');
+          retry.type = 'button'; retry.className = 'py-lab-btn ghost wb-retry';
+          retry.textContent = '重试加载 Python 运行时';
+          retry.addEventListener('click', function () { runBtn.click(); });
+          out.appendChild(retry);
+        }
+        retry.disabled = false;
+      }).finally(function () {
+        runBtn.disabled = false;
+      });
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll(".py-lab").forEach(initLab);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script type="text/x-python" id="review-env">
+from decimal import Decimal, ROUND_HALF_UP
+CENT = Decimal("0.01")
+</script>
+<script>
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定义异常 + raise：先定义 <code>PaymentError(Exception)</code>；<code>pay(amount)</code> 在 amount &lt;= 0 时抛 PaymentError(\"金额必须为正\")，否则返回 \"ok\"", "starter": "class PaymentError(Exception):\n    \"\"\"业务异常\"\"\"\n\n\ndef pay(amount):\n    \"\"\"amount <= 0 抛 PaymentError(\"金额必须为正\")；否则返回 \"ok\" \"\"\"\n    ...", "ref": "class PaymentError(Exception):\n    pass\n\ndef pay(amount):\n    if amount <= 0:\n        raise PaymentError(\"金额必须为正\")\n    return \"ok\"", "tind": "        assert _fn(100) == \"ok\", \"正常金额应返回 'ok'\"\n        _err = None\n        try:\n            _fn(0)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"amount=0 应抛 PaymentError，但没抛\"\n        assert type(_err).__name__ == \"PaymentError\", f\"应抛 PaymentError，实际 {type(_err).__name__}\"\n        assert \"金额必须为正\" in str(_err), f\"异常消息应包含 '金额必须为正'，实际 {str(_err)!r}\""}, {"id": "r2", "mode": "code", "name": "retry", "task": "② 重试模板默写：<code>retry(fn, times=3)</code>——调用 fn()，抛 ValueError 就重试，用尽次数后把最后一次异常抛出", "starter": "def retry(fn, times=3):\n    \"\"\"ValueError 重试；用尽次数后抛最后一次异常\"\"\"\n    ...", "ref": "def retry(fn, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return fn()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert _fn(_flaky) == \"ok\", \"第三次应成功并返回 ok\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            _fn(_never)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"用尽次数后应抛出异常\"\n        assert type(_err).__name__ == \"ValueError\", f\"应原样抛 ValueError，实际 {type(_err).__name__}\""}, {"id": "r3", "mode": "code", "name": "suppress", "task": "③ @contextmanager 默写：先从 contextlib 导入 contextmanager，再定义 <code>suppress(exc_type)</code>——with 内部抛 exc_type 就吞掉，其他异常照常向外抛", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef suppress(exc_type):\n    \"\"\"with 内部抛 exc_type 就吞掉；其他异常照常向外抛\"\"\"\n    ...", "ref": "from contextlib import contextmanager\n\n@contextmanager\ndef suppress(exc_type):\n    try:\n        yield\n    except exc_type:\n        pass", "tind": "        _cm = _fn(ValueError)\n        assert hasattr(_cm, \"__enter__\") and hasattr(_cm, \"__exit__\"), \"返回对象不是上下文管理器——漏了 @contextmanager？\"\n        with _fn(ValueError):\n            raise ValueError(\"吞我\")\n        _ran = False\n        with _fn(ValueError):\n            _ran = True\n        assert _ran, \"无异常时应正常通过\"\n        _type_err = None\n        try:\n            with _fn(ValueError):\n                raise TypeError(\"别吞我\")\n        except TypeError as e:\n            _type_err = e\n        assert _type_err is not None, \"TypeError 不应被吞，应照常向外抛\""}, {"id": "r4", "mode": "code", "name": "money_total", "task": "④ 默写：<code>money_total(prices)</code>——Decimal 列表求和后量化到分（判分环境已预置 <code>CENT</code>、<code>Decimal</code>、<code>ROUND_HALF_UP</code>）", "starter": "def money_total(prices):\n    \"\"\"Decimal 列表求和，quantize 到 CENT\"\"\"\n    ...", "ref": "def money_total(prices):\n    total = sum(prices, Decimal(\"0\"))\n    return total.quantize(CENT, rounding=ROUND_HALF_UP)", "tind": "        assert _fn([]) == Decimal(\"0.00\"), f\"实际 {_fn([])!r}\"\n        assert _fn([Decimal(\"0.1\"), Decimal(\"0.2\")]) == Decimal(\"0.30\")\n        assert _fn([Decimal(\"1.005\")]) == Decimal(\"1.01\")"}];
+</script>
+<script>
+/* review.js — 间隔复习在线评判引擎（Pyodide）
+ * 页面需提供：
+ *   - 预置数据块：script 标签，type="text/x-python"，id="review-env"（可选）
+ *   - window.REVIEW = [{ id, mode: 'expr'|'code', name, tind, ref }]   // tind 为缩进 8 空格的测试代码
+ *   - .review 块：data-id / data-mode / data-name，含 .review-code、.review-btn、.review-refbtn、.review-status、.review-ref
+ * expr 模式：用户代码 eval 为 _val，测试引用 _val 与 env 全局变量
+ * code 模式：用户代码 exec 进独立命名空间，取 data-name 函数为 _fn，测试引用 _fn
+ */
+(function () {
+  if (!window.REVIEW || !window.REVIEW.length) return;
+  var ENV_CODE = (document.getElementById('review-env') || { textContent: '' }).textContent;
+  var pyodide = null, loading = null;
+
+  function ensurePy() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (!loading) {
+      loading = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+        s.onload = function () {
+          loadPyodide().then(function (py) {
+            var ready = ENV_CODE.trim() ? py.runPythonAsync(ENV_CODE) : Promise.resolve();
+            return ready.then(function () { return py.runPythonAsync('_G = dict(globals())'); })
+              .then(function () { pyodide = py; resolve(py); });
+          }).catch(reject);
+        };
+        s.onerror = function () { reject(new Error('CDN 加载失败，请检查网络')); };
+      });
+      loading.catch(function () { loading = null; });
+    }
+    return loading;
+  }
+
+  function buildCode(cfg, userCode) {
+    if (cfg.mode === 'expr') {
+      return 'import json as _json\n' +
+        '_res = {"ok": False, "msg": ""}\n' +
+        'try:\n' +
+        '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
+        'except BaseException as _e:\n' +
+        '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        'else:\n' +
+        '    try:\n' +
+        cfg.tind + '\n' +
+        '        _res = {"ok": True, "msg": ""}\n' +
+        '    except AssertionError as _e:\n' +
+        '        _res = {"ok": False, "msg": str(_e)}\n' +
+        '    except Exception as _e:\n' +
+        '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        '_json.dumps(_res)';
+    }
+    return 'import json as _json\n' +
+      '_res = {"ok": False, "msg": ""}\n' +
+      '_lenv = dict(_G)\n' +
+      'try:\n' +
+      '    exec(compile(' + JSON.stringify(userCode) + ', "<review>", "exec"), _lenv)\n' +
+      '    _fn = _lenv.get(' + JSON.stringify(cfg.name) + ')\n' +
+      'except Exception as _e:\n' +
+      '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      'else:\n' +
+      '    try:\n' +
+      '        assert _fn is not None, "函数未定义：检查函数名拼写"\n' +
+      cfg.tind + '\n' +
+      '        _res = {"ok": True, "msg": ""}\n' +
+      '    except AssertionError as _e:\n' +
+      '        _res = {"ok": False, "msg": str(_e)}\n' +
+      '    except Exception as _e:\n' +
+      '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      '_json.dumps(_res)';
+  }
+
+  function check(id) {
+    var el = document.querySelector('.review[data-id="' + id + '"]');
+    var cfg = window.REVIEW.filter(function (r) { return r.id === id; })[0];
+    if (!el || !cfg) return;
+    var ta = el.querySelector('.review-code');
+    var st = el.querySelector('.review-status');
+    var v = ta.value.trim();
+    if (!v) { st.className = 'review-status info'; st.setAttribute('aria-live', 'polite'); st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info'; st.setAttribute('aria-live', 'polite');
+    st.textContent = '判分中…';
+    ensurePy().then(function (py) {
+      return py.runPythonAsync(buildCode(cfg, v));
+    }).then(function (out) {
+      var res = JSON.parse(out);
+      if (res.ok) {
+        st.className = 'review-status pass';
+        st.setAttribute('aria-live', 'polite');
+        st.textContent = '✓ 通过——明天再来复核一次更稳';
+        if (window.WBSpaced) WBSpaced.pass(id);
+        if (window.WBProgress) WBProgress.mark({ kind: 'review', unit: id, total: window.REVIEW.length, passed: true });
+      } else {
+        var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
+        st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+        st.textContent = '✗ ' + msg;
+      }
+    }).catch(function (e) {
+      st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+      st.textContent = '判分失败：' + ((e && e.message) || String(e));
+      var bar = st.parentNode, retry = el.querySelector('.review-retry');
+      if (!retry && bar) {
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.className = 'review-btn ghost review-retry';
+        retry.textContent = '重试加载 Python 运行时';
+        retry.addEventListener('click', function () {
+          var b = el.querySelector('.review-btn'); if (b) b.click();
+        });
+        bar.appendChild(retry);
+      }
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    window.REVIEW.forEach(function (cfg) {
+      var el = document.querySelector('.review[data-id="' + cfg.id + '"]');
+      if (!el) return;
+      var btn = el.querySelector('.review-btn');
+      var refBtn = el.querySelector('.review-refbtn');
+      var ref = el.querySelector('.review-ref');
+      if (btn) btn.addEventListener('click', function () { check(cfg.id); });
+      if (refBtn && ref) refBtn.addEventListener('click', function () {
+        if (ref.hidden) { ref.textContent = '参考答案：\n' + cfg.ref; ref.hidden = false; refBtn.textContent = '收起参考'; }
+        else { ref.hidden = true; refBtn.textContent = '参考'; }
+      });
+      var ta = el.querySelector('.review-code');
+      if (ta) ta.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(cfg.id); }
+      });
+    });
+  });
+})();
+
+</script>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进 + 本地保存组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加 1：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
+ *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
+ *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  /* ---- 本地保存：编辑器内 Cmd/Ctrl+S = 保存代码 ---- */
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
+        "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "opacity:0;transition:opacity 0.25s;pointer-events:none;";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = "0"; }, 1600);
+  }
+
+  function editorKey(ta, idx) {
+    var anchor = null;
+    try {
+      var drill = ta.closest(".drill");
+      if (drill && drill.dataset.n) anchor = "d" + drill.dataset.n;
+      if (!anchor && ta.id) anchor = ta.id;
+    } catch (e) { /* closest 不可用则退回序号 */ }
+    if (!anchor) anchor = "idx" + idx;
+    return "wb-code:" + location.pathname + ":" + anchor;
+  }
+
+  function saveCode(ta, key) {
+    var code = ta.value;
+    try { localStorage.setItem(key, code); } catch (e) { return; }
+    try {
+      document.dispatchEvent(new CustomEvent("wb-code-save", { detail: { ta: ta, code: code, key: key } }));
+    } catch (e) { /* 旧浏览器无 CustomEvent 则跳过桥接 */ }
+    toast("✓ 代码已保存（浏览器本地，刷新不丢）");
+  }
+
+  function enhance(ta, idx) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // 本地保存：恢复 + Cmd/Ctrl+S
+    var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
+    try {
+      var saved = localStorage.getItem(codeKey);
+      if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
+        ta.value = saved; // 引擎已恢复过的（≠ 初始值）不覆盖
+      }
+    } catch (e) { /* localStorage 不可用则跳过 */ }
+
+    var escUnlocked = false;
+    ta.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
+          (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); // 拦截浏览器"保存网页"
+        saveCode(ta, codeKey);
+        return;
+      }
+      if (e.key === "Escape") { escUnlocked = true; return; }
+      if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta, idx) {
+      try { enhance(ta, idx); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
+  }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();</script>
+<script>
+/* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+(function () {
+  var KEY = 'wb-theme-pref';
+  var pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  var root = document.documentElement;
+
+  function apply() {
+    if (pref === 'auto') root.removeAttribute('data-theme'); // 交给 prefers-color-scheme
+    else root.dataset.theme = pref;
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = { auto: '🌓 主题·自动', light: '☀️ 浅色', dark: '🌙 深色' }[pref];
+  }
+
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', function () { if (pref === 'auto') apply(); });
+
+  function toggle() {
+    pref = pref === 'auto' ? 'light' : (pref === 'light' ? 'dark' : 'auto');
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    apply();
+  }
+
+  function init() {
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.className = 'theme-toggle no-print';
+    btn.title = '切换主题：自动（跟随系统）→ 浅色 → 深色';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+<div id="wb-quicknav">
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：6 异常与资源管理</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="../../index.html"><span>课程中心</span></a><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-unpacking-and-patterns.html"><span>2 解包、海象与模式匹配</span></a><a href="0003-comprehensions.html"><span>3 推导式与生成器表达式</span></a><a href="0004-functions.html"><span>4 函数进阶</span></a><a href="0005-classes.html"><span>5 类与 dataclass</span></a><a href="0006-exceptions.html" aria-current="page"><span>6 异常与资源管理</span></a><a href="0007-object-model.html"><span>7 对象模型与独有语法</span></a><a href="0008-attribute-protocols.html"><span>8 属性协议与描述符</span></a><a href="0009-container-protocols.html"><span>9 容器与运算符协议</span></a><a href="0010-metaprogramming.html"><span>10 类创建与元编程</span></a><a href="0011-decorators.html"><span>11 装饰器与回调</span></a><a href="0012-generators.html"><span>12 生成器与流式输出</span></a><a href="0013-typing-advanced.html"><span>13 类型系统进阶</span></a><a href="0014-data-modeling.html"><span>14 枚举与数据建模</span></a><a href="0015-modules-packaging.html"><span>15 模块、项目结构与 typing</span></a><a href="0016-stdlib.html"><span>16 标准库实战</span></a><a href="0017-stdlib-extra.html"><span>17 标准库长尾</span></a><a href="0018-scripting.html"><span>18 脚本工程化</span></a><a href="0019-testing.html"><span>19 测试与自测</span></a><a href="0020-concurrency.html"><span>20 并发与 GIL</span></a><a href="0021-asyncio.html"><span>21 异步 asyncio</span></a><a href="0022-async-advanced.html"><span>22 异步进阶</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-patterns-drill.html"><span>2★ 解包与模式练习</span></a><a href="0003-expressions-drill.html"><span>3★ 表达式练习</span></a><a href="0004-functions-drill.html"><span>4★ 函数设计练习</span></a><a href="0005-classes-drill.html"><span>5★ 类与 dataclass 练习</span></a><a href="0006-exceptions-drill.html"><span>6★ 异常与资源管理练习</span></a><a href="0007-object-model-drill.html"><span>7★ 独有语法练习</span></a><a href="0008-attribute-drill.html"><span>8★ 属性协议练习</span></a><a href="0009-container-drill.html"><span>9★ 容器协议练习</span></a><a href="0010-metaprogramming-drill.html"><span>10★ 元编程练习</span></a><a href="0011-decorators-drill.html"><span>11★ 装饰器练习</span></a><a href="0012-generators-drill.html"><span>12★ 生成器练习</span></a><a href="0013-typing-drill.html"><span>13★ 类型进阶练习</span></a><a href="0014-modeling-drill.html"><span>14★ 数据建模练习</span></a><a href="0015-modules-drill.html"><span>15★ 模块与 typing 练习</span></a><a href="0016-stdlib-drill.html"><span>16★ 标准库练习</span></a><a href="0017-stdlib-extra-drill.html"><span>17★ 标准库长尾练习</span></a><a href="0018-scripting-drill.html"><span>18★ 脚本工程化练习</span></a><a href="0019-testing-drill.html"><span>19★ 测试与自测练习</span></a><a href="0020-concurrency-drill.html"><span>20★ 并发与 GIL 练习</span></a><a href="0021-asyncio-drill.html"><span>21★ 异步练习</span></a><a href="0022-async-advanced-drill.html"><span>22★ 异步进阶练习</span></a><a href="0099-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+</div>
+
+<script>
+/* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */
+(function () {
+  var btn = document.getElementById('wb-quicknav-btn');
+  var menu = document.getElementById('wb-quicknav-menu');
+  if (!btn || !menu) return;
+  function close() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#wb-quicknav')) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) close();
+  });
+})();
+</script>
+<script>
+/* 本页子标题导航：自动收集正文 h2/h3 生成目录（2026-11-26） */
+(function () {
+  var root = document.querySelector('main') || document.querySelector('.wrap');
+  if (!root) return;
+  var heads = [].slice.call(root.querySelectorAll('h2, h3'));
+  if (heads.length < 2) return;
+  heads.forEach(function (h, i) { if (!h.id) h.id = 'sec-' + (i + 1); });
+  var box = document.createElement('details');
+  box.className = 'wb-toc';
+  var sum = document.createElement('summary');
+  sum.textContent = '本页目录';
+  box.appendChild(sum);
+  var nav = document.createElement('nav');
+  nav.className = 'wb-toc-body';
+  nav.setAttribute('aria-label', '本页目录');
+  heads.forEach(function (h) {
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    var clone = h.cloneNode(true);
+    [].slice.call(clone.querySelectorAll('.cat-done')).forEach(function (x) { x.remove(); });
+    a.textContent = clone.textContent.replace(/\s+/g, ' ').trim();
+    a.className = h.tagName === 'H3' ? 'lv3' : 'lv2';
+    nav.appendChild(a);
+  });
+  box.appendChild(nav);
+  var anchor = root.querySelector('h1');
+  if (anchor && anchor.parentNode === root) root.insertBefore(box, anchor.nextSibling);
+  else root.insertBefore(box, root.firstChild);
+  var mq = window.matchMedia('(min-width: 1180px)');
+  function sync() { box.open = mq.matches; }
+  sync();
+  if (mq.addEventListener) mq.addEventListener('change', sync);
+  else if (mq.addListener) mq.addListener(sync);
+  var links = {};
+  [].slice.call(nav.querySelectorAll('a')).forEach(function (a) {
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var current = null;
+  function setActive(id) {
+    if (current === id || !links[id]) return;
+    if (current && links[current]) links[current].classList.remove('active');
+    links[id].classList.add('active');
+    current = id;
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) setActive(e.target.id); });
+    }, { rootMargin: '-8% 0px -78% 0px' });
+    heads.forEach(function (h) { io.observe(h); });
+  }
+})();
+</script>
+</body>
+</html>
