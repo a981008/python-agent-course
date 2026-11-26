@@ -15,3 +15,5 @@
 - 语法高亮为双层保障：初始高亮已静态烘焙进 HTML（pyhl-wrap + pre.pyhl-hl），JS 运行时 pyhl.js 采用已有 wrap/pre（:scope > pre.pyhl-hl）只补样式与事件；新增含初始代码的编辑器时需重跑烘焙，否则只靠 JS 动态渲染
 - 非编辑区静态代码块（pre>code 与 pre+lang-tag 两种形状）也已 Python 高亮：由 .workbuddy/tmp_static_hl.py bake 烘焙（span data-pyhl 标记幂等；对照/SHELL/TOML/散文块保持原样，shape-1 打 data-nohl）；JAVA 标签块用构建脚本内置 hl_java 分词烘焙（data-pyhl="java"，类型名复用 tk-dec 色，无运行时依赖）；LBYL/EAFP 同块多标签分段逐段判语种；新增讲解代码后重跑 bake；pyhl.js 运行时仅对未烘焙的 pre>code 兜底。内嵌 pyhl 副本用同脚本 sync 子命令统一替换（以 assets/pyhl.js 为准）
 - 练习场选择题统一卡片样式（.drill-opts/.drill-opt/.opt-letter/.opt-text，与 quiz 组件同视觉）：选项内联 code 由 tmp_static_hl.py 的 opt-text 段烘焙高亮（code data-pyhl="1" 幂等，pyhl.js 运行时对 .opt-text>code 兜底）；检查后标注 .is-right/.is-wrong；"答案"按钮为开/合切换语义——refreshUI 只填充 ansbox 内容不自动展开，重开后首次点击必能打开（修复已揭示态 reload 后首点变收起的空白问题）；check() 读编辑器一律空安全（mc 行无输入框曾 TypeError）；.drill-in/.drill-code 显式 background/color 主题变量（禁止浏览器默认白底）
+
+- 布局与子标题导航（2026-11-26）：全部课件/速查表/报告页改为近全宽（main 上限 110rem），.marginnote 由负外边距浮动改为内联边注；每页内联脚本自动收集 main 内 h2/h3 生成“本页目录”（details.wb-toc），宽屏 ≥1180px 为右侧固定栏，窄屏折叠卡片；锚点 id 运行时生成（sec-N）。新增页面需带同一 CSS/JS 块，或对页面跑 .workbuddy/apply_wide_toc.py（幂等）；移动端 body 顶部留白 4.2rem 防止右上角快速跳转遮挡标题
