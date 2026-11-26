@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>练习场 · 13 题模块与 typing 训练（第 7 课配套）</title>
+<title>复盘场 · 22 题语言地基综合复盘（第 1–6 课 + 标准库）</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -370,7 +370,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-no { flex: 0 0 2.2rem; font-family: "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--ink-soft); }
 .drill-task { flex: 1; }
 .drill-data { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .5rem .8rem; font-family: "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--ink-soft); }
-.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
+.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; color: var(--ink); }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
 .drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
@@ -408,8 +408,8 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <body>
 <main>
 
-<h1>练习场 · 22 题官网缺口补齐训练</h1>
-<p class="meta">官网 3.15 教程补漏 · 控制流 / 对象模型 / 数值与异常 / 标准库 · 自动判分</p>
+<h1>复盘场 · 22 题语言地基综合复盘</h1>
+<p class="meta">第 1–9 课复盘 · 控制流 / 对象模型 / 数值与异常 / 标准库 · 自动判分</p>
 <div class="callout win"><strong>玩法</strong>：代码题把每题起始代码里的 <code>...</code> 补成实现，按题目要求真的用上 break / for-else / match / @classmethod / Decimal / argparse 等（判分有结构与内省检查，手写 split 或 float 会被抓住）；<strong>选择题</strong>直接点选选项再检查，不用写代码。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>：本练习场无需预置数据——每题函数的入参就是数据，题目下方写清了期望行为。
@@ -802,7 +802,7 @@ def top_k(nums, k):
 
 
 <footer class="doc-footer">
-  返回：<a href="0014-numerics-and-testing.html">第 14 课 · 数值、异常进阶与测试</a> · <a href="0015-stdlib-gaps.html">第 15 课 · 标准库补漏</a> · <a href="0000-course-outline.html">课程大纲</a>
+  返回：<a href="0006-python-essentials-unique.html">第 6 课 · Python 独有语法与对象模型</a> · <a href="0000-course-outline.html">课程大纲</a>
 </footer>
 </main>
 
@@ -858,14 +858,12 @@ function refreshUI() {
         if (radio) radio.checked = true;
       }
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+                ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct].replace(/`/g, '') + '\n\n解析：' + ex.explain.replace(/`/g, '') + '\n\n说明：先自己选完再看。';
       }
     } else {
       if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+                ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
       }
     }
   });
@@ -912,6 +910,10 @@ async function check(n) {
     const sel = row(n).querySelector('input[type=radio]:checked');
     if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
     prog.answers[n] = +sel.value; save();
+    row(n).querySelectorAll('.drill-opt').forEach(l => l.classList.remove('is-right', 'is-wrong'));
+    row(n).querySelector('.drill-opt:has(input[value="' + ex.correct + '"])').classList.add('is-right');
+    if (+sel.value !== ex.correct) sel.closest('.drill-opt').classList.add('is-wrong');
+
     if (+sel.value === ex.correct) {
       st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
       if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
@@ -920,7 +922,7 @@ async function check(n) {
     }
     return;
   }
-  const codeVal = codeEl(n).value;
+  const _ed = codeEl(n); const codeVal = _ed ? _ed.value : '';
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
@@ -970,7 +972,7 @@ EX.forEach(e => {
   el.querySelector('.drill-ans').addEventListener('click', () => {
     const ab = ansbox(e.n);
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
-    else { ab.hidden = !ab.hidden; }
+    ab.hidden = !ab.hidden;
   });
   if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
@@ -1188,6 +1190,16 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1336,9 +1348,18 @@ refreshUI();
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：7★ 模块与 typing 练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：R1★ 语言地基复盘（22 题）</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html" aria-current="page"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

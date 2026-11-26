@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 13 课 · 综合实战：手写 Nano Agent——ReAct 循环、工具注册与上下文拼接</title>
+<title>第 8 课 · 标准库实战：json、文件 I/O、re、collections 与 datetime</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -372,106 +372,152 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </head>
 <body>
 <main>
-<h1>第 13 课 · 综合实战：手写 Nano Agent——ReAct 循环、工具注册与上下文拼接</h1>
-<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 35 分钟 · 关掉 AI 补全再开始</p>
+<h1>第 8 课 · 标准库实战：json、文件 I/O、re、collections 与 datetime</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 32 分钟 · 关掉 AI 补全再开始</p>
 
 <div class="callout win">
-<strong>本课的 win</strong>：Agent 主线收官——把前面各课的零件装成一台能跑的机器。验收标准：无 AI 辅助跑通一次完整 ReAct 循环（思考 → 调工具 → 观察 → 回答）。
+<strong>本课的 win</strong>：标准库就是 Python 的 JDK——零第三方依赖完成真实工作。验收标准：写一个日志解析小工具（正则提取 + Counter 统计 + 排序），全程只 import 标准库。
 </div>
 
-<h2>一、零件清单：每节课各贡献了什么（3 分钟）</h2>
+<h2>一、心智模型：batteries included（2 分钟）</h2>
 
-<pre><span class="lang-tag">12 节课 → Nano Agent 的零件表</span>函数与类型提示（第 1/7 课）   →  工具函数签名（LLM 靠名字和签名选工具）
-字典与推导（第 2 课）        →  对话历史、工具注册表
-*args/**kwargs（第 3 课）    →  万能参数透传：分发任意工具调用
-dataclass（第 4 课）        →  消息/工具的结构化形态
-try/except（第 5 课）       →  单步失败不炸整个循环
-切片/闭包/Enum（第 6 课）    →  上下文裁剪、状态机
-模块与 __main__（第 7 课）   →  拆文件、可导入可运行
-asyncio（第 8 课）          →  并发调多个工具/LLM（进阶）
-json/re/collections（第 9 课）→  解析 LLM 输出、统计计数
-装饰器 @tool（第 10 课）    →  工具自动注册
-生成器（第 11 课）          →  token 流式输出（进阶）
-FastAPI 形态（第 12 课）    →  把循环包成 HTTP 服务（下一版）</pre>
+<pre><span class="lang-tag">对照 — Java 生态 → Python 标准库（不用装任何东西）</span>Jackson / Gson               →  json
+java.nio.file.Path           →  pathlib.Path
+java.util.regex              →  re（语法几乎同源）
+Guava Multimap / Cache       →  collections / functools
+java.time.LocalDate          →  datetime.date
+JUnit 断言 + 随机数据          →  doctest / random / statistics</pre>
 
-<h2>二、ReAct 循环：Agent 的心脏（5 分钟）</h2>
+<h2>二、json：与 Jackson 同职（4 分钟）</h2>
 
-<pre><span class="lang-tag">ReAct = Reason + Act 的循环</span>问题 ──→ LLM 思考："我需要查天气"
-     │
-     ├─ 行动 ACT     调工具 get_weather("北京")
-     │
-     ├─ 观察 OBSERVE  工具返回 "北京: 晴 26°C"，追加进对话历史
-     │
-     └─ 回到 LLM：带着观察再想 → 直到它说 FINAL，循环结束
+<pre><span class="lang-tag">PYTHON — dumps / loads 一对</span><code><span data-pyhl="1"><span class="tk-kw">import</span> json
+json.dumps({<span class="tk-str">"名字"</span>: <span class="tk-str">"小明"</span>, <span class="tk-str">"scores"</span>: [<span class="tk-num">90</span>, <span class="tk-num">85</span>]})
+<span class="tk-com"># '{"名字": "小明", "scores": [90, 85]}' ← ensure_ascii=False 中文原样（默认会转成 \uXXXX）</span>
+json.dumps(data, indent=<span class="tk-num">2</span>)             <span class="tk-com"># 美化输出</span>
+json.loads(<span class="tk-str">'{"a": 1}'</span>)                 <span class="tk-com"># {'a': 1}  ← 字符串 → 对象</span>
+json.load(f) / json.dump(obj, f)       <span class="tk-com"># 直接读写文件对象（≠ loads/dumps 的 s 版本）</span>
 
-# 循环每一步都是普通 Python：
-#   历史是一个 list[str]（≈ messages 数组）
-#   工具分发是 dict[name] + **kwargs（第 10 课注册表 + 第 3 课透传）
-#   异常兜底是 try/except（第 5 课）
-# MAX_STEPS 步数上限防失控循环——真实 Agent 必备</pre>
+<span class="tk-com"># 类型映射：None↔null、True↔true、dict↔object、list↔array</span>
+<span class="tk-com"># 只能序列化基本类型——datetime、自定义类要先转 str/dict（Model.model_dump() 的日常）</span></span></code></pre>
+
+<h2>三、文件 I/O 与 pathlib：with + encoding 是纪律（5 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — 读文件（对比 try-finally-close，with 自动关）</span><code><span data-pyhl="1"><span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"app.log"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:     <span class="tk-com"># encoding 必须显式写！Windows 默认 GBK</span>
+    text = f.read()                              <span class="tk-com"># 一次读全（小文件）</span>
+    <span class="tk-com"># lines = f.readlines()                      # 按行列表</span>
+<span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"out.txt"</span>, <span class="tk-str">"w"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:
+    f.write(<span class="tk-str">"hello\n"</span>)                          <span class="tk-com"># "w" 覆盖写；"a" 追加写</span>
+
+<span class="tk-kw">from</span> pathlib <span class="tk-kw">import</span> Path
+p = Path(<span class="tk-str">"src"</span>) / <span class="tk-str">"agent"</span> / <span class="tk-str">"app.py"</span>   <span class="tk-com"># 用 / 拼路径，替代 os.path.join</span>
+p.suffix                               <span class="tk-com"># ".py"        ← 扩展名</span>
+p.parent                               <span class="tk-com"># src/agent</span>
+p.read_text(encoding=<span class="tk-str">"utf-8"</span>)          <span class="tk-com"># 读整个文件（with 的语法糖）</span>
+Path(<span class="tk-str">"."</span>).glob(<span class="tk-str">"*.py"</span>)                 <span class="tk-com"># 模式匹配文件列表</span></span></code></pre>
+
+<h2>四、re：正则几乎从 Java 平移（5 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — 四个最常用的入口</span><code><span data-pyhl="1"><span class="tk-kw">import</span> re
+re.search(r"user=(\w+)", line)     <span class="tk-com"># 找第一处；m.group(1) 取分组；找不到 None</span>
+re.<span class="tk-kw">match</span>(r"\d+", line)              <span class="tk-com"># 从头匹配（≠ search 全文找）</span>
+re.findall(r"\d+", <span class="tk-str">"a1b22"</span>)         <span class="tk-com"># ['1', '22'] —— 所有匹配，字符串列表</span>
+re.fullmatch(r"[a-z]+", s)          <span class="tk-com"># 整串匹配（校验格式用这个，别用 match）</span>
+re.sub(r"\d+", <span class="tk-str">"*"</span>, s)              <span class="tk-com"># 替换</span>
+
+<span class="tk-com"># r"..." 原始字符串是正则的标配——免得 \d 写成 \\d</span>
+<span class="tk-com"># \w 字母数字下划线；\d 数字；\S 非空白；( ) 分组 group(1)；[...] 字符集；{m,n} 次数</span></span></code></pre>
+
+<h2>五、collections 与 datetime（5 分钟）</h2>
+
+<pre><span class="lang-tag">PYTHON — 三件套 + 日期</span><code><span data-pyhl="1"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter, defaultdict, deque
+c = Counter([<span class="tk-str">"a"</span>, <span class="tk-str">"b"</span>, <span class="tk-str">"a"</span>])
+c[<span class="tk-str">"a"</span>]                       <span class="tk-com"># 2 —— 没有的键返回 0，不炸</span>
+c.most_common(<span class="tk-num">2</span>)             <span class="tk-com"># [('a', 2), ('b', 1)] 排行榜</span>
+d = defaultdict(<span class="tk-fn">list</span>)
+d[<span class="tk-str">"k"</span>].append(<span class="tk-num">1</span>)             <span class="tk-com"># 键不存在自动建空列表（≈ computeIfAbsent）</span>
+q = deque([<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>])
+q.rotate(-<span class="tk-num">1</span>)                 <span class="tk-com"># 循环移动，O(1)（list 做 deque 是 O(n)）</span>
+
+<span class="tk-kw">from</span> datetime <span class="tk-kw">import</span> date, timedelta
+date.fromisoformat(<span class="tk-str">"2026-11-26"</span>)          <span class="tk-com"># 解析 ISO 日期（java.time.parse 味道）</span>
+date.fromisoformat(<span class="tk-str">"2026-11-26"</span>) + timedelta(days=<span class="tk-num">5</span>)   <span class="tk-com"># 日期加减</span>
+(d2 - d1).days                            <span class="tk-com"># 相差天数</span>
+date.today().isoformat()                  <span class="tk-com"># 转回字符串</span></span></code></pre>
+
+<h2>六、静态检查：mypy 与 ruff（4 分钟）</h2>
+
+<p>类型注解<strong>运行时不做检查</strong>：Python 不会因为 <code>greet(42)</code> 就拒绝执行。注解的真正消费者是编辑器与静态检查器——这把"动态语言的灵活性"和"编译期发现错误"接上了。</p>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 注解只是元数据</span><code><span data-pyhl="1"><span class="tk-kw">def</span> greet(name: <span class="tk-fn">str</span>) -&gt; <span class="tk-fn">str</span>:
+    <span class="tk-kw">return</span> <span class="tk-str">"你好，"</span> + name
+
+greet(<span class="tk-num">42</span>)                    <span class="tk-com"># ✗ 运行时才会在字符串拼接处炸（TypeError）</span>
+greet.__annotations__        <span class="tk-com"># {'name': &lt;class 'str'&gt;, 'return': &lt;class 'str'&gt;}</span>
+
+<span class="tk-com"># mypy 在"不运行代码"的情况下就能指出：</span>
+<span class="tk-com">#   error: Argument 1 to "greet" has incompatible type "int"; expected "str"</span></span></code></pre>
+
+<pre><span class="lang-tag">TOML — 两把工具的最小配置（pyproject.toml）</span>[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]   # pycodestyle / pyflakes / isort / pyupgrade / bugbear</pre>
+
+<pre><span class="lang-tag">SHELL — 日常三条命令</span>mypy src/                 # 类型检查（strict 模式先补 Any 再收紧）
+ruff check . --fix        # 静态规则 + 自动修复 import 排序等
+ruff format .             # 格式化（Black 兼容风格）</pre>
 
 <div class="marginnote">
-本课全部语法均为已学内容，卡壳时按课号查对应节：<br>
-<a href="../reference/java-to-python-syntax.html">参考 · Python 全语法速查表（35 节）</a>
+Java 对照：<code>javac</code> 编译期强制类型检查 → mypy 的可选严格检查（渐进式）；Checkstyle / SpotBugs / Error Prone → ruff 的规则检查。Python 选择"默认不拦、需要时全开"。
 </div>
 
-<h2>三、本课的极简协议（4 分钟）</h2>
+<p>Agent 项目的实用建议：公共函数与数据模型（dataclass / Pydantic）写全类型提示，<code>mypy --strict</code> 只对核心包启用；ruff 全库开启 <code>E,F,I,B</code>，格式交给 <code>ruff format</code>，不再争论空格。</p>
 
-<pre><span class="lang-tag">PYTHON — Nano Agent 协议</span><code><span data-pyhl="1">fake_llm(context) 的回复只有两种格式：
-  CALL 工具名 {<span class="tk-str">"参数"</span>: <span class="tk-str">"值"</span>}      ← 行动：去调工具
-  FINAL 答案文本                  ← 完成：循环结束
+<h2>七、动手：日志解析小工具（8 分钟）</h2>
 
-parse_llm(text) → (<span class="tk-str">"call"</span>, 工具名, 参数<span class="tk-fn">dict</span>) / (<span class="tk-str">"final"</span>, <span class="tk-kw">None</span>, 答案文本)
-context = [<span class="tk-str">"问题: ..."</span>, <span class="tk-str">"观察: ..."</span>, ...]   <span class="tk-com"># 每步追加，≈ messages</span>
-MAX_STEPS = <span class="tk-num">5</span>                                <span class="tk-com"># 步数上限</span>
+<p>预置了 6 行仿真日志（时间戳 + 级别 + user + 动作 + 耗时）。三个任务层层递进：<strong>正则解析单行</strong> → <strong>Counter 统计分级</strong> → <strong>筛选 pay 错误并按耗时排序</strong>。全程只用标准库。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
 
-<span class="tk-com"># 假 LLM 是脚本化的：没观察过就要求调工具，观察过就给最终答案</span>
-<span class="tk-com"># 真实项目里换成本课不变的其他一切——调 API、解析 JSON，形态完全一样</span></span></code></pre>
-
-<h2>四、动手：三步装出 Nano Agent（10 分钟）</h2>
-
-<p>预置了 <code>WEATHER</code> 数据、脚本化 <code>fake_llm</code>、第 10 课验收成果 <code>@tool</code> 注册器（直接复用）和步数上限 <code>MAX_STEPS</code>。三个任务：<strong>写工具函数</strong> → <strong>解析 LLM 回复</strong> → <strong>组装 ReAct 主循环</strong>。测试会计数 LLM 调用次数——硬编码答案会被当场抓住。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
-
-<div class="py-lab" data-prelude="prelude-0013" data-tests="tests-0013">
-<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-dec">@tool</span>
-<span class="tk-kw">def</span> get_weather(city):
-    <span class="tk-str">"""任务 1：查天气工具——从 WEATHER（预置 dict）取值，返回 f"{city}: {天气}"；
-    城市 WEATHER 里没有时抛 KeyError（让上层去兜底）"""</span>
-    ...  <span class="tk-com"># 一行 return（字典下标取值）</span>
+<div class="py-lab" data-prelude="prelude-0008" data-tests="tests-0008">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> re
+<span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
 
 
-<span class="tk-kw">def</span> parse_llm(text):
-    <span class="tk-str">"""任务 2：解析假 LLM 回复——"CALL 名字 {json}" 开头返回
-    ("call", 名字, 参数 dict)（大括号那段用 json.loads）；
-    "FINAL 答案" 开头返回 ("final", None, 答案文本)"""</span>
-    ...  <span class="tk-com"># 两个 if 分支</span>
+<span class="tk-kw">def</span> parse_line(line):
+    <span class="tk-str">"""任务 1：用 re.match(r"(\S+) (\w+) user=(\w+)", line) 解析一行日志，
+    返回 {"time": ..., "level": ..., "user": ...}；不匹配返回 None"""</span>
+    ...  <span class="tk-com"># m = re.match(...)；if m: return 字典；否则 None</span>
 
 
-<span class="tk-kw">def</span> run_react(question):
-    <span class="tk-str">"""任务 3：ReAct 主循环——context = ["问题: " + question] 起步；
-    循环（最多 MAX_STEPS 步）：fake_llm(context) → parse_llm →
-    final 返回答案文本；call 则 TOOLS[名字](**参数) 的结果
-    以 "观察: 结果" 追加进 context；步数耗尽 raise RuntimeError("步数耗尽")"""</span>
-    ...  <span class="tk-com"># while + if/else + 追加观察</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">@tool
-def get_weather(city):
-    &quot;&quot;&quot;任务 1：查天气工具——从 WEATHER（预置 dict）取值，返回 f&quot;{city}: {天气}&quot;；
-    城市 WEATHER 里没有时抛 KeyError（让上层去兜底）&quot;&quot;&quot;
-    ...  # 一行 return（字典下标取值）
+<span class="tk-kw">def</span> count_by_level(lines):
+    <span class="tk-str">"""任务 2：复用 parse_line，用 Counter 统计每个 level 出现次数，返回 dict"""</span>
+    ...  <span class="tk-com"># 循环 + Counter；解析失败的行跳过</span>
 
 
-def parse_llm(text):
-    &quot;&quot;&quot;任务 2：解析假 LLM 回复——&quot;CALL 名字 {json}&quot; 开头返回
-    (&quot;call&quot;, 名字, 参数 dict)（大括号那段用 json.loads）；
-    &quot;FINAL 答案&quot; 开头返回 (&quot;final&quot;, None, 答案文本)&quot;&quot;&quot;
-    ...  # 两个 if 分支
+<span class="tk-kw">def</span> slow_pay_errors(lines):
+    <span class="tk-str">"""任务 3：筛出 level 为 ERROR 且含 action=pay 的行，
+    按 duration_ms 从大到小排序，返回原始行列表（复用 parse_line + re.search）"""</span>
+    ...  <span class="tk-com"># 收集 (ms, line) 再 sort(reverse=True)</span></pre><textarea class="py-lab-editor" spellcheck="false" rows="30">import re
+from collections import Counter
 
 
-def run_react(question):
-    &quot;&quot;&quot;任务 3：ReAct 主循环——context = [&quot;问题: &quot; + question] 起步；
-    循环（最多 MAX_STEPS 步）：fake_llm(context) → parse_llm →
-    final 返回答案文本；call 则 TOOLS[名字](**参数) 的结果
-    以 &quot;观察: 结果&quot; 追加进 context；步数耗尽 raise RuntimeError(&quot;步数耗尽&quot;)&quot;&quot;&quot;
-    ...  # while + if/else + 追加观察</textarea></div>
+def parse_line(line):
+    &quot;&quot;&quot;任务 1：用 re.match(r&quot;(\S+) (\w+) user=(\w+)&quot;, line) 解析一行日志，
+    返回 {&quot;time&quot;: ..., &quot;level&quot;: ..., &quot;user&quot;: ...}；不匹配返回 None&quot;&quot;&quot;
+    ...  # m = re.match(...)；if m: return 字典；否则 None
+
+
+def count_by_level(lines):
+    &quot;&quot;&quot;任务 2：复用 parse_line，用 Counter 统计每个 level 出现次数，返回 dict&quot;&quot;&quot;
+    ...  # 循环 + Counter；解析失败的行跳过
+
+
+def slow_pay_errors(lines):
+    &quot;&quot;&quot;任务 3：筛出 level 为 ERROR 且含 action=pay 的行，
+    按 duration_ms 从大到小排序，返回原始行列表（复用 parse_line + re.search）&quot;&quot;&quot;
+    ...  # 收集 (ms, line) 再 sort(reverse=True)</textarea></div>
   <div class="py-lab-bar">
     <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
     <button class="py-lab-btn ghost py-lab-reset">重置</button>
@@ -484,70 +530,88 @@ def run_react(question):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code><span class="tk-com"># 任务 1 — 工具函数（@tool 是第 10 课的注册器，预置可复用）</span>
-<span class="tk-dec">@tool</span>
-<span class="tk-kw">def</span> get_weather(city):
-    <span class="tk-kw">return</span> f"{city}: {WEATHER[city]}"
+<pre><code><span class="tk-kw">import</span> re
+<span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
 
-<span class="tk-com"># 任务 2 — 解析 LLM 回复（第 9 课的 json）</span>
-<span class="tk-kw">def</span> parse_llm(text):
-    <span class="tk-kw">if</span> text.startswith(<span class="tk-str">"CALL "</span>):
-        body = text[<span class="tk-fn">len</span>(<span class="tk-str">"CALL "</span>):]
-        name, _, arg_json = body.partition(<span class="tk-str">" "</span>)
-        <span class="tk-kw">return</span> (<span class="tk-str">"call"</span>, name, json.loads(arg_json))
-    <span class="tk-kw">if</span> text.startswith(<span class="tk-str">"FINAL "</span>):
-        <span class="tk-kw">return</span> (<span class="tk-str">"final"</span>, <span class="tk-kw">None</span>, text[<span class="tk-fn">len</span>(<span class="tk-str">"FINAL "</span>):])
-    <span class="tk-kw">raise</span> ValueError(<span class="tk-str">"无法解析的回复: "</span> + text)
+<span class="tk-com"># 任务 1 — 正则解析单行</span>
+<span class="tk-kw">def</span> parse_line(line):
+    m = re.<span class="tk-kw">match</span>(r"(\S+) (\w+) user=(\w+)", line)
+    <span class="tk-kw">if</span> <span class="tk-kw">not</span> m:
+        <span class="tk-kw">return</span> <span class="tk-kw">None</span>
+    <span class="tk-kw">return</span> {<span class="tk-str">"time"</span>: m.group(<span class="tk-num">1</span>), <span class="tk-str">"level"</span>: m.group(<span class="tk-num">2</span>), <span class="tk-str">"user"</span>: m.group(<span class="tk-num">3</span>)}
 
-<span class="tk-com"># 任务 3 — ReAct 主循环（第 5 课的异常兜底 + 第 10 课的注册表）</span>
-<span class="tk-kw">def</span> run_react(question):
-    context = [<span class="tk-str">"问题: "</span> + question]
-    <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(MAX_STEPS):
-        kind, name, arg = parse_llm(fake_llm(context))
-        <span class="tk-kw">if</span> kind == <span class="tk-str">"final"</span>:
-            <span class="tk-kw">return</span> arg
-        observation = TOOLS[name](**arg)          <span class="tk-com"># **kwargs 万能透传（第 3 课）</span>
-        context.append(<span class="tk-str">"观察: "</span> + <span class="tk-fn">str</span>(observation))
-    <span class="tk-kw">raise</span> RuntimeError(<span class="tk-str">"步数耗尽"</span>)</code></pre>
-<p>自评清单：① 工具真的用 @tool 注册进 TOOLS 了吗？② parse_llm 两个分支的元组形状一致吗？③ 主循环有没有步数上限？"观察: " 的格式和 fake_llm 的判断对上了吗？</p>
+<span class="tk-com"># 任务 2 — Counter 统计</span>
+<span class="tk-kw">def</span> count_by_level(lines):
+    c = Counter()
+    <span class="tk-kw">for</span> line <span class="tk-kw">in</span> lines:
+        d = parse_line(line)
+        <span class="tk-kw">if</span> d:
+            c[d[<span class="tk-str">"level"</span>]] += <span class="tk-num">1</span>
+    <span class="tk-kw">return</span> <span class="tk-fn">dict</span>(c)
+
+<span class="tk-com"># 任务 3 — 筛选 + 排序</span>
+<span class="tk-kw">def</span> slow_pay_errors(lines):
+    out = []
+    <span class="tk-kw">for</span> line <span class="tk-kw">in</span> lines:
+        d = parse_line(line)
+        <span class="tk-kw">if</span> d <span class="tk-kw">and</span> d[<span class="tk-str">"level"</span>] == <span class="tk-str">"ERROR"</span> <span class="tk-kw">and</span> <span class="tk-str">"action=pay"</span> <span class="tk-kw">in</span> line:
+            ms = re.search(r"duration_ms=(\d+)", line)
+            out.append((<span class="tk-fn">int</span>(ms.group(<span class="tk-num">1</span>)), line))
+    out.sort(reverse=<span class="tk-kw">True</span>)
+    <span class="tk-kw">return</span> [line <span class="tk-kw">for</span> _, line <span class="tk-kw">in</span> out]</code></pre>
+<p>自评清单：① parse_line 用的是 <code>re.match</code> 还是 <code>search</code>？这里从头匹配，match 就够；② 不匹配的行返回 None 而不是抛异常了吗？③ 排序用 <code>(ms, line)</code> 元组 <code>sort(reverse=True)</code> 时，同行 ms 相同会不会比字符串？想想稳定性。</p>
 </details>
 
-<h2>五、检索练习：先答后看（关补全）</h2>
+<h2>八、检索练习：先答后看（关补全）</h2>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q1 · <code>c = Counter(["a", "b"])</code>，访问 <code>c["不存在的键"]</code> 会怎样？</p>
+  <button class="quiz-opt" data-key="a">返回 0，不抛异常——Counter 对缺失键宽容</button>
+  <button class="quiz-opt" data-key="b">抛 KeyError——和普通 dict 一样</button>
+  <button class="quiz-opt" data-key="c">返回 None</button>
+  <p class="quiz-explain" hidden>Counter 继承 dict 但重写了缺失键行为：查不到返回 0（计数语义）。普通 dict 查缺失键才抛 KeyError；defaultdict 则会自动建默认值。</p>
+</div>
 
 <div class="quiz" data-answer="b">
-  <p class="quiz-q">Q1 · ReAct 循环里 "Act + Observe" 指的是什么？</p>
-  <button class="quiz-opt" data-key="a">LLM 自己执行代码并查看输出</button>
-  <button class="quiz-opt" data-key="b">调用工具，把工具结果作为"观察"追加进对话历史，再交给 LLM</button>
-  <button class="quiz-opt" data-key="c">把问题重复问 LLM 两遍</button>
-  <p class="quiz-explain" hidden>Act = 从工具注册表分发一次调用；Observe = 把结果 append 进 context（≈ messages）。LLM 每轮都带着全部历史重新思考，直到给出 FINAL。循环体就是普通 Python：list + dict + try/except。</p>
+  <p class="quiz-q">Q2 · <code>re.findall(r"\d+", "a1b22")</code> 返回什么？</p>
+  <button class="quiz-opt" data-key="a">[1, 22] —— 自动转成数字</button>
+  <button class="quiz-opt" data-key="b">["1", "22"] —— 字符串列表，要自己 int()</button>
+  <button class="quiz-opt" data-key="c">[("1",), ("22",)] —— 元组</button>
+  <p class="quiz-explain" hidden>findall 无分组时返回匹配字符串列表；有分组时返回分组内容列表。要数字得自己转：[int(x) for x in re.findall(...)]。</p>
 </div>
 
 <div class="quiz" data-answer="c">
-  <p class="quiz-q">Q2 · 工具注册用 <code>@tool</code> 装饰器注册表，最大的好处是？</p>
-  <button class="quiz-opt" data-key="a">工具跑得更快</button>
-  <button class="quiz-opt" data-key="b">不用写函数名了</button>
-  <button class="quiz-opt" data-key="c">加新工具零改主循环——注册表自动收集（开闭原则）</button>
-  <p class="quiz-explain" hidden>主循环只认 TOOLS 这个 dict：新工具 = 写函数 + @tool。这正是 LangChain/OpenAI function calling 的注册形态，也是第 10 课注册模式的落地。</p>
+  <p class="quiz-q">Q3 · 用 <code>with open(path) as f:</code> 读文件最大的好处是？</p>
+  <button class="quiz-opt" data-key="a">读得更快</button>
+  <button class="quiz-opt" data-key="b">不用写 encoding</button>
+  <button class="quiz-opt" data-key="c">无论中途是否抛异常，块结束都自动关闭文件（≈ try-with-resources）</button>
+  <p class="quiz-explain" hidden>with 调用文件的 __enter__/__exit__，异常也保证 close——正是第 5 课"让语言替你写 finally"。另外 encoding 恰恰【要】自己显式写，Windows 默认 GBK 是经典乱码坑。</p>
 </div>
 
-<div class="quiz" data-answer="a">
-  <p class="quiz-q">Q3 · 测试里用"脚本化假 LLM"而不是真调 API，为什么？</p>
-  <button class="quiz-opt" data-key="a">确定性：测的是循环逻辑本身，不测模型、不花钱、不超时</button>
-  <button class="quiz-opt" data-key="b">假 LLM 更聪明</button>
-  <button class="quiz-opt" data-key="c">真 API 在浏览器里跑不了</button>
-  <p class="quiz-explain" hidden>fake_llm 按进度返回脚本化回复，让"调用次数 = 2"这样的断言可精确验证。真实项目里只需把 fake_llm 换成 API 调用——协议（CALL/FINAL）与循环一行不用改。</p>
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q4 · 给函数写了类型注解后，运行时传入错误类型会怎样？</p>
+  <button class="quiz-opt" data-key="a">立即抛 TypeError，注解会被强制检查</button>
+  <button class="quiz-opt" data-key="b">通常照常执行，直到代码真正用错类型才炸；类型错误靠 mypy 等工具提前发现</button>
+  <button class="quiz-opt" data-key="c">函数定义时就编译失败</button>
+  <p class="quiz-explain" hidden>Python 的注解只是存在 __annotations__ 里的元数据，运行时默认不校验。静态检查器（mypy）与编辑器才是注解的消费者——这就是"渐进类型"。</p>
 </div>
 
-<h2>六、间隔复习（明天开始学习前做）</h2>
+<h2>九、间隔复习（明天开始学习前做）</h2>
 
 <p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
 
-<div class="review" data-id="r1" data-mode="code" data-name="parse_final">
-  <p class="review-q">① 协议默写：<code>parse_final(text)</code>——text 以 <code>"FINAL "</code> 开头返回其后文本；否则返回 None</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> parse_final(text):
-    <span class="tk-str">"""FINAL 开头 → 其后文本；否则 None"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def parse_final(text):
-    &quot;&quot;&quot;FINAL 开头 → 其后文本；否则 None&quot;&quot;&quot;
+<div class="review" data-id="r1" data-mode="code" data-name="word_counts">
+  <p class="review-q">① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
+
+
+<span class="tk-kw">def</span> word_counts(text):
+    <span class="tk-str">"""Counter(text.split()) 再 dict(...)"""</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">from collections import Counter
+
+
+def word_counts(text):
+    &quot;&quot;&quot;Counter(text.split()) 再 dict(...)&quot;&quot;&quot;
     ...</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
@@ -557,12 +621,18 @@ def run_react(question):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<div class="review" data-id="r2" data-mode="code" data-name="dispatch">
-  <p class="review-q">② 分发默写：<code>dispatch(tools, name, kwargs)</code>——从注册表取工具并以 <code>**kwargs</code> 调用返回结果；名字不存在抛 KeyError</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> dispatch(tools, name, kwargs):
-    <span class="tk-str">"""从注册表取工具并调用参数字典；名字不存在 KeyError"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def dispatch(tools, name, kwargs):
-    &quot;&quot;&quot;从注册表取工具并调用参数字典；名字不存在 KeyError&quot;&quot;&quot;
+<div class="review" data-id="r2" data-mode="code" data-name="extract_dates">
+  <p class="review-q">② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r"\d{4}-\d{2}-\d{2}", ...)</code>）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> re
+
+
+<span class="tk-kw">def</span> extract_dates(lines):
+    <span class="tk-str">"""把 lines 连成一个文本，findall 找 r"\d{4}-\d{2}-\d{2}" """</span>
+    ...</pre><textarea class="review-code" spellcheck="false" rows="7">import re
+
+
+def extract_dates(lines):
+    &quot;&quot;&quot;把 lines 连成一个文本，findall 找 r&quot;\d{4}-\d{2}-\d{2}&quot; &quot;&quot;&quot;
     ...</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
@@ -573,8 +643,8 @@ def run_react(question):
 </div>
 
 <div class="review" data-id="r3" data-mode="expr" data-name="">
-  <p class="review-q">③ 表达式默写：解析工具参数 JSON（判分环境已 <code>import json</code>）——把 <code>'{"city": "北京", "n": 2}'</code> 解析后按键排序取 <code>items()</code> 列表</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-fn">sorted</span>(json.loads(<span class="tk-str">'{"city": "北京", "n": 2}'</span>).items())</pre><textarea class="review-code" spellcheck="false" rows="6">sorted(json.loads('{&quot;city&quot;: &quot;北京&quot;, &quot;n&quot;: 2}').items())</textarea></div>
+  <p class="review-q">③ 表达式默写：用 Counter 统计字符串 <code>"abracadabra"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-fn">sorted</span>(Counter(<span class="tk-str">"abracadabra"</span>).items())[:<span class="tk-num">2</span>]</pre><textarea class="review-code" spellcheck="false" rows="6">sorted(Counter(&quot;abracadabra&quot;).items())[:2]</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -583,55 +653,38 @@ def run_react(question):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<p>🎉 <strong>Agent 主线完结</strong>。回<a href="0000-course-outline.html">课程大纲</a>把状态标成"已完成"。若要补齐官网教程剩余的盲区（浮点陷阱、Decimal、异常组、pytest、argparse、logging 等），继续<a href="0014-numerics-and-testing.html">第 14 课</a>和<a href="0015-stdlib-gaps.html">第 15 课</a>，再刷<a href="0010-gaps-drill.html">10★ 补漏练习场</a>。</p>
+<p>下一课是<strong>第 9 课 · 脚本工程化</strong>——argparse、logging、string.Template 与 timeit，把脚本写成能上生产的工具；再往后是测试、并发与协程。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
 
 <div class="callout primary">
-<strong>卡住了？随时问。</strong>循环不终止、观察没进 context、LLM 调用次数对不上——直接在对话里贴报错和你的输入输出。
+<strong>卡住了？随时问。</strong>正则贪婪匹配多吞了字符、Counter 键值对不上、时区差 8 小时——直接在对话里贴报错和你的输入输出。
 </div>
 
 <div class="lesson-nav">
-  <a href="0012-fastapi.html">← 第 12 课 · FastAPI 最小面</a>
-  <a href="0014-numerics-and-testing.html">第 14 课 · 数值、异常进阶与测试 →</a>
+  <a href="0007-modules-typing.html">← 第 7 课 · 模块、项目结构与 typing</a>
+  <a href="0008-stdlib-drill.html">★ 练习场 · 20 题标准库</a>
   <a href="0000-course-outline.html">课程大纲</a>
+  <a href="0009-scripting.html">第 9 课 · 脚本工程化：CLI、日志与性能 →</a>
 </div>
 
 <footer class="doc-footer">
-  <p id="cite-1">[1] ReAct 论文 · <a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a>（本课循环的原型）</p>
-  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
+  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/inputoutput.html">输入与输出</a>（文件读写）与 <a href="https://docs.python.org/zh-cn/3.15/tutorial/stdlib.html">标准库简介</a>、<a href="https://docs.python.org/zh-cn/3.15/tutorial/stdlib2.html">标准库简介 II</a></p>
+  <p id="cite-2">[2] 官方库参考 · <a href="https://docs.python.org/zh-cn/3.15/library/re.html">re</a>、<a href="https://docs.python.org/zh-cn/3.15/library/collections.html">collections</a>、<a href="https://docs.python.org/zh-cn/3.15/library/datetime.html">datetime</a></p>
 </footer>
 </main>
 
-<script type="text/x-python" id="prelude-0013">
-import json
-
-
-WEATHER = {"北京": "晴 26°C", "上海": "小雨 22°C", "广州": "多云 30°C"}
-
-TOOLS = {}
-
-
-def tool(fn):
-    """第 10 课的 @tool 注册器（验收成果直接复用）"""
-    TOOLS[fn.__name__] = fn
-    return fn
-
-
-MAX_STEPS = 5
-LLM_CALLS = []
-
-
-def fake_llm(context):
-    """脚本化假 LLM：没观察过就要求调工具，观察过就给最终答案（真实项目换成 API 调用）"""
-    LLM_CALLS.append(1)
-    if any(m.startswith("观察: ") for m in context):
-        return "FINAL 北京今天晴，26 度"
-    return 'CALL get_weather {"city": "北京"}'
-
+<script type="text/x-python" id="prelude-0008">
+LOG_LINES = [
+    "2026-11-26T10:00:01 INFO user=alice action=login",
+    "2026-11-26T10:00:05 ERROR user=bob action=pay duration_ms=1200",
+    "2026-11-26T10:00:09 INFO user=carol action=view",
+    "2026-11-26T10:00:12 ERROR user=alice action=pay duration_ms=800",
+    "2026-11-26T10:00:15 WARN user=dave action=retry",
+    "2026-11-26T10:00:20 ERROR user=erin action=pay duration_ms=2000",
+]
 </script>
 
-<script type="text/x-python" id="tests-0013">
+<script type="text/x-python" id="tests-0008">
 import json as _json
-import inspect
 
 def _t(name, fn):
     try:
@@ -643,35 +696,31 @@ def _t(name, fn):
 def _eq(actual, expected):
     assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
 
-if "get_weather" in globals():
-    _t("任务1 · 工具已注册进 TOOLS", lambda: _eq("get_weather" in TOOLS, True))
-    _t("任务1 · 查北京", lambda: _eq(get_weather("北京"), "北京: 晴 26°C"))
-    def _t1k():
-        try:
-            get_weather("火星")
-            assert False, "未知城市应抛 KeyError（让上层兜底）"
-        except KeyError:
-            pass
-    _t("任务1 · 未知城市抛 KeyError", _t1k)
+if "parse_line" in globals():
+    _t("任务1 · 解析 INFO 行", lambda: _eq(parse_line(LOG_LINES[0]), {"time": "2026-11-26T10:00:01", "level": "INFO", "user": "alice"}))
+    _t("任务1 · 解析 ERROR 行", lambda: _eq(parse_line(LOG_LINES[1]), {"time": "2026-11-26T10:00:05", "level": "ERROR", "user": "bob"}))
+    _t("任务1 · 不匹配返回 None", lambda: _eq(parse_line("garbage line"), None))
+    _t("任务1 · 六行全部可解析", lambda: _eq(all(parse_line(l) for l in LOG_LINES), True))
 else:
-    print("MISSING|get_weather（任务 1 还没定义）")
+    print("MISSING|parse_line（任务 1 还没定义）")
 
-if "parse_llm" in globals():
-    _t("任务2 · 解析 CALL", lambda: _eq(parse_llm('CALL get_weather {"city": "北京"}'),
-                                       ("call", "get_weather", {"city": "北京"})))
-    _t("任务2 · 解析 FINAL", lambda: _eq(parse_llm("FINAL 北京晴"), ("final", None, "北京晴")))
+if "count_by_level" in globals():
+    _t("任务2 · 统计分级", lambda: _eq(count_by_level(LOG_LINES), {"INFO": 2, "ERROR": 3, "WARN": 1}))
+    _t("任务2 · 全不匹配为空", lambda: _eq(count_by_level(["x", "y"]), {}))
 else:
-    print("MISSING|parse_llm（任务 2 还没定义）")
+    print("MISSING|count_by_level（任务 2 还没定义）")
 
-if "run_react" in globals():
-    def _t3():
-        LLM_CALLS.clear()
-        r = run_react("北京今天天气怎么样？")
-        assert r == "北京今天晴，26 度", f"应返回 FINAL 的答案文本，实际 {r!r}"
-        assert len(LLM_CALLS) == 2, f"应恰好两次调用 LLM（行动→完成），实际 {len(LLM_CALLS)}——不许硬编码答案"
-    _t("任务3 · ReAct 全流程（LLM 调用次数防作弊）", _t3)
+if "slow_pay_errors" in globals():
+    def _sorted_desc():
+        r = slow_pay_errors(LOG_LINES)
+        assert len(r) == 3, f"应筛出 3 条 pay 错误，实际 {len(r)}"
+        assert r[0] == LOG_LINES[5], "第一条应是 2000ms 的 erin 行"
+        assert r[1] == LOG_LINES[1], "第二条应是 1200ms 的 bob 行"
+        assert r[2] == LOG_LINES[3], "第三条应是 800ms 的 alice 行"
+    _t("任务3 · pay 错误按耗时降序", _sorted_desc)
+    _t("任务3 · 无匹配返回空", lambda: _eq(slow_pay_errors([LOG_LINES[0]]), []))
 else:
-    print("MISSING|run_react（任务 3 还没定义）")
+    print("MISSING|slow_pay_errors（任务 3 还没定义）")
 </script>
 
 <script>
@@ -882,10 +931,10 @@ else:
 </script>
 
 <script type="text/x-python" id="review-env">
-import json
+from collections import Counter
 </script>
 <script>
-window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "① 协议默写：<code>parse_final(text)</code>——text 以 <code>\"FINAL \"</code> 开头返回其后文本；否则返回 None", "starter": "def parse_final(text):\n    \"\"\"FINAL 开头 → 其后文本；否则 None\"\"\"\n    ...", "ref": "def parse_final(text):\n    if text.startswith(\"FINAL \"):\n        return text[len(\"FINAL \"):]\n    return None", "tind": "        assert _fn(\"FINAL 完成\") == \"完成\", f\"实际 {_fn('FINAL 完成')!r}\"\n        assert _fn(\"CALL x {}\") is None, \"非 FINAL 应返回 None\"\n        assert _fn(\"FINAL \") == \"\", \"FINAL 后无文本应给空串\""}, {"id": "r2", "mode": "code", "name": "dispatch", "task": "② 分发默写：<code>dispatch(tools, name, kwargs)</code>——从注册表取工具并以 <code>**kwargs</code> 调用返回结果；名字不存在抛 KeyError", "starter": "def dispatch(tools, name, kwargs):\n    \"\"\"从注册表取工具并调用参数字典；名字不存在 KeyError\"\"\"\n    ...", "ref": "def dispatch(tools, name, kwargs):\n    return tools[name](**kwargs)", "tind": "        _t2 = {\"add\": lambda a, b: a + b}\n        assert _fn(_t2, \"add\", {\"a\": 1, \"b\": 2}) == 3, f\"实际 {_fn(_t2, 'add', {'a': 1, 'b': 2})!r}\"\n        try:\n            _fn(_t2, \"nope\", {})\n            assert False, \"未知工具应抛 KeyError\"\n        except KeyError:\n            pass"}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：解析工具参数 JSON（判分环境已 <code>import json</code>）——把 <code>'{\"city\": \"北京\", \"n\": 2}'</code> 解析后按键排序取 <code>items()</code> 列表", "starter": "sorted(json.loads('{\"city\": \"北京\", \"n\": 2}').items())", "ref": "sorted(json.loads('{\"city\": \"北京\", \"n\": 2}').items())   # [(\"city\", \"北京\"), (\"n\", 2)]", "tind": "        assert _val == [(\"city\", \"北京\"), (\"n\", 2)], f\"实际 {_val!r}\""}];
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）", "starter": "from collections import Counter\n\n\ndef word_counts(text):\n    \"\"\"Counter(text.split()) 再 dict(...)\"\"\"\n    ...", "ref": "from collections import Counter\n\ndef word_counts(text):\n    return dict(Counter(text.split()))", "tind": "        assert _fn(\"a b a\") == {\"a\": 2, \"b\": 1}, f\"实际 {_fn('a b a')!r}\"\n        assert _fn(\"\") == {}, \"空串应返回空 dict\"\n        assert _fn(\"x  x  x\") == {\"x\": 3}, \"多空格 split 自动处理\""}, {"id": "r2", "mode": "code", "name": "extract_dates", "task": "② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", ...)</code>）", "starter": "import re\n\n\ndef extract_dates(lines):\n    \"\"\"把 lines 连成一个文本，findall 找 r\"\\d{4}-\\d{2}-\\d{2}\" \"\"\"\n    ...", "ref": "import re\n\ndef extract_dates(lines):\n    return re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", \"\\n\".join(lines))", "tind": "        assert _fn([\"x 2026-01-02 y\", \"no date\", \"2025-12-31\"]) == [\"2026-01-02\", \"2025-12-31\"], f\"实际 {_fn(['x 2026-01-02'])!r}\"\n        assert _fn([]) == []\n        assert _fn([\"bad 20-01-01\"]) == [], \"三位年份不算日期\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：用 Counter 统计字符串 <code>\"abracadabra\"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）", "starter": "sorted(Counter(\"abracadabra\").items())[:2]", "ref": "sorted(Counter(\"abracadabra\").items())[:2]   # [(\"a\", 5), (\"b\", 2)]", "tind": "        assert _val == [(\"a\", 5), (\"b\", 2)], f\"实际 {_val!r}\""}];
 </script>
 <script>
 /* review.js — 间隔复习在线评判引擎（Pyodide）
@@ -1225,6 +1274,16 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1373,9 +1432,18 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "�
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：13 Nano Agent 实战</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html" aria-current="page"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：8 标准库实战</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html" aria-current="page"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

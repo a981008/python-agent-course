@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 15 课 · 标准库补漏：CLI、日志、模板与高频容器工具</title>
+<title>第 9 课 · 脚本工程化：CLI、日志与性能</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -372,149 +372,187 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </head>
 <body>
 <main>
-<h1>第 15 课 · 标准库补漏：CLI、日志、模板与高频容器工具</h1>
-<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 25 分钟 · 关掉 AI 补全再开始</p>
+<h1>第 9 课 · 脚本工程化：CLI、日志与性能</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 30 分钟 · 关掉 AI 补全再开始</p>
 
 <div class="callout win">
-<strong>本课的 win</strong>：补齐官网第 10/11 章里还没讲的标准库入口——命令行参数、日志、字符串模板、弱引用、有序插入与 TopK。验收：手写一个小工具，同时具备 CLI 参数、结构化日志和 Prompt 模板渲染。
+<strong>本课的 win</strong>：把脚本写成"能上生产"的小工具——参数用 argparse 声明，日志走 logging 分级，Prompt 用 string.Template，快慢用 timeit 量。验收：写出带 CLI 参数、分级日志与 Prompt 模板的词频小工具，全程零第三方依赖。
 </div>
 
-<h2>一、心智模型：官网说"内置电池"，但电池也分型号（3 分钟）</h2>
+<h2>一、心智模型：脚本 = 入口 + 参数 + 输出通道（3 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 官网第 10 / 11 章未覆盖的标准库入口</span><code><span data-pyhl="1"><span class="tk-com"># 第 9 课已经讲了：json / 文件 I/O / pathlib / re / collections / datetime</span>
-<span class="tk-com"># 本课补齐另外 7 个高频入口，都是零第三方依赖：</span>
+<pre><span class="lang-tag">JAVA — 一个能收参数的 main</span>public static void main(String[] args) {
+    if (args.length == 0) {
+        System.err.println("用法: app <path> [-n N]");
+        System.exit(2);
+    }
+    String path = args[0];
+    int top = args.length > 1 ? Integer.parseInt(args[1]) : 5;
+    System.out.println("path=" + path + " top=" + top);
+}</pre>
 
-argparse     → 命令行参数（脚本题、Agent CLI 入口）
-logging      → 分级日志（替代 <span class="tk-fn">print</span> 调试）
-string.Template → Prompt 模板（$var 不与 JSON 的 {} 冲突）
-weakref      → 弱引用注册表（避免缓存导致内存泄漏）
-bisect       → 有序序列的插入位置（二分查找）
-heapq        → TopK（nlargest / nsmallest，比全排序省内存）
-timeit       → 精确计时（面试比较两种写法谁更快）
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 同样的事：入口守卫 + 参数解析 + 两条输出通道</span><code><span data-pyhl="1"><span class="tk-kw">import</span> argparse
+<span class="tk-kw">import</span> sys
 
-<span class="tk-com"># 纪律：能用标准库就不要急着装第三方包。</span></span></code></pre>
+<span class="tk-kw">def</span> main(argv):
+    p = argparse.ArgumentParser()
+    p.add_argument(<span class="tk-str">"path"</span>)
+    p.add_argument(<span class="tk-str">"-n"</span>, <span class="tk-str">"--top"</span>, <span class="tk-fn">type</span>=<span class="tk-fn">int</span>, default=<span class="tk-num">5</span>)
+    args = p.parse_args(argv)
+    <span class="tk-fn">print</span>(f"path={args.path} top={args.top}")   <span class="tk-com"># 结果走 stdout</span>
+    <span class="tk-fn">print</span>(<span class="tk-str">"启动完成"</span>, file=sys.stderr)            <span class="tk-com"># 日志/诊断走 stderr</span>
 
-<h2>二、命令行参数：sys.argv 与 argparse（4 分钟）</h2>
+<span class="tk-kw">if</span> __name__ == <span class="tk-str">"__main__"</span>:
+    main(sys.argv[<span class="tk-num">1</span>:])</span></code></pre>
 
-<pre><span class="lang-tag">PYTHON — 官网 10.3"命令行参数"</span><code><span data-pyhl="1"><span class="tk-kw">import</span> sys
-sys.argv                    <span class="tk-com"># ['app.py', 'data.txt', '-n', '3'] —— 原始字符串列表</span>
+<p>三个纪律，和 Java 世界一一对应：</p>
+<ul>
+<li><strong>入口守卫</strong>：<code>if __name__ == "__main__":</code> 对应 <code>public static void main</code>，但允许被 import 而不执行。</li>
+<li><strong>参数对象</strong>：<code>parse_args(argv)</code> 返回命名空间对象，相当于一个带字段的 DTO；显式传 argv 才能在测试里调用。</li>
+<li><strong>输出分道</strong>：结果走 stdout，日志走 stderr。Agent 场景尤其重要——stdout 可能要被当成模型输入，日志混进去就是污染。</li>
+</ul>
 
-<span class="tk-com"># 手写解析容易漏：缺参数、类型不对、--help、未知选项</span>
-<span class="tk-com"># argparse 一次解决：</span>
-<span class="tk-kw">import</span> argparse
+<div class="marginnote">
+面试常问"你怎么写一个可测试的 CLI"：答案就是把 <code>sys.argv</code> 挡在 main 里，核心函数只接收普通 Python 值。
+</div>
+
+<h2>二、argparse：把命令行变成声明式接口（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 最常用的四行</span><code><span data-pyhl="1"><span class="tk-kw">import</span> argparse
+
 p = argparse.ArgumentParser(description=<span class="tk-str">"统计词频"</span>)
 p.add_argument(<span class="tk-str">"path"</span>, <span class="tk-fn">help</span>=<span class="tk-str">"输入文件路径"</span>)
 p.add_argument(<span class="tk-str">"-n"</span>, <span class="tk-str">"--top"</span>, <span class="tk-fn">type</span>=<span class="tk-fn">int</span>, default=<span class="tk-num">5</span>, <span class="tk-fn">help</span>=<span class="tk-str">"取前 N 名"</span>)
+args = p.parse_args()          <span class="tk-com"># 默认读 sys.argv[1:]</span>
 
-args = p.parse_args()       <span class="tk-com"># 读 sys.argv[1:]</span>
-args.path                   <span class="tk-com"># 'data.txt'</span>
-args.top                    <span class="tk-com"># 3（type=int 已经转好）</span>
+args.path                      <span class="tk-com"># 'data.txt'</span>
+args.top                       <span class="tk-com"># 3（type=int 已转好）</span></span></code></pre>
 
-<span class="tk-com"># parse_args(argv) 传入自定义列表 —— 判分环境就靠这个在浏览器里测</span>
-<span class="tk-com"># 自动生成 --help、缺参数报错、未知选项报错</span></span></code></pre>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 可测写法与常见约束</span><code><span data-pyhl="1"><span class="tk-com"># 测试时传列表，不碰进程参数</span>
+args = p.parse_args([<span class="tk-str">"data.txt"</span>, <span class="tk-str">"-n"</span>, <span class="tk-str">"3"</span>])
+
+p.add_argument(<span class="tk-str">"--mode"</span>, choices=[<span class="tk-str">"count"</span>, <span class="tk-str">"top"</span>], default=<span class="tk-str">"count"</span>)  <span class="tk-com"># 枚举校验</span>
+p.add_argument(<span class="tk-str">"--verbose"</span>, action=<span class="tk-str">"store_true"</span>)                     <span class="tk-com"># 布尔开关</span>
+p.add_argument(<span class="tk-str">"--out"</span>, required=<span class="tk-kw">False</span>)                              <span class="tk-com"># 显式可选</span>
+
+<span class="tk-com"># 自动获得：--help、缺参数报错、未知选项报错、类型转换失败报错</span>
+<span class="tk-com"># 退出码：参数错误是 2（和 Java 的 System.exit(2) 惯例一致）</span></span></code></pre>
+
+<p>不要手写 <code>sys.argv</code> 解析：缺参数、类型错误、<code>--help</code>、未知选项，手写版本几乎一定会漏。argparse 把这些边界一次解决，还免费生成帮助文档。</p>
+
+<pre><span class="lang-tag" data-pyhl="1">JAVA 对照 — 常见选择</span><code><span data-pyhl="java"><span class="tk-dec">Picocli</span> / args4j / <span class="tk-dec">Commons</span> <span class="tk-dec">CLI</span>  →  <span class="tk-dec">Python</span> argparse
+<span class="tk-dec">@Option</span>(names = <span class="tk-str">"--top"</span>, defaultValue = <span class="tk-str">"5"</span>)  →  <span class="tk-fn">add_argument</span>(<span class="tk-str">"--top"</span>, <span class="tk-kw">default</span>=<span class="tk-num">5</span>)
+<span class="tk-dec">@Parameters</span>(index = <span class="tk-str">"0"</span>)                      →  <span class="tk-fn">add_argument</span>(<span class="tk-str">"path"</span>)
+<span class="tk-dec">CommandLine</span>.<span class="tk-fn">execute</span>(args)                     →  parser.<span class="tk-fn">parse_args</span>(argv)</span></code></pre>
 
 <h2>三、logging：别再用 print 调试（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 官网 11.5"日志记录"</span><code><span data-pyhl="1"><span class="tk-kw">import</span> logging
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 最小可用配置</span><code><span data-pyhl="1"><span class="tk-kw">import</span> logging
+
 logging.basicConfig(
     level=logging.INFO,
     <span class="tk-fn">format</span>=<span class="tk-str">"%(asctime)s %(levelname)s %(name)s: %(message)s"</span>,
+    stream=sys.stderr,              <span class="tk-com"># 日志不污染 stdout</span>
 )
 log = logging.getLogger(__name__)
 
-log.debug(<span class="tk-str">"循环第 %d 次"</span>, i)     <span class="tk-com"># 默认不输出；改 level=DEBUG 才出现</span>
+log.debug(<span class="tk-str">"循环第 %d 次"</span>, i)        <span class="tk-com"># 默认不输出；level=DEBUG 才出现</span>
 log.info(<span class="tk-str">"已加载 %d 条"</span>, n)
 log.warning(<span class="tk-str">"配置缺失，使用默认值"</span>)
-log.error(<span class="tk-str">"写文件失败"</span>)
+log.error(<span class="tk-str">"写文件失败"</span>)</span></code></pre>
 
-<span class="tk-com"># 比 print 强在哪：</span>
-<span class="tk-com">#   ① 分级——上线时把 DEBUG 关掉，不用删代码</span>
-<span class="tk-com">#   ② 可重定向到文件（filename="app.log"），不污染 stdout</span>
-<span class="tk-com">#   ③ 带时间、模块名；多模块时知道是谁打的</span>
-<span class="tk-com">#   ④ % 占位是惰性格式化，级别关闭时不拼接字符串</span>
+<p>比 print 强在四点：</p>
+<ul>
+<li><strong>分级</strong>：上线把 DEBUG 关掉，不用删代码；<code>logging.getLogger(__name__)</code> 让级别可以按模块精细控制。</li>
+<li><strong>惰性格式化</strong>：<code>log.debug("x=%s", x)</code> 在级别关闭时不会拼接字符串，热路径不浪费。</li>
+<li><strong>可重定向</strong>：<code>filename="app.log"</code>、<code>RotatingFileHandler</code>，输出位置是配置不是代码。</li>
+<li><strong>可追溯</strong>：时间、级别、模块名自动带上；多模块协作时知道是谁打的。</li>
+</ul>
 
-<span class="tk-com"># Agent 场景：工具调用失败写 warning，重试写 info，绝不 print 到模型输出里</span></span></code></pre>
+<pre><span class="lang-tag" data-pyhl="1">JAVA 对照 — 概念几乎一一对应</span><code><span data-pyhl="java">slf4j <span class="tk-dec">LoggerFactory</span>.<span class="tk-fn">getLogger</span>(<span class="tk-dec">X</span>.<span class="tk-kw">class</span>)  →  logging.<span class="tk-fn">getLogger</span>(__name__)
+log.<span class="tk-fn">debug</span>(<span class="tk-str">"x={}"</span>, x)                    →  log.<span class="tk-fn">debug</span>(<span class="tk-str">"x=%s"</span>, x)
+logback-spring.xml                      →  dictConfig / basicConfig
+<span class="tk-dec">MDC</span>.<span class="tk-fn">put</span>(<span class="tk-str">"traceId"</span>, id)                  →  <span class="tk-dec">LoggerAdapter</span> / extra={...}</span></code></pre>
 
 <div class="marginnote">
-第 5 课练习里的 <code>log</code> 是个列表变量，用于断言 finally 是否执行；它不是 logging 模块。那是教学替身，到这里换成真家伙。
+Agent 场景的硬规则：工具调用失败写 <code>warning</code>，重试写 <code>info</code>，绝不 <code>print</code> 到模型可见的输出里。
 </div>
 
-<h2>四、五个小而高频的工具（5 分钟）</h2>
+<h2>四、string.Template 与 timeit：两个小工具（4 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 官网 11.2 / 11.6 / 11.7 / 10.10</span><code><span data-pyhl="1"><span class="tk-com"># ① string.Template：Prompt 模板首选</span>
-<span class="tk-kw">from</span> string <span class="tk-kw">import</span> Template
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — Prompt 模板：$ 占位，不与 JSON 花括号打架</span><code><span data-pyhl="1"><span class="tk-kw">from</span> string <span class="tk-kw">import</span> Template
+
 tpl = Template(<span class="tk-str">"你好，$name，你有 $count 条消息"</span>)
-tpl.substitute(name=<span class="tk-str">"小王"</span>, count=<span class="tk-num">3</span>)      <span class="tk-com"># '你好，小王，你有 3 条消息'</span>
-<span class="tk-com"># 为什么不直接用 f-string？LLM Prompt 里常含 JSON 的 { }，</span>
-<span class="tk-com"># Template 只认 $var，不会和大括号打架。</span>
+tpl.substitute(name=<span class="tk-str">"小王"</span>, count=<span class="tk-num">3</span>)          <span class="tk-com"># '你好，小王，你有 3 条消息'</span>
 
-<span class="tk-com"># ② weakref：缓存不拴住对象</span>
-<span class="tk-kw">import</span> weakref
-registry = weakref.WeakValueDictionary()
-registry[<span class="tk-str">"agent"</span>] = some_agent
-<span class="tk-com"># 别处不再强引用 some_agent 时，它自动从注册表消失——</span>
-<span class="tk-com"># 适合"按名字找实例"的注册表，避免循环引用泄漏。</span>
+<span class="tk-com"># 模板里同时有 JSON 示例也不怕：</span>
+Template(<span class="tk-str">'{"user": "$name"}'</span>).substitute(name=<span class="tk-str">"小王"</span>)   <span class="tk-com"># '{"user": "小王"}'</span>
 
-<span class="tk-com"># ③ bisect：有序序列二分定位</span>
-<span class="tk-kw">import</span> bisect
-xs = [<span class="tk-num">1</span>, <span class="tk-num">3</span>, <span class="tk-num">5</span>, <span class="tk-num">7</span>]
-bisect.bisect_left(xs, <span class="tk-num">5</span>)                 <span class="tk-com"># 2（插入位置）</span>
+<span class="tk-com"># 缺变量时：substitute 抛 KeyError；safe_substitute 原样保留 $var</span>
+Template(<span class="tk-str">"$a $b"</span>).safe_substitute(a=<span class="tk-num">1</span>)        <span class="tk-com"># '1 $b'</span></span></code></pre>
 
-<span class="tk-com"># ④ heapq：TopK 不用全排序</span>
-<span class="tk-kw">import</span> heapq
-heapq.nlargest(<span class="tk-num">3</span>, [<span class="tk-num">5</span>, <span class="tk-num">1</span>, <span class="tk-num">9</span>, <span class="tk-num">3</span>])           <span class="tk-com"># [9, 5, 3]</span>
-<span class="tk-com"># sorted(...)[-3:] 也行，但 nlargest 只维护 k 个元素的堆，大列表更省。</span>
+<p>为什么不用 f-string？Prompt 里常带 JSON 的 <code>{ }</code>，f-string 会把它们当插值表达式；Template 只认 <code>$var</code>，两者互不干扰。LLM 提示词、邮件模板、配置生成都适合它。</p>
 
-<span class="tk-com"># ⑤ timeit：别靠感觉比较快慢</span>
-<span class="tk-kw">import</span> timeit
-timeit.timeit(<span class="tk-str">"[x*x for x in range(100)]"</span>, number=<span class="tk-num">10000</span>)</span></code></pre>
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — timeit：别靠感觉比较快慢</span><code><span data-pyhl="1"><span class="tk-kw">import</span> timeit
 
-<h2>五、动手：写一个带 CLI、日志和模板的小工具（8 分钟）</h2>
+timeit.timeit(<span class="tk-str">"[x*x for x in range(100)]"</span>, number=<span class="tk-num">10000</span>)
+timeit.timeit(<span class="tk-str">"list(map(lambda x: x*x, range(100)))"</span>, number=<span class="tk-num">10000</span>)
 
-<p>预置了 <code>argparse</code>、<code>heapq</code>、<code>string.Template</code> 的导入。三个任务：<strong>解析命令行</strong> → <strong>渲染 Prompt</strong> → <strong>TopK 取前几名</strong>。测试通过 <code>parse_args(argv)</code> 传入自定义参数列表，在浏览器里也能跑。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+<span class="tk-com"># 或用 repeat 取最小值，减少系统抖动</span>
+<span class="tk-fn">min</span>(timeit.repeat(<span class="tk-str">"sum(range(1000))"</span>, number=<span class="tk-num">1000</span>, repeat=<span class="tk-num">5</span>))</span></code></pre>
 
-<div class="py-lab" data-prelude="prelude-0015" data-tests="tests-0015">
+<p><strong>先测量，再优化。</strong> 面试里被问"哪种写法更快"，能说出用 timeit 验证、并解释复杂度差异，比背结论可信得多。</p>
+
+<h2>五、动手：带 CLI 与模板的词频小工具（8 分钟）</h2>
+
+<p>预置了 <code>argparse</code>、<code>Counter</code>、<code>Template</code>。三个任务：<strong>解析命令行</strong> → <strong>渲染 Prompt</strong> → <strong>统计前 N 高频词</strong>。测试通过 <code>parse_args(argv)</code> 传入自定义参数列表，浏览器里也能跑。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+
+<div class="py-lab" data-prelude="prelude-0009" data-tests="tests-0009">
 <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> argparse
-<span class="tk-kw">import</span> heapq
+<span class="tk-kw">from</span> collections <span class="tk-kw">import</span> Counter
 <span class="tk-kw">from</span> string <span class="tk-kw">import</span> Template
+
 
 <span class="tk-kw">def</span> parse_cli(argv):
-    <span class="tk-str">"""任务 1：用 argparse 解析 argv（字符串列表）。
+    <span class="tk-str">"""任务 1：argparse 解析 argv。
     位置参数 path（必填）；选项 -n/--top，type=int，默认 5。
-    返回 (path, top) 元组"""</span>
+    返回 (path, top) 元组。"""</span>
     ...
 
 
 <span class="tk-kw">def</span> render_prompt(template, **kwargs):
-    <span class="tk-str">"""任务 2：用 string.Template 渲染模板，返回 substitute 的结果。
-    例：render_prompt("你好，$name", name="小王") → "你好，小王" """</span>
+    <span class="tk-str">"""任务 2：用 string.Template 渲染模板并返回结果。
+    render_prompt("你好，$name", name="小王") -&gt; "你好，小王" """</span>
     ...
 
 
-<span class="tk-kw">def</span> top_k(nums, k):
-    <span class="tk-str">"""任务 3：用 heapq.nlargest 返回从大到小前 k 个数。
-    k &lt;= 0 时返回空列表"""</span>
-    ...</pre><textarea class="py-lab-editor" spellcheck="false" rows="26">import argparse
-import heapq
+<span class="tk-kw">def</span> top_words(text, n):
+    <span class="tk-str">"""任务 3：按空白分词，用 Counter 统计，返回前 n 名 [(词, 次数)]。
+    n &lt;= 0 时返回空列表。"""</span>
+    ...
+</pre><textarea class="py-lab-editor" spellcheck="false" rows="30">import argparse
+from collections import Counter
 from string import Template
 
+
 def parse_cli(argv):
-    """任务 1：用 argparse 解析 argv（字符串列表）。
+    &quot;&quot;&quot;任务 1：argparse 解析 argv。
     位置参数 path（必填）；选项 -n/--top，type=int，默认 5。
-    返回 (path, top) 元组"""
+    返回 (path, top) 元组。&quot;&quot;&quot;
     ...
 
 
 def render_prompt(template, **kwargs):
-    """任务 2：用 string.Template 渲染模板，返回 substitute 的结果。
-    例：render_prompt("你好，$name", name="小王") → "你好，小王" """
+    &quot;&quot;&quot;任务 2：用 string.Template 渲染模板并返回结果。
+    render_prompt(&quot;你好，$name&quot;, name=&quot;小王&quot;) -&gt; &quot;你好，小王&quot; &quot;&quot;&quot;
     ...
 
 
-def top_k(nums, k):
-    """任务 3：用 heapq.nlargest 返回从大到小前 k 个数。
-    k <= 0 时返回空列表"""
-    ...</textarea></div>
+def top_words(text, n):
+    &quot;&quot;&quot;任务 3：按空白分词，用 Counter 统计，返回前 n 名 [(词, 次数)]。
+    n &lt;= 0 时返回空列表。&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="py-lab-bar">
     <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
     <button class="py-lab-btn ghost py-lab-reset">重置</button>
@@ -527,7 +565,7 @@ def top_k(nums, k):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code><span class="tk-kw">def</span> parse_cli(argv):
+<pre><code><span data-pyhl="1"><span class="tk-kw">def</span> parse_cli(argv):
     p = argparse.ArgumentParser(description=<span class="tk-str">"统计词频"</span>)
     p.add_argument(<span class="tk-str">"path"</span>)
     p.add_argument(<span class="tk-str">"-n"</span>, <span class="tk-str">"--top"</span>, <span class="tk-fn">type</span>=<span class="tk-fn">int</span>, default=<span class="tk-num">5</span>)
@@ -537,11 +575,11 @@ def top_k(nums, k):
 <span class="tk-kw">def</span> render_prompt(template, **kwargs):
     <span class="tk-kw">return</span> Template(template).substitute(**kwargs)
 
-<span class="tk-kw">def</span> top_k(nums, k):
-    <span class="tk-kw">if</span> k &lt;= <span class="tk-num">0</span>:
+<span class="tk-kw">def</span> top_words(text, n):
+    <span class="tk-kw">if</span> n &lt;= <span class="tk-num">0</span>:
         <span class="tk-kw">return</span> []
-    <span class="tk-kw">return</span> heapq.nlargest(k, nums)</code></pre>
-<p>自评清单：① 是否真的用了 argparse 而不是手写 split？② Template 用的是 substitute 还是 SafeSubstitutes（本题要 substitute）？③ top_k 对 k=0 是否给了空列表？</p>
+    <span class="tk-kw">return</span> Counter(text.split()).most_common(n)</span></code></pre>
+<p>自评清单：① 真的用了 argparse，而不是手写 split？② 用的是 <code>substitute</code>（缺变量即报错）还是 <code>safe_substitute</code>？③ n&lt;=0 时返回空列表了吗？</p>
 </details>
 
 <h2>六、检索练习：先答后看（关补全）</h2>
@@ -555,19 +593,27 @@ def top_k(nums, k):
 </div>
 
 <div class="quiz" data-answer="a">
-  <p class="quiz-q">Q2 · Prompt 模板为什么推荐 string.Template 而不是 f-string？</p>
-  <button class="quiz-opt" data-key="a">$var 语法不会和 Prompt 里 JSON 的 {} 冲突</button>
-  <button class="quiz-opt" data-key="b">Template 支持更快的插值</button>
-  <button class="quiz-opt" data-key="c">f-string 不能在函数里用</button>
-  <p class="quiz-explain" hidden>LLM Prompt 经常包含 JSON 示例，里面有大量花括号。f-string 会把它们当成插值表达式导致语法错误；Template 只认 $var，两者互不干扰。如果必须同时用花括号和插值，才考虑 .format() 并转义。</p>
+  <p class="quiz-q">Q2 · <code>log.debug("x=%s", x)</code> 用 % 占位而不是 f-string 的主要原因是？</p>
+  <button class="quiz-opt" data-key="a">级别关闭时不做字符串拼接，避免无谓开销</button>
+  <button class="quiz-opt" data-key="b">% 比 f-string 语法更严格</button>
+  <button class="quiz-opt" data-key="c">logging 不支持 f-string</button>
+  <p class="quiz-explain" hidden>logging 的惰性格式化：先判断该级别是否启用，没启用就直接返回，参数根本不会参与格式化。热路径里这点开销值得省。</p>
 </div>
 
 <div class="quiz" data-answer="c">
-  <p class="quiz-q">Q3 · 从大列表里取前 3 名，heapq.nlargest 相比完整 sorted 的优势是？</p>
-  <button class="quiz-opt" data-key="a">结果更准确</button>
-  <button class="quiz-opt" data-key="b">不需要导入模块</button>
-  <button class="quiz-opt" data-key="c">只维护 k 个元素的堆，大列表时更省内存和时间</button>
-  <p class="quiz-explain" hidden>sorted 要对全部元素排序 O(n log n)；nlargest 只维护一个大小为 k 的堆，复杂度约 O(n log k)。k 远小于 n 时优势明显。小列表两者差别不大。</p>
+  <p class="quiz-q">Q3 · Prompt 模板为什么优先 <code>string.Template</code>？</p>
+  <button class="quiz-opt" data-key="a">Template 插值比 f-string 快</button>
+  <button class="quiz-opt" data-key="b">f-string 不能在函数里用</button>
+  <button class="quiz-opt" data-key="c">$var 语法不会和 Prompt 里 JSON 的花括号冲突</button>
+  <p class="quiz-explain" hidden>LLM Prompt 常含 JSON 示例，花括号很多。f-string 会把 { 当插值表达式；Template 只认 $var，两者互不干扰。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q4 · 脚本的"结果"和"日志"应该分别走哪条通道？</p>
+  <button class="quiz-opt" data-key="a">都用 print，简单</button>
+  <button class="quiz-opt" data-key="b">结果走 stdout，日志走 stderr</button>
+  <button class="quiz-opt" data-key="c">结果走 stderr，日志走 stdout</button>
+  <p class="quiz-explain" hidden>Unix 惯例：stdout 是数据，stderr 是诊断。管道下游只消费 stdout；日志混进去会破坏数据，Agent 场景还会把日志喂给模型。</p>
 </div>
 
 <h2>七、间隔复习（明天开始学习前做）</h2>
@@ -578,9 +624,11 @@ def top_k(nums, k):
   <p class="review-q">① 默写：<code>parse_cli(argv)</code>——位置参数 path 必填，选项 -n/--top 为 int 默认 5，返回 <code>(path, top)</code>（判分环境已 import argparse）</p>
   <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> parse_cli(argv):
     <span class="tk-str">"""argparse：path 位置参数；-n/--top int 默认 5；返回 (path, top)"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="7">def parse_cli(argv):
-    """argparse：path 位置参数；-n/--top int 默认 5；返回 (path, top)"""
-    ...</textarea></div>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="7">def parse_cli(argv):
+    &quot;&quot;&quot;argparse：path 位置参数；-n/--top int 默认 5；返回 (path, top)&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -589,13 +637,15 @@ def top_k(nums, k):
   <pre class="review-ref" hidden></pre>
 </div>
 
-<div class="review" data-id="r2" data-mode="code" data-name="render_prompt">
-  <p class="review-q">② 默写：<code>render_prompt(template, **kwargs)</code>——用 string.Template 渲染并返回结果（判分环境已 <code>from string import Template</code>）</p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> render_prompt(template, **kwargs):
-    <span class="tk-str">"""Template(template).substitute(**kwargs)"""</span>
-    ...</pre><textarea class="review-code" spellcheck="false" rows="6">def render_prompt(template, **kwargs):
-    """Template(template).substitute(**kwargs)"""
-    ...</textarea></div>
+<div class="review" data-id="r2" data-mode="code" data-name="top_words">
+  <p class="review-q">② 默写：<code>top_words(text, n)</code>——按空白分词统计，返回前 n 名列表；n&lt;=0 返回空列表（判分环境已 <code>from collections import Counter</code>）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> top_words(text, n):
+    <span class="tk-str">"""Counter(text.split()).most_common(n)；n &lt;= 0 返回 []"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="7">def top_words(text, n):
+    &quot;&quot;&quot;Counter(text.split()).most_common(n)；n &lt;= 0 返回 []&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -605,8 +655,8 @@ def top_k(nums, k):
 </div>
 
 <div class="review" data-id="r3" data-mode="expr" data-name="">
-  <p class="review-q">③ 表达式默写：判分环境已 <code>import heapq</code>——从 <code>[5, 1, 9, 3]</code> 取降序前 2 个，结果 <code>[9, 5]</code></p>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">heapq.nlargest(<span class="tk-num">2</span>, [<span class="tk-num">5</span>, <span class="tk-num">1</span>, <span class="tk-num">9</span>, <span class="tk-num">3</span>])</pre><textarea class="review-code" spellcheck="false" rows="4">heapq.nlargest(2, [5, 1, 9, 3])</textarea></div>
+  <p class="review-q">③ 表达式默写：判分环境已 <code>from string import Template</code>——渲染 <code>"$a + $b"</code>，代入 a=1、b=2，结果是 <code>"1 + 2"</code></p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">Template(<span class="tk-str">"$a + $b"</span>).substitute(a=<span class="tk-num">1</span>, b=<span class="tk-num">2</span>)</pre><textarea class="review-code" spellcheck="false" rows="4">Template(&quot;$a + $b&quot;).substitute(a=1, b=2)</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -615,33 +665,29 @@ def top_k(nums, k):
   <pre class="review-ref" hidden></pre>
 </div>
 
-
 <div class="callout primary">
-<strong>卡住了？随时问。</strong>argparse 忘了 <code>parse_args(argv)</code>、Template 的 <code>$</code> 与 f-string 混用、heapq 取错方向——直接在对话里贴报错和你的输入输出。
+<strong>卡住了？随时问。</strong>argparse 忘了 <code>parse_args(argv)</code>、Template 的 <code>$</code> 与 f-string 混用、Counter 的 most_common 方向不对——直接在对话里贴报错和你的输入输出。
 </div>
 
 <div class="lesson-nav">
-  <a href="0014-numerics-and-testing.html">← 第 14 课 · 数值、异常进阶与测试</a>
+  <a href="0008-stdlib.html">← 第 8 课 · 标准库实战</a>
   <a href="0000-course-outline.html">课程大纲</a>
-  <a href="0010-gaps-drill.html">10★ 官网补漏练习 · 22 题 →</a>
+  <a href="0010-testing.html">第 10 课 · 测试：pytest 断言与自测 →</a>
 </div>
 
 <footer class="doc-footer">
-  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/library/logging.html">logging — 日志服务</a> / <a href="https://docs.python.org/zh-cn/3.15/library/argparse.html">argparse — 命令行参数解析</a>（本课两个主力模块）</p>
-  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/tutorial/index.html">Python 3.15 官方教程（中文）</a> · 有疑问先翻它，再问我</p>
+  <p id="cite-1">[1] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/library/argparse.html">argparse — 命令行选项、参数和子命令解析器</a> / <a href="https://docs.python.org/zh-cn/3.15/library/logging.html">logging — Python 的日志记录工具</a></p>
+  <p id="cite-2">[2] 官方教程 · <a href="https://docs.python.org/zh-cn/3.15/library/string.html">string — 常见的字符串操作（Template）</a> / <a href="https://docs.python.org/zh-cn/3.15/library/timeit.html">timeit — 测量小段代码的执行时间</a></p>
 </footer>
 </main>
 
-<script type="text/x-python" id="prelude-0015">
+<script type="text/x-python" id="prelude-0009">
 import argparse
-import heapq
-import logging
+from collections import Counter
 from string import Template
-
-
 </script>
 
-<script type="text/x-python" id="tests-0015">
+<script type="text/x-python" id="tests-0009">
 import json as _json
 import inspect
 
@@ -673,13 +719,12 @@ if "render_prompt" in globals():
 else:
     print("MISSING|render_prompt（任务 2 还没定义）")
 
-if "top_k" in globals():
-    _t("任务3 · 降序前2", lambda: _eq(top_k([5, 1, 9, 3], 2), [9, 5]))
-    _t("任务3 · k 超过长度", lambda: _eq(top_k([1, 2], 5), [2, 1]))
-    _t("任务3 · k<=0 返回空", lambda: _eq(top_k([1, 2], 0), []))
+if "top_words" in globals():
+    _t("任务3 · 前两名", lambda: _eq(top_words("a b a c b a", 2), [("a", 3), ("b", 2)]))
+    _t("任务3 · n 超过词数", lambda: _eq(top_words("x y", 5), [("x", 1), ("y", 1)]))
+    _t("任务3 · n<=0 返回空", lambda: _eq(top_words("a b", 0), []))
 else:
-    print("MISSING|top_k（任务 3 还没定义）")
-
+    print("MISSING|top_words（任务 3 还没定义）")
 </script>
 
 <script>
@@ -890,13 +935,10 @@ else:
 </script>
 
 <script type="text/x-python" id="review-env">
-import argparse
-import heapq
-from string import Template
-
+from collections import Counter
 </script>
 <script>
-window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_cli", "task": "① 默写：<code>parse_cli(argv)</code>——位置参数 path 必填，选项 -n/--top 为 int 默认 5，返回 <code>(path, top)</code>（判分环境已 import argparse）", "starter": "def parse_cli(argv):\n    \"\"\"argparse：path 位置参数；-n/--top int 默认 5；返回 (path, top)\"\"\"\n    ...", "ref": "def parse_cli(argv):\n    p = argparse.ArgumentParser()\n    p.add_argument(\"path\")\n    p.add_argument(\"-n\", \"--top\", type=int, default=5)\n    a = p.parse_args(argv)\n    return a.path, a.top", "tind": "        assert _fn([\"a.txt\"]) == (\"a.txt\", 5), f\"实际 {_fn(['a.txt'])!r}\"\n        assert _fn([\"a.txt\", \"-n\", \"3\"]) == (\"a.txt\", 3)\n        assert _fn([\"a.txt\", \"--top\", \"2\"]) == (\"a.txt\", 2)"}, {"id": "r2", "mode": "code", "name": "render_prompt", "task": "② 默写：<code>render_prompt(template, **kwargs)</code>——用 string.Template 渲染并返回结果（判分环境已 <code>from string import Template</code>）", "starter": "def render_prompt(template, **kwargs):\n    \"\"\"Template(template).substitute(**kwargs)\"\"\"\n    ...", "ref": "def render_prompt(template, **kwargs):\n    return Template(template).substitute(**kwargs)", "tind": "        assert _fn(\"你好，$name\", name=\"小王\") == \"你好，小王\"\n        assert _fn(\"$a + $b\", a=1, b=2) == \"1 + 2\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：判分环境已 <code>import heapq</code>——从 <code>[5, 1, 9, 3]</code> 取降序前 2 个，结果 <code>[9, 5]</code>", "starter": "heapq.nlargest(2, [5, 1, 9, 3])", "ref": "heapq.nlargest(2, [5, 1, 9, 3])   # [9, 5]", "tind": "        assert _val == [9, 5], f\"实际 {_val!r}\""}];
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）", "starter": "from collections import Counter\n\n\ndef word_counts(text):\n    \"\"\"Counter(text.split()) 再 dict(...)\"\"\"\n    ...", "ref": "from collections import Counter\n\ndef word_counts(text):\n    return dict(Counter(text.split()))", "tind": "        assert _fn(\"a b a\") == {\"a\": 2, \"b\": 1}, f\"实际 {_fn('a b a')!r}\"\n        assert _fn(\"\") == {}, \"空串应返回空 dict\"\n        assert _fn(\"x  x  x\") == {\"x\": 3}, \"多空格 split 自动处理\""}, {"id": "r2", "mode": "code", "name": "extract_dates", "task": "② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", ...)</code>）", "starter": "import re\n\n\ndef extract_dates(lines):\n    \"\"\"把 lines 连成一个文本，findall 找 r\"\\d{4}-\\d{2}-\\d{2}\" \"\"\"\n    ...", "ref": "import re\n\ndef extract_dates(lines):\n    return re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", \"\\n\".join(lines))", "tind": "        assert _fn([\"x 2026-01-02 y\", \"no date\", \"2025-12-31\"]) == [\"2026-01-02\", \"2025-12-31\"], f\"实际 {_fn(['x 2026-01-02'])!r}\"\n        assert _fn([]) == []\n        assert _fn([\"bad 20-01-01\"]) == [], \"三位年份不算日期\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：用 Counter 统计字符串 <code>\"abracadabra\"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）", "starter": "sorted(Counter(\"abracadabra\").items())[:2]", "ref": "sorted(Counter(\"abracadabra\").items())[:2]   # [(\"a\", 5), (\"b\", 2)]", "tind": "        assert _val == [(\"a\", 5), (\"b\", 2)], f\"实际 {_val!r}\""}];
 </script>
 <script>
 /* review.js — 间隔复习在线评判引擎（Pyodide）
@@ -1236,6 +1278,16 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_cli", "task": "① 
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1384,9 +1436,18 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_cli", "task": "① 
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：13 Nano Agent 实战</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：9 脚本工程化</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html" aria-current="page"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

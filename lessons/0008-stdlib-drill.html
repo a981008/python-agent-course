@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>练习场 · 20 题标准库实战训练（第 9 课配套）</title>
+<title>练习场 · 20 题标准库实战训练（第 8 课配套）</title>
 <style>
 /* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
 :root {
@@ -370,9 +370,21 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-no { flex: 0 0 2.2rem; font-family: "SF Mono", Menlo, monospace; font-size: .85rem; color: var(--ink-soft); }
 .drill-task { flex: 1; }
 .drill-data { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .5rem .8rem; font-family: "SF Mono", Menlo, monospace; font-size: .74rem; line-height: 1.5; white-space: pre; overflow-x: auto; color: var(--ink-soft); }
-.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
+.drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; color: var(--ink); }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
+
+.drill-opts { margin: .7rem 0 .3rem; display: grid; gap: .45rem; }
+.drill-opt { display: flex; gap: .6rem; align-items: baseline; padding: .55rem .85rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; transition: border-color .15s; }
+.drill-opt:hover { border-color: var(--accent); }
+.drill-opt input[type=radio] { accent-color: var(--accent); flex: none; margin-top: .15rem; }
+.opt-letter { font-weight: 700; color: var(--accent); flex: none; font-family: "SF Mono", Menlo, monospace; }
+.opt-text { line-height: 1.6; font-size: .92rem; }
+.drill.solved .drill-opt { opacity: .7; }
+.drill-opt.is-right { background: var(--ok-bg); border-color: var(--ok); }
+.drill-opt.is-right .opt-letter { color: var(--ok); }
+.drill-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); }
+.drill-opt.is-wrong .opt-letter { color: var(--bad); }
 .drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
@@ -401,7 +413,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <main>
 
 <h1>练习场 · 20 题标准库实战训练</h1>
-<p class="meta">第 9 课配套 · json / 文件与 pathlib / 正则 / collections / datetime · 自动判分</p>
+<p class="meta">第 8 课配套 · json / 文件与 pathlib / 正则 / collections / datetime · 自动判分</p>
 <div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>完整函数</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；文件题会真实写进运行环境的临时目录（#5 测覆盖写、#8 测追加不覆盖）；#10 考 fullmatch 边界长度。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>：本练习场<strong>无需预置数据</strong>——每题函数的入参就是数据；文件题使用 <code>/tmp/pylab_*.txt</code> 临时路径。
@@ -519,10 +531,10 @@ def merge_json(sa, sb):
 <div class="drill" id="d-6" data-n="6" data-cat="B">
   <div class="drill-head"><span class="drill-no">#06</span><div class="drill-task">用 <code>pathlib</code> 取路径 <code>"/a/b/c.txt"</code> 的后缀，正确写法是？</div></div>
   <div class="drill-ex">例：<code>PurePosixPath("a/b/c.txt").suffix</code> → <code>".txt"</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>path.split(".")[-1]</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>PurePosixPath(path).suffix</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>os.path.basename(path)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>PurePosixPath(path).stem</code></span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-6" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">path.split(<span class="tk-str">"."</span>)[-<span class="tk-num">1</span>]</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">PurePosixPath(path).suffix</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1">os.path.basename(path)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-6" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1">PurePosixPath(path).stem</code></span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -709,10 +721,10 @@ def group_by_len(words):
 <div class="drill" id="d-15" data-n="15" data-cat="D">
   <div class="drill-head"><span class="drill-no">#15</span><div class="drill-task">要把 <code>[1, 2, 3, 4]</code> 整体<strong>左移</strong> 2 位得到 <code>[3, 4, 1, 2]</code>，用 <code>deque</code> 的正确调用是？</div></div>
   <div class="drill-ex">例：<code>d = deque([1,2,3,4]); d.rotate(-2)</code> → <code>deque([3,4,1,2])</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>d.rotate(2)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>d.rotate(-2)</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>d.reverse()</code></span></label>
-  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>d.popleft()</code> 两次</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-15" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1">d.rotate(<span class="tk-num">2</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1">d.rotate(-<span class="tk-num">2</span>)</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1">d.reverse()</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-15" value="3"><span class="opt-letter">D</span><span class="opt-text"><code data-pyhl="1">d.popleft()</code> 两次</span></label>
   </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
@@ -725,9 +737,9 @@ def group_by_len(words):
 <div class="drill" id="d-16" data-n="16" data-cat="D">
   <div class="drill-head"><span class="drill-no">#16</span><div class="drill-task">#16 <code>dedupe_stable</code> 与第 2 课 #41 答案都是 <code>list(dict.fromkeys(...))</code>。关于这个写法，下面说法正确的是？</div></div>
   <div class="drill-ex">例：<code>list(dict.fromkeys(["b","a","b","c"]))</code> → <code>["b","a","c"]</code></div>
-  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-16" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>dict.fromkeys(items)</code> 用字典键的唯一性去重，且 Python 3.7+ 字典保持插入顺序</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-16" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>set(items)</code> 也能保持首次出现顺序</span></label>
-  <label class="drill-opt"><input type="radio" name="opt-16" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>dict.fromkeys</code> 会打乱原有顺序</span></label>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-16" value="0"><span class="opt-letter">A</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">dict</span>.fromkeys(items)</code> 用字典键的唯一性去重，且 Python 3.7+ 字典保持插入顺序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="1"><span class="opt-letter">B</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">set</span>(items)</code> 也能保持首次出现顺序</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-16" value="2"><span class="opt-letter">C</span><span class="opt-text"><code data-pyhl="1"><span class="tk-fn">dict</span>.fromkeys</code> 会打乱原有顺序</span></label>
   <label class="drill-opt"><input type="radio" name="opt-16" value="3"><span class="opt-letter">D</span><span class="opt-text">这个写法只适用于字符串列表</span></label>
   </div>
   <div class="drill-row">
@@ -829,7 +841,7 @@ def summarize_levels(lines):
 </div>
 
 <footer class="doc-footer">
-  返回：<a href="0009-stdlib.html">第 9 课 · 标准库实战</a> · <a href="0008-asyncio-drill.html">20 题异步 asyncio 练习场</a> · <a href="0000-course-outline.html">课程大纲</a>
+  返回：<a href="0008-stdlib.html">第 8 课 · 标准库实战</a> · <a href="0012-asyncio-drill.html">20 题异步 asyncio 练习场</a> · <a href="0000-course-outline.html">课程大纲</a>
 </footer>
 </main>
 
@@ -874,14 +886,12 @@ function refreshUI() {
         if (radio) radio.checked = true;
       }
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+                ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct].replace(/`/g, '') + '\n\n解析：' + ex.explain.replace(/`/g, '') + '\n\n说明：先自己选完再看。';
       }
     } else {
       if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
       if (prog.revealed.includes(n) && ab.hidden) {
-        ab.hidden = false;
-        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+                ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
       }
     }
   });
@@ -922,13 +932,17 @@ async function ensurePy() {
 }
 
 async function check(n) {
-  const codeVal = codeEl(n).value;
+  const _ed = codeEl(n); const codeVal = _ed ? _ed.value : '';
   const st = statusEl(n);
   const ex = byN[n];
   if (ex.type === 'mc') {
     const sel = row(n).querySelector('input[type=radio]:checked');
     if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
     prog.answers[n] = +sel.value; save();
+    row(n).querySelectorAll('.drill-opt').forEach(l => l.classList.remove('is-right', 'is-wrong'));
+    row(n).querySelector('.drill-opt:has(input[value="' + ex.correct + '"])').classList.add('is-right');
+    if (+sel.value !== ex.correct) sel.closest('.drill-opt').classList.add('is-wrong');
+
     if (+sel.value === ex.correct) {
       st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
       if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
@@ -986,7 +1000,7 @@ EX.forEach(e => {
   el.querySelector('.drill-ans').addEventListener('click', () => {
     const ab = ansbox(e.n);
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
-    else { ab.hidden = !ab.hidden; }
+    ab.hidden = !ab.hidden;
   });
   if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
@@ -1205,6 +1219,16 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1353,9 +1377,18 @@ refreshUI();
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：9★ 标准库练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html" aria-current="page"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：8★ 标准库练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html" aria-current="page"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

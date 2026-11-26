@@ -372,11 +372,11 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </head>
 <body>
 <main>
-<h1>第 5 课 · 异常与资源管理：try/except、raise from 与 with</h1>
-<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 30 分钟 · 关掉 AI 补全再开始</p>
+<h1>第 5 课 · 异常、数值精度与资源管理：try/except、Decimal 与 with</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 35 分钟 · 关掉 AI 补全再开始</p>
 
 <div class="callout win">
-<strong>本课的 win</strong>：给一个支付函数搭出<strong>三层防御</strong>——自定义业务异常、失败重试、上下文管理器兜底。这套结构在 Agent 调用链（模型超时重试、工具异常兜底）里每天都会用到。
+<strong>本课的 win</strong>：给一个支付函数搭出<strong>三层防御</strong>——自定义业务异常、失败重试、上下文管理器兜底。这套结构在 Agent 调用链（模型超时重试、工具异常兜底）里每天都会用到。另补两块高频盲区：金额必须用 Decimal，批量失败用 ExceptionGroup。
 </div>
 
 <h2>一、心智模型：checked 异常没了（4 分钟）</h2>
@@ -460,7 +460,61 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <span class="tk-kw">except</span> AgentError:          <span class="tk-com"># 一网打尽本项目的业务异常</span>
     alert_oncall()</span></code></pre>
 
-<h2>四、with 与上下文管理器：让语言替你写 finally（6 分钟）</h2>
+<h2>四、金额与精度：float 是近似，Decimal 是精确（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 0.1 + 0.2 为什么不等于 0.3</span><code><span data-pyhl="1"><span class="tk-num">0.1</span> + <span class="tk-num">0.2</span>                <span class="tk-com"># 0.30000000000000004</span>
+<span class="tk-num">0.1</span> + <span class="tk-num">0.2</span> == <span class="tk-num">0.3</span>         <span class="tk-com"># False</span>
+
+<span class="tk-com"># 原因：0.1 在二进制里是无限循环小数，只能用近似值表示。</span>
+<span class="tk-com"># 这不是 Python 的 bug —— Java 的 double、C 的 float 都一样（IEEE 754）。</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 金额的正确答案：Decimal，且用字符串构造</span><code><span data-pyhl="1"><span class="tk-kw">from</span> decimal <span class="tk-kw">import</span> Decimal, ROUND_HALF_UP
+
+Decimal(<span class="tk-str">"0.1"</span>) + Decimal(<span class="tk-str">"0.2"</span>)         <span class="tk-com"># Decimal('0.3') —— 精确十进制</span>
+Decimal(<span class="tk-num">0.1</span>)                            <span class="tk-com"># ✗ 错：把已经近似的 float 带进精确类型</span>
+
+<span class="tk-com"># 量化到"分"：</span>
+Decimal(<span class="tk-str">"19.99"</span>).quantize(Decimal(<span class="tk-str">"0.01"</span>), rounding=ROUND_HALF_UP)
+
+<span class="tk-com"># 纪律：金额一律 Decimal，且用字符串或整数构造。</span>
+<span class="tk-kw">def</span> money_total(prices):
+    total = <span class="tk-fn">sum</span>(prices, Decimal(<span class="tk-str">"0"</span>))
+    <span class="tk-kw">return</span> total.quantize(Decimal(<span class="tk-str">"0.01"</span>), rounding=ROUND_HALF_UP)</span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">JAVA 对照 — 同一套 BigDecimal 纪律</span><code><span data-pyhl="java"><span class="tk-kw">new</span> <span class="tk-dec">BigDecimal</span>(<span class="tk-str">"0.1"</span>)     →  <span class="tk-dec">Decimal</span>(<span class="tk-str">"0.1"</span>)      精确
+<span class="tk-kw">new</span> <span class="tk-dec">BigDecimal</span>(<span class="tk-num">0.1</span>)       →  <span class="tk-dec">Decimal</span>(<span class="tk-num">0.1</span>)        把 <span class="tk-kw">double</span> 误差带进来
+<span class="tk-fn">setScale</span>(<span class="tk-num">2</span>, <span class="tk-dec">RoundingMode</span>.<span class="tk-dec">HALF_UP</span>)  →  <span class="tk-fn">quantize</span>(..., rounding=<span class="tk-dec">ROUND_HALF_UP</span>)
+equals vs compareTo       →  <span class="tk-dec">Decimal</span> 的 == 同时比较数值与指数，慎用</span></code></pre>
+
+<div class="marginnote">
+面试追问"那算钱怎么办"：答案就是 Decimal + 字符串构造 + 明确舍入模式。float 只用于科学计算和近似统计。
+</div>
+
+<h2>五、批量异常：ExceptionGroup 与 except*（4 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 3.11+：一次抛出一组失败</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    <span class="tk-kw">raise</span> ExceptionGroup(<span class="tk-str">"批量失败"</span>, [ValueError(<span class="tk-str">"a"</span>), KeyError(<span class="tk-str">"b"</span>)])
+<span class="tk-kw">except</span>* ValueError <span class="tk-kw">as</span> eg:
+    <span class="tk-fn">print</span>(<span class="tk-str">"值错误:"</span>, eg.exceptions)       <span class="tk-com"># (ValueError('a'),)</span>
+<span class="tk-kw">except</span>* KeyError <span class="tk-kw">as</span> eg:
+    <span class="tk-fn">print</span>(<span class="tk-str">"键错误:"</span>, eg.exceptions)       <span class="tk-com"># (KeyError('b'),)</span>
+
+<span class="tk-com"># except* 不是 except 的别名：</span>
+<span class="tk-com">#   每个分支独立处理同一组里的一类异常，未匹配的留给后面的 except*</span>
+<span class="tk-com">#   和 asyncio.gather(return_exceptions=True) / TaskGroup 是天然搭档</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — add_note：给异常补充上下文（仍保持原类型）</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    <span class="tk-num">1</span> / <span class="tk-num">0</span>
+<span class="tk-kw">except</span> ZeroDivisionError <span class="tk-kw">as</span> e:
+    e.add_note(<span class="tk-str">"分母来自配置文件 config.yaml"</span>)
+    <span class="tk-kw">raise</span>                                 <span class="tk-com"># 裸 raise，保留原 traceback</span>
+
+<span class="tk-com"># e.__notes__ == ['分母来自配置文件 config.yaml']</span>
+<span class="tk-com"># 注意：是 raise，不是 raise e —— 后者会把栈从这里重置</span></span></code></pre>
+
+<p>设计取舍：普通业务错误继续用"一个异常 + <code>raise ... from ...</code> 链"；只有<strong>并发/批量任务同时失败</strong>时才需要 ExceptionGroup，否则调用方要多写一层 <code>except*</code>，得不偿失。</p>
+
+<h2>六、with 与上下文管理器：让语言替你写 finally（6 分钟）</h2>
 
 <p>Java 的 try-with-resources 需要 <code>AutoCloseable</code>；Python 的 <code>with</code> 需要<strong>上下文管理器</strong>——实现 <code>__enter__</code>/<code>__exit__</code> 两个方法的对象。日常很少手写类，用 <code>@contextmanager</code> 把一个函数变成 CM：</p>
 
@@ -481,7 +535,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>标准库里现成的 CM 优先用：<code>open()</code> 文件、<code>contextlib.suppress(...)</code>（等会动手就会手写一个；日常直接用它，别重复造轮子）、<code>contextlib.closing()</code>。</p>
 
-<h2>五、动手：给支付函数搭三层防御（8 分钟）</h2>
+<h2>七、动手：给支付函数搭三层防御（8 分钟）</h2>
 
 <p>三个任务分别对应三层：<strong>业务异常层</strong>（自定义异常 + raise）→ <strong>重试层</strong>（try/except 循环）→ <strong>兜底层</strong>（@contextmanager，刚讲过）。<code>Ctrl/Cmd + Enter</code> 快捷运行。任务 2 有防作弊测试：把所有异常都吞了重试会当场抓住；任务 3 会验证你真的用了 <code>@contextmanager</code>。</p>
 
@@ -575,7 +629,7 @@ def suppress_error(exc_type):
 <p>自评清单：① <code>raise</code> 出的异常带着"余额不足"消息吗？② 重试循环里是"用尽才抛最后一次异常"，不是"第一次失败就抛"？③ 非 <code>ValueError</code> 的异常没有重试（精确捕获的意义）？④ <code>yield</code> 写在了 <code>try</code> 里、<code>except</code> 只吞指定类型？</p>
 </details>
 
-<h2>六、检索练习：先答后看（关补全）</h2>
+<h2>八、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="b">
   <p class="quiz-q">Q1 · 为什么不能写裸 <code>except:</code>？</p>
@@ -601,7 +655,23 @@ def suppress_error(exc_type):
   <p class="quiz-explain" hidden>yield 前面的代码相当于 __enter__，后面相当于 __exit__；yield 的值就是 as 后面拿到的值。清理逻辑写在 yield 之后的 finally 里——即使 with 内部抛异常也会执行。</p>
 </div>
 
-<h2>七、间隔复习（明天开始学习前做）</h2>
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q4 · <code>Decimal("0.1")</code> 与 <code>Decimal(0.1)</code> 的区别是？</p>
+  <button class="quiz-opt" data-key="a">前者精确表示 0.1；后者把已经近似的 float 误差带进 Decimal</button>
+  <button class="quiz-opt" data-key="b">两者完全等价</button>
+  <button class="quiz-opt" data-key="c">后者会抛 TypeError</button>
+  <p class="quiz-explain" hidden>Decimal 从字符串构造时能精确读入十进制位数；从 float 构造则会把二进制近似的真实值（0.1000000000000000055…）原样记下来。算钱永远用字符串或整数构造。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q5 · <code>except*</code> 与 <code>except</code> 的关键区别是？</p>
+  <button class="quiz-opt" data-key="a">没有区别，只是新写法</button>
+  <button class="quiz-opt" data-key="b">except* 按异常类型分别处理 ExceptionGroup 里的成员，每个分支独立执行</button>
+  <button class="quiz-opt" data-key="c">except* 只能捕获语法错误</button>
+  <p class="quiz-explain" hidden>except* 是 3.11 为 ExceptionGroup 引入的：同一组里不同类型可以各自命中一个分支，未匹配的继续留给后面的 except*。</p>
+</div>
+
+<h2>九、间隔复习（明天开始学习前做）</h2>
 
 <p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
 
@@ -666,6 +736,23 @@ def suppress(exc_type):
   <pre class="review-ref" hidden></pre>
 </div>
 
+<div class="review" data-id="r4" data-mode="code" data-name="money_total">
+  <p class="review-q">④ 默写：<code>money_total(prices)</code>——Decimal 列表求和后量化到分（判分环境已预置 <code>CENT</code>、<code>Decimal</code>、<code>ROUND_HALF_UP</code>）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> money_total(prices):
+    <span class="tk-str">"""Decimal 列表求和，quantize 到 CENT"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="6">def money_total(prices):
+    &quot;&quot;&quot;Decimal 列表求和，quantize 到 CENT&quot;&quot;&quot;
+    ...
+</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
 <p>下一课是<a href="0006-python-essentials-unique.html"><strong>第 6 课 · Python 独有语法专题：切片、闭包与对象模型</strong></a>——Java 没有或本质不同的东西：切片深挖、bytes 与编码、LEGB 与 nonlocal、is 与 == 的对象模型、name mangling、Enum 和 REPL 内省。课程全程路线见<a href="0000-course-outline.html">课程大纲</a>。</p>
 
 <div class="callout primary">
@@ -674,9 +761,9 @@ def suppress(exc_type):
 
 <div class="lesson-nav">
   <a href="0004-classes-and-dataclass.html">← 第 4 课 · 类与 dataclass</a>
-  <a href="0005-exceptions-drill.html">★ 练习场 · 20 题异常与资源管理（本课配套）</a>
+  <a href="0005-exceptions-drill.html">★ 练习场 · 20 题异常与资源管理</a>
   <a href="0000-course-outline.html">课程大纲</a>
-  <a href="0006-python-essentials-unique.html">第 6 课 · Python 独有语法专题 →</a>
+  <a href="0006-python-essentials-unique.html">第 6 课 · Python 独有语法与对象模型 →</a>
 </div>
 
 <footer class="doc-footer">
@@ -995,10 +1082,11 @@ else:
 </script>
 
 <script type="text/x-python" id="review-env">
-# 本页复习题自带全部数据，无需预置
+from decimal import Decimal, ROUND_HALF_UP
+CENT = Decimal("0.01")
 </script>
 <script>
-window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定义异常 + raise：先定义 <code>PaymentError(Exception)</code>；<code>pay(amount)</code> 在 amount &lt;= 0 时抛 PaymentError(\"金额必须为正\")，否则返回 \"ok\"", "starter": "class PaymentError(Exception):\n    \"\"\"业务异常\"\"\"\n\n\ndef pay(amount):\n    \"\"\"amount <= 0 抛 PaymentError(\"金额必须为正\")；否则返回 \"ok\" \"\"\"\n    ...", "ref": "class PaymentError(Exception):\n    pass\n\ndef pay(amount):\n    if amount <= 0:\n        raise PaymentError(\"金额必须为正\")\n    return \"ok\"", "tind": "        assert _fn(100) == \"ok\", \"正常金额应返回 'ok'\"\n        _err = None\n        try:\n            _fn(0)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"amount=0 应抛 PaymentError，但没抛\"\n        assert type(_err).__name__ == \"PaymentError\", f\"应抛 PaymentError，实际 {type(_err).__name__}\"\n        assert \"金额必须为正\" in str(_err), f\"异常消息应包含 '金额必须为正'，实际 {str(_err)!r}\""}, {"id": "r2", "mode": "code", "name": "retry", "task": "② 重试模板默写：<code>retry(fn, times=3)</code>——调用 fn()，抛 ValueError 就重试，用尽次数后把最后一次异常抛出", "starter": "def retry(fn, times=3):\n    \"\"\"ValueError 重试；用尽次数后抛最后一次异常\"\"\"\n    ...", "ref": "def retry(fn, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return fn()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert _fn(_flaky) == \"ok\", \"第三次应成功并返回 ok\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            _fn(_never)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"用尽次数后应抛出异常\"\n        assert type(_err).__name__ == \"ValueError\", f\"应原样抛 ValueError，实际 {type(_err).__name__}\""}, {"id": "r3", "mode": "code", "name": "suppress", "task": "③ @contextmanager 默写：先从 contextlib 导入 contextmanager，再定义 <code>suppress(exc_type)</code>——with 内部抛 exc_type 就吞掉，其他异常照常向外抛", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef suppress(exc_type):\n    \"\"\"with 内部抛 exc_type 就吞掉；其他异常照常向外抛\"\"\"\n    ...", "ref": "from contextlib import contextmanager\n\n@contextmanager\ndef suppress(exc_type):\n    try:\n        yield\n    except exc_type:\n        pass", "tind": "        _cm = _fn(ValueError)\n        assert hasattr(_cm, \"__enter__\") and hasattr(_cm, \"__exit__\"), \"返回对象不是上下文管理器——漏了 @contextmanager？\"\n        with _fn(ValueError):\n            raise ValueError(\"吞我\")\n        _ran = False\n        with _fn(ValueError):\n            _ran = True\n        assert _ran, \"无异常时应正常通过\"\n        _type_err = None\n        try:\n            with _fn(ValueError):\n                raise TypeError(\"别吞我\")\n        except TypeError as e:\n            _type_err = e\n        assert _type_err is not None, \"TypeError 不应被吞，应照常向外抛\""}];
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定义异常 + raise：先定义 <code>PaymentError(Exception)</code>；<code>pay(amount)</code> 在 amount &lt;= 0 时抛 PaymentError(\"金额必须为正\")，否则返回 \"ok\"", "starter": "class PaymentError(Exception):\n    \"\"\"业务异常\"\"\"\n\n\ndef pay(amount):\n    \"\"\"amount <= 0 抛 PaymentError(\"金额必须为正\")；否则返回 \"ok\" \"\"\"\n    ...", "ref": "class PaymentError(Exception):\n    pass\n\ndef pay(amount):\n    if amount <= 0:\n        raise PaymentError(\"金额必须为正\")\n    return \"ok\"", "tind": "        assert _fn(100) == \"ok\", \"正常金额应返回 'ok'\"\n        _err = None\n        try:\n            _fn(0)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"amount=0 应抛 PaymentError，但没抛\"\n        assert type(_err).__name__ == \"PaymentError\", f\"应抛 PaymentError，实际 {type(_err).__name__}\"\n        assert \"金额必须为正\" in str(_err), f\"异常消息应包含 '金额必须为正'，实际 {str(_err)!r}\""}, {"id": "r2", "mode": "code", "name": "retry", "task": "② 重试模板默写：<code>retry(fn, times=3)</code>——调用 fn()，抛 ValueError 就重试，用尽次数后把最后一次异常抛出", "starter": "def retry(fn, times=3):\n    \"\"\"ValueError 重试；用尽次数后抛最后一次异常\"\"\"\n    ...", "ref": "def retry(fn, times=3):\n    last = None\n    for _ in range(times):\n        try:\n            return fn()\n        except ValueError as e:\n            last = e\n    raise last", "tind": "        _calls = []\n        def _flaky():\n            _calls.append(1)\n            if len(_calls) < 3:\n                raise ValueError(\"还没好\")\n            return \"ok\"\n        assert _fn(_flaky) == \"ok\", \"第三次应成功并返回 ok\"\n        assert len(_calls) == 3, f\"应恰好调用 3 次，实际 {len(_calls)}\"\n        def _never():\n            raise ValueError(\"永远失败\")\n        _err = None\n        try:\n            _fn(_never)\n        except Exception as e:\n            _err = e\n        assert _err is not None, \"用尽次数后应抛出异常\"\n        assert type(_err).__name__ == \"ValueError\", f\"应原样抛 ValueError，实际 {type(_err).__name__}\""}, {"id": "r3", "mode": "code", "name": "suppress", "task": "③ @contextmanager 默写：先从 contextlib 导入 contextmanager，再定义 <code>suppress(exc_type)</code>——with 内部抛 exc_type 就吞掉，其他异常照常向外抛", "starter": "# 从 contextlib 导入 contextmanager\n\n\n@contextmanager\ndef suppress(exc_type):\n    \"\"\"with 内部抛 exc_type 就吞掉；其他异常照常向外抛\"\"\"\n    ...", "ref": "from contextlib import contextmanager\n\n@contextmanager\ndef suppress(exc_type):\n    try:\n        yield\n    except exc_type:\n        pass", "tind": "        _cm = _fn(ValueError)\n        assert hasattr(_cm, \"__enter__\") and hasattr(_cm, \"__exit__\"), \"返回对象不是上下文管理器——漏了 @contextmanager？\"\n        with _fn(ValueError):\n            raise ValueError(\"吞我\")\n        _ran = False\n        with _fn(ValueError):\n            _ran = True\n        assert _ran, \"无异常时应正常通过\"\n        _type_err = None\n        try:\n            with _fn(ValueError):\n                raise TypeError(\"别吞我\")\n        except TypeError as e:\n            _type_err = e\n        assert _type_err is not None, \"TypeError 不应被吞，应照常向外抛\""}, {"id": "r4", "mode": "code", "name": "money_total", "task": "④ 默写：<code>money_total(prices)</code>——Decimal 列表求和后量化到分（判分环境已预置 <code>CENT</code>、<code>Decimal</code>、<code>ROUND_HALF_UP</code>）", "starter": "def money_total(prices):\n    \"\"\"Decimal 列表求和，quantize 到 CENT\"\"\"\n    ...", "ref": "def money_total(prices):\n    total = sum(prices, Decimal(\"0\"))\n    return total.quantize(CENT, rounding=ROUND_HALF_UP)", "tind": "        assert _fn([]) == Decimal(\"0.00\"), f\"实际 {_fn([])!r}\"\n        assert _fn([Decimal(\"0.1\"), Decimal(\"0.2\")]) == Decimal(\"0.30\")\n        assert _fn([Decimal(\"1.005\")]) == Decimal(\"1.01\")"}];
 </script>
 <script>
 /* review.js — 间隔复习在线评判引擎（Pyodide）
@@ -1338,6 +1426,16 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1487,8 +1585,17 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：5 异常与资源管理</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html" aria-current="page"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html" aria-current="page"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */

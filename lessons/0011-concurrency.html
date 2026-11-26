@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 课 · 并发模型与 GIL：线程、进程与协程怎么选</title>
+<style>
+/* base.css — teach 工作区共享样式（Tufte 风格 · 支持打印 · 明暗双主题） */
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --accent: #a0522d;
+  --accent-soft: #f5efe9;
+  --ok: #256b29;
+  --ok-bg: #e8f2e8;
+  --bad: #b3261e;
+  --bad-bg: #fbeae9;
+  --line: #e3ddd5;
+  --code-bg: #f7f5f2;
+  --bg: #fffdf9;
+  --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
+  --max-w: 42rem;
+}
+/* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e8e4dd;
+    --ink-soft: #a8a49c;
+    --accent: #d29a6b;
+    --accent-soft: #2e2620;
+    --ok: #7dbd7d;
+    --ok-bg: #1e2b1e;
+    --bad: #e08a84;
+    --bad-bg: #301d1c;
+    --line: #3a3733;
+    --code-bg: #26241f;
+    --bg: #1b1916;
+    --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e8e4dd;
+  --ink-soft: #a8a49c;
+  --accent: #d29a6b;
+  --accent-soft: #2e2620;
+  --ok: #7dbd7d;
+  --ok-bg: #1e2b1e;
+  --bad: #e08a84;
+  --bad-bg: #301d1c;
+  --line: #3a3733;
+  --code-bg: #26241f;
+  --bg: #1b1916;
+  --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Georgia, serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.75;
+  margin: 0;
+  padding: 3rem 1.5rem 5rem;
+  font-size: 17px;
+}
+main { max-width: var(--max-w); margin: 0 auto; }
+h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
+h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
+p { margin: 0.7rem 0; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
+a:hover { background: var(--accent-soft); }
+sup a { border: none; }
+.meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
+code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+pre code { background: none; padding: 0; }
+pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+.marginnote {
+  float: right;
+  clear: right;
+  width: 12rem;
+  margin: 0.3rem -14rem 1rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
+.callout {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 0.95rem;
+}
+.callout.win { background: var(--ok-bg); }
+.callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
+details {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem;
+  margin: 1rem 0;
+  background: var(--card);
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+  font-size: 0.92rem;
+}
+footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+/* quiz 组件 */
+.quiz { border: 1px solid var(--line); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.3rem 0; background: var(--card); }
+.quiz-q { font-weight: 600; margin: 0 0 0.8rem; }
+.quiz-opt {
+  display: block; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.55rem 0.9rem; margin: 0.45rem 0; cursor: pointer;
+  color: var(--ink);
+}
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.is-right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.quiz-opt.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.quiz-opt:disabled { cursor: default; opacity: 0.92; }
+.quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
+/* 打印 */
+@media print {
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
+  .quiz-opt { border: 1px solid #ccc; }
+  .no-print { display: none !important; }
+  a { color: var(--ink); border: none; }
+  pre, table, .callout, details { break-inside: avoid; }
+}
+
+/* py-lab 交互式 Python 运行组件 */
+.py-lab {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  margin: 1.3rem 0;
+  overflow: hidden;
+}
+.py-lab-editor {
+  display: block; width: 100%; min-height: 13rem;
+  border: none; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem; line-height: 1.55;
+  padding: 1rem 1.2rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.py-lab-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.py-lab-btn {
+  font: inherit; font-size: 0.9rem;
+  background: var(--accent); color: var(--on-accent);
+  border: none; border-radius: 6px;
+  padding: 0.45rem 1.1rem; cursor: pointer;
+}
+.py-lab-btn:hover { opacity: 0.88; }
+.py-lab-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.py-lab-btn:disabled { opacity: 0.5; cursor: wait; }
+.py-lab-status { font-size: 0.82rem; color: var(--ink-soft); }
+.py-lab-output {
+  margin: 0; border-top: 1px solid var(--line);
+  background: #2b2b28; color: #e8e4dc;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem; line-height: 1.6;
+  padding: 0.9rem 1.2rem;
+  max-height: 24rem; overflow: auto;
+  white-space: pre-wrap;
+}
+.py-lab-output .lab-pass { color: #8fce8f; font-weight: 600; }
+.py-lab-output .lab-fail { color: #f0908a; font-weight: 600; }
+.py-lab-output .lab-err { color: #f0908a; }
+.py-lab-output .lab-info { color: #b8b3aa; }
+
+/* 间隔复习在线评判组件 */
+.review { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; background: var(--card); }
+.review-q { font-weight: 600; margin: 0 0 0.6rem; }
+.review-code {
+  display: block; width: 100%; min-height: 5rem;
+  border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical;
+  background: var(--code-bg);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.84rem; line-height: 1.55;
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  tab-size: 4;
+}
+.review-code:focus { border-color: var(--accent); }
+.review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+.review-btn {
+  font: inherit; font-size: 0.82rem;
+  background: var(--accent); color: var(--on-accent);
+  border: none; border-radius: 6px;
+  padding: 0.4rem 0.9rem; cursor: pointer;
+}
+.review-btn:hover { opacity: 0.88; }
+.review-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.review-status { font-size: 0.8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
+.review-status.pass { color: var(--ok); font-weight: 600; }
+.review-status.fail { color: var(--bad); }
+.review-status.info { color: var(--ink-soft); }
+.review-ref {
+  margin: 0.6rem 0 0; background: var(--code-bg); border-radius: 6px;
+  padding: 0.6rem 0.9rem; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed; right: 1rem; bottom: 1rem;
+  font: inherit; font-size: 0.78rem;
+  padding: 0.35rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card); color: var(--ink-soft);
+  cursor: pointer; z-index: 99; opacity: 0.85;
+}
+.theme-toggle:hover { opacity: 1; }
+
+/* ---- pyhl 语法高亮编辑器组件 ---- */
+.pyhl-wrap { position: relative; }
+.pyhl-hl {
+  position: absolute; inset: 0; margin: 0; z-index: 2;
+  background: transparent; border: none;
+  overflow: hidden; pointer-events: none;
+  font-variant-ligatures: none;
+}
+.pyhl-src { color: transparent; caret-color: var(--ink); }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
+/* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
+pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
+pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
+pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1px); }
+
+
+
+
+/* 右上角：当前页小标题 + 快速跳转 */
+#wb-quicknav { position: fixed; top: .6rem; right: .8rem; z-index: 200; font-family: inherit; }
+#wb-quicknav-btn {
+  display: flex; align-items: center; gap: .45rem; max-width: min(22rem, 70vw);
+  padding: .32rem .75rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.08); opacity: .95;
+}
+#wb-quicknav-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+#wb-quicknav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#wb-quicknav-btn .wb-qn-arrow { color: var(--accent); font-size: .7rem; }
+#wb-quicknav-menu {
+  position: absolute; right: 0; top: calc(100% + .4rem);
+  width: min(24rem, calc(100vw - 1.6rem)); max-height: min(70vh, 34rem); overflow: auto;
+  padding: .45rem; border: 1px solid var(--line); border-radius: .75rem;
+  background: var(--card); color: var(--ink); box-shadow: 0 12px 32px rgba(0,0,0,.18);
+}
+#wb-quicknav-menu[hidden] { display: none; }
+.wb-qn-group { padding: .4rem .55rem .15rem; font-size: .68rem; font-weight: 800; letter-spacing: .06em; color: var(--ink-soft); }
+#wb-quicknav-menu a {
+  display: flex; justify-content: space-between; gap: .75rem; align-items: baseline;
+  padding: .3rem .55rem; border-radius: .4rem; color: var(--ink); text-decoration: none; font-size: .82rem;
+}
+#wb-quicknav-menu a:hover { background: var(--accent-soft); }
+#wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
+#wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
+@media print { #wb-quicknav { display: none; } }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+</style>
+</head>
+<body>
+<main>
+<h1>第 11 课 · 并发模型与 GIL：线程、进程与协程怎么选</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 30 分钟 · 关掉 AI 补全再开始</p>
+
+<div class="callout win">
+<strong>本课的 win</strong>：面试高频题"Python 多线程有用吗"能一句话答到点上——IO 密集有用，CPU 密集靠多进程。验收：讲清 GIL 的边界，并能按瓶颈选出线程池 / 进程池 / 协程。
+</div>
+
+<h2>一、三种并发模型：先看瓶颈，再看工具（3 分钟）</h2>
+
+<pre><span class="lang-tag">对照 — Java 并发 → Python 并发</span>Thread / Runnable              →  threading.Thread
+ExecutorService + Future       →  concurrent.futures.Executor
+synchronized / ReentrantLock   →  threading.Lock（with 语法）
+BlockingQueue                  →  queue.Queue
+CompletableFuture 组合         →  asyncio（下一课，单线程事件循环）
+ForkJoinPool / 多进程            →  multiprocessing / ProcessPoolExecutor</pre>
+
+<p>并发不是"越多线程越快"，而是<strong>让等待重叠</strong>。先判断任务瓶颈：</p>
+<ul>
+<li><strong>IO 密集</strong>：等网络、磁盘、数据库。等待时 CPU 空闲，适合线程或协程。</li>
+<li><strong>CPU 密集</strong>：纯计算、编解码、图像处理。需要真并行，CPython 下用多进程。</li>
+</ul>
+
+<h2>二、GIL：同一时刻只有一把"解释器锁"（4 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 一个反直觉的实验</span><code><span data-pyhl="1"><span class="tk-kw">import</span> threading, time
+
+<span class="tk-kw">def</span> burn(n):
+    x = <span class="tk-num">0</span>
+    <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(n):
+        x += i * i
+    <span class="tk-kw">return</span> x
+
+N = 3_000_000
+t0 = time.perf_counter(); burn(N); burn(N); <span class="tk-fn">print</span>(<span class="tk-str">"串行"</span>, time.perf_counter() - t0)
+
+t0 = time.perf_counter()
+a = threading.Thread(target=burn, args=(N,))
+b = threading.Thread(target=burn, args=(N,))
+a.start(); b.start(); a.join(); b.join()
+<span class="tk-fn">print</span>(<span class="tk-str">"双线程"</span>, time.perf_counter() - t0)   <span class="tk-com"># 通常并不更快</span></span></code></pre>
+
+<p>CPython 的 GIL（Global Interpreter Lock）保证同一进程内<strong>同一时刻只有一个线程执行 Python 字节码</strong>。所以纯计算开线程不会变快，只多了切换成本。</p>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 但有三种情况 GIL 会让路</span><code><span data-pyhl="1"><span class="tk-com"># ① 阻塞式 IO（socket / 文件 / sleep）会释放 GIL，别的线程可以跑</span>
+<span class="tk-com"># ② C 扩展可以在长计算里主动释放 GIL（numpy、hashlib 等）</span>
+<span class="tk-com"># ③ 每执行一小段字节码会做一次线程切换检查（不是严格实时）</span>
+
+<span class="tk-com"># 结论：</span>
+<span class="tk-com">#   线程适合"等待多"的任务；CPU 并行要靠多进程。</span>
+<span class="tk-com">#   Python 3.13+ 提供实验性的 free-threaded 构建（PEP 703），</span>
+<span class="tk-com">#   但默认构建与课程环境仍按 GIL 模型理解。</span></span></code></pre>
+
+<div class="marginnote">
+面试追问"那为什么还有多线程程序跑得快"——因为大多数后端服务是 IO 密集：等数据库、等 RPC、等磁盘。GIL 在等待期间是释放的。
+</div>
+
+<h2>三、threading：线程、锁与队列（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 起线程与等待</span><code><span data-pyhl="1"><span class="tk-kw">import</span> threading
+
+<span class="tk-kw">def</span> work(name, n):
+    <span class="tk-fn">print</span>(f"{name} 开始")
+    total = <span class="tk-fn">sum</span>(<span class="tk-fn">range</span>(n))
+    <span class="tk-fn">print</span>(f"{name} 完成 {total}")
+
+t = threading.Thread(target=work, args=(<span class="tk-str">"A"</span>, <span class="tk-num">1000</span>), daemon=<span class="tk-kw">True</span>)
+t.start()      <span class="tk-com"># 启动</span>
+t.join()       <span class="tk-com"># 等待结束（对应 Java 的 Thread.join）</span>
+
+<span class="tk-com"># daemon=True：主线程退出时不等它（类似守护线程）</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 竞态与 Lock</span><code><span data-pyhl="1">counter = <span class="tk-num">0</span>
+lock = threading.Lock()
+
+<span class="tk-kw">def</span> bump():
+    <span class="tk-kw">global</span> counter
+    <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(100_000):
+        <span class="tk-kw">with</span> lock:              <span class="tk-com"># 等价于 lock.acquire() / try / finally: release()</span>
+            counter += <span class="tk-num">1</span>
+
+ts = [threading.Thread(target=bump) <span class="tk-kw">for</span> _ <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">4</span>)]
+<span class="tk-kw">for</span> t <span class="tk-kw">in</span> ts: t.start()
+<span class="tk-kw">for</span> t <span class="tk-kw">in</span> ts: t.join()
+<span class="tk-fn">print</span>(counter)                  <span class="tk-com"># 没有 Lock 时通常小于 400000</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 生产者 / 消费者：queue.Queue 自带线程安全</span><code><span data-pyhl="1"><span class="tk-kw">import</span> queue, threading
+
+q = queue.Queue(maxsize=<span class="tk-num">10</span>)
+
+<span class="tk-kw">def</span> producer():
+    <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">5</span>):
+        q.put(i)                <span class="tk-com"># 队列满时阻塞</span>
+    q.put(<span class="tk-kw">None</span>)                 <span class="tk-com"># 结束信号</span>
+
+<span class="tk-kw">def</span> consumer():
+    <span class="tk-kw">while</span> <span class="tk-kw">True</span>:
+        item = q.get()          <span class="tk-com"># 队列空时阻塞</span>
+        <span class="tk-kw">if</span> item <span class="tk-kw">is</span> <span class="tk-kw">None</span>:
+            <span class="tk-kw">break</span>
+        <span class="tk-fn">print</span>(<span class="tk-str">"处理"</span>, item)
+
+threading.Thread(target=producer).start()
+threading.Thread(target=consumer).start()</span></code></pre>
+
+<p><code>queue.Queue</code> 内部已经加锁，是线程间传递数据最省心的方式；比共享变量 + 手动锁更不容易出错，对应 Java 的 <code>BlockingQueue</code>。</p>
+
+<h2>四、Executor：用线程池 / 进程池统一接口（4 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — ThreadPoolExecutor</span><code><span data-pyhl="1"><span class="tk-kw">from</span> concurrent.futures <span class="tk-kw">import</span> ThreadPoolExecutor, as_completed
+
+<span class="tk-kw">def</span> fetch(url):
+    ...                          <span class="tk-com"># 模拟 HTTP 请求</span>
+
+urls = [<span class="tk-str">"https://a"</span>, <span class="tk-str">"https://b"</span>, <span class="tk-str">"https://c"</span>]
+
+<span class="tk-kw">with</span> ThreadPoolExecutor(max_workers=<span class="tk-num">8</span>) <span class="tk-kw">as</span> pool:
+    futures = [pool.submit(fetch, u) <span class="tk-kw">for</span> u <span class="tk-kw">in</span> urls]
+    <span class="tk-kw">for</span> f <span class="tk-kw">in</span> as_completed(futures):     <span class="tk-com"># 谁先完成先处理</span>
+        <span class="tk-fn">print</span>(f.result())
+
+<span class="tk-com"># 或者保持输入顺序：</span>
+<span class="tk-com"># list(pool.map(fetch, urls))</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — ProcessPoolExecutor：绕过 GIL</span><code><span data-pyhl="1"><span class="tk-kw">from</span> concurrent.futures <span class="tk-kw">import</span> ProcessPoolExecutor
+
+<span class="tk-kw">def</span> cpu_heavy(n):
+    <span class="tk-kw">return</span> <span class="tk-fn">sum</span>(i * i <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(n))
+
+<span class="tk-kw">if</span> __name__ == <span class="tk-str">"__main__"</span>:       <span class="tk-com"># Windows / spawn 启动方式必须守入口</span>
+    <span class="tk-kw">with</span> ProcessPoolExecutor(max_workers=<span class="tk-num">4</span>) <span class="tk-kw">as</span> pool:
+        <span class="tk-fn">print</span>(<span class="tk-fn">list</span>(pool.<span class="tk-fn">map</span>(cpu_heavy, [<span class="tk-num">10</span>**<span class="tk-num">6</span>] * <span class="tk-num">4</span>)))</span></code></pre>
+
+<p>两个 Executor 接口完全相同，<code>submit</code> 返回 <code>Future</code>，<code>result()</code> 取结果、<code>as_completed</code> 按完成顺序消费。差异在底层：进程池的每个任务参数和返回值都要能 pickle，且子进程有独立内存。</p>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 最佳实践：分批而不是一个任务一个 Future</span><code><span data-pyhl="1"><span class="tk-kw">def</span> chunks(seq, size):
+    <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">0</span>, <span class="tk-fn">len</span>(seq), size):
+        <span class="tk-kw">yield</span> seq[i:i + size]
+
+<span class="tk-com"># 任务粒度太细 → 调度/序列化开销盖过收益</span>
+<span class="tk-com"># 把 10 万条数据切成 1 万条一批，再交给进程池</span></span></code></pre>
+
+<h2>五、选型决策：一张表记牢（3 分钟）</h2>
+
+<pre><span class="lang-tag">对照 — 场景 → 方案</span>IO 密集 + 并发不高（几十）      →  ThreadPoolExecutor
+IO 密集 + 并发很高（上千）      →  asyncio（下一课）
+CPU 密集                        →  ProcessPoolExecutor / multiprocessing
+需要进程间共享大量状态          →  多线程 + Lock，或改用外部存储
+任务极短且数量巨大              →  批处理 + 协程/进程池，避免逐条调度</pre>
+
+<p>三条经验：</p>
+<ul>
+<li><strong>先测再选</strong>：把串行基线跑出来，再比较线程池/进程池耗时（第 9 课的 timeit 能帮上忙）。</li>
+<li><strong>能不用锁就不用</strong>：优先消息传递（Queue、Future 返回值），共享可变状态越少越好。</li>
+<li><strong>进程池要守 <code>if __name__ == "__main__":</code></strong>，否则 spawn 模式下会递归创建进程。</li>
+</ul>
+
+<h2>六、动手：切分、合并与选型（8 分钟）</h2>
+
+<p>浏览器里无法真开线程/进程，但可以把并发代码里最容易写错的三块逻辑写对：<strong>任务切分</strong> → <strong>结果合并</strong> → <strong>按瓶颈选执行器</strong>。<code>Ctrl/Cmd + Enter</code> 快捷运行。</p>
+
+<div class="py-lab" data-prelude="prelude-0011" data-tests="tests-0011">
+<div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> chunk_ranges(n, workers):
+    <span class="tk-str">"""任务 1：把 range(n) 均匀切成至多 workers 段，返回 [(start, end), ...]。
+    前 n % workers 段多分 1 个元素；workers 超过 n 时只切 n 段；
+    n &lt;= 0 返回 []；workers &lt;= 0 抛 ValueError。"""</span>
+    ...
+
+
+<span class="tk-kw">def</span> merge_counts(parts):
+    <span class="tk-str">"""任务 2：parts 是多个 {词: 次数} 字典；合并成总字典并返回。
+    相同键的次数相加；空列表返回 {}。"""</span>
+    ...
+
+
+<span class="tk-kw">def</span> pick_pool(io_bound, cpu_bound):
+    <span class="tk-str">"""任务 3：按瓶颈选执行器。
+    IO 密集且非 CPU 密集 -&gt; "thread"；CPU 密集且非 IO 密集 -&gt; "process"；
+    两者都重 -&gt; "hybrid"；两者都不重 -&gt; "thread"。"""</span>
+    ...
+</pre><textarea class="py-lab-editor" spellcheck="false" rows="24">def chunk_ranges(n, workers):
+    &quot;&quot;&quot;任务 1：把 range(n) 均匀切成至多 workers 段，返回 [(start, end), ...]。
+    前 n % workers 段多分 1 个元素；workers 超过 n 时只切 n 段；
+    n &lt;= 0 返回 []；workers &lt;= 0 抛 ValueError。&quot;&quot;&quot;
+    ...
+
+
+def merge_counts(parts):
+    &quot;&quot;&quot;任务 2：parts 是多个 {词: 次数} 字典；合并成总字典并返回。
+    相同键的次数相加；空列表返回 {}。&quot;&quot;&quot;
+    ...
+
+
+def pick_pool(io_bound, cpu_bound):
+    &quot;&quot;&quot;任务 3：按瓶颈选执行器。
+    IO 密集且非 CPU 密集 -&gt; &quot;thread&quot;；CPU 密集且非 IO 密集 -&gt; &quot;process&quot;；
+    两者都重 -&gt; &quot;hybrid&quot;；两者都不重 -&gt; &quot;thread&quot;。&quot;&quot;&quot;
+    ...
+</textarea></div>
+  <div class="py-lab-bar">
+    <button class="py-lab-btn py-lab-run">▶ 运行并验证</button>
+    <button class="py-lab-btn ghost py-lab-reset">重置</button>
+    <span class="py-lab-status">首次运行需加载 Python 运行时，请耐心等待</span>
+  </div>
+  <pre class="py-lab-output" hidden></pre>
+</div>
+
+<p>写完并通过全部测试后，展开对照参考实现自评：</p>
+
+<details>
+<summary>参考实现（先自己写完再看）</summary>
+<pre><code><span data-pyhl="1"><span class="tk-kw">def</span> chunk_ranges(n, workers):
+    <span class="tk-kw">if</span> workers &lt;= <span class="tk-num">0</span>:
+        <span class="tk-kw">raise</span> ValueError(<span class="tk-str">"workers 必须为正数"</span>)
+    <span class="tk-kw">if</span> n &lt;= <span class="tk-num">0</span>:
+        <span class="tk-kw">return</span> []
+    workers = <span class="tk-fn">min</span>(workers, n)
+    base, rem = <span class="tk-fn">divmod</span>(n, workers)
+    out, start = [], <span class="tk-num">0</span>
+    <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(workers):
+        size = base + (<span class="tk-num">1</span> <span class="tk-kw">if</span> i &lt; rem <span class="tk-kw">else</span> <span class="tk-num">0</span>)
+        out.append((start, start + size))
+        start += size
+    <span class="tk-kw">return</span> out
+
+<span class="tk-kw">def</span> merge_counts(parts):
+    total = {}
+    <span class="tk-kw">for</span> d <span class="tk-kw">in</span> parts:
+        <span class="tk-kw">for</span> k, v <span class="tk-kw">in</span> d.items():
+            total[k] = total.get(k, <span class="tk-num">0</span>) + v
+    <span class="tk-kw">return</span> total
+
+<span class="tk-kw">def</span> pick_pool(io_bound, cpu_bound):
+    <span class="tk-kw">if</span> io_bound <span class="tk-kw">and</span> cpu_bound:
+        <span class="tk-kw">return</span> <span class="tk-str">"hybrid"</span>
+    <span class="tk-kw">if</span> cpu_bound:
+        <span class="tk-kw">return</span> <span class="tk-str">"process"</span>
+    <span class="tk-kw">return</span> <span class="tk-str">"thread"</span></span></code></pre>
+<p>自评清单：① 切分是否不重不漏（最后一段结束等于 n）？② workers 超过 n 时是否退化为 n 段？③ merge_counts 是否处理了空列表？</p>
+</details>
+
+<h2>七、检索练习：先答后看（关补全）</h2>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q1 · CPython 默认构建里，4 个线程同时跑纯 CPU 计算，总速度通常？</p>
+  <button class="quiz-opt" data-key="a">接近 4 倍</button>
+  <button class="quiz-opt" data-key="b">和单线程差不多，甚至更慢</button>
+  <button class="quiz-opt" data-key="c">变成 1/4</button>
+  <p class="quiz-explain" hidden>GIL 保证同一时刻只有一个线程执行 Python 字节码，CPU 密集任务无法并行，线程切换还有开销。要真并行只能多进程（或实验性的 free-threaded 构建）。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q2 · 批量调用外部 HTTP 接口（IO 密集），最轻量的并发方案是？</p>
+  <button class="quiz-opt" data-key="a">线程池或 asyncio 协程</button>
+  <button class="quiz-opt" data-key="b">进程池</button>
+  <button class="quiz-opt" data-key="c">开满 CPU 个线程做纯计算</button>
+  <p class="quiz-explain" hidden>IO 等待时线程会释放 GIL，线程池足以重叠等待时间；进程池要多付进程创建与序列化成本，通常没有必要。asyncio 在更高并发下更省内存。</p>
+</div>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q3 · 多线程同时对同一个计数器做  += 1，可能丢更新，正确做法是？</p>
+  <button class="quiz-opt" data-key="a">把计数器改成 float</button>
+  <button class="quiz-opt" data-key="b">多 sleep 一会儿</button>
+  <button class="quiz-opt" data-key="c">用 threading.Lock 保护读-改-写这段临界区</button>
+  <p class="quiz-explain" hidden>x += 1 不是原子操作（读、加、写三步），线程可能在中间切换。Lock 保证临界区互斥；也可用 queue.Queue 把结果交给单线程汇总。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q4 · ProcessPoolExecutor 相比 ThreadPoolExecutor 的关键差异是？</p>
+  <button class="quiz-opt" data-key="a">不能返回结果</button>
+  <button class="quiz-opt" data-key="b">每个进程有独立解释器和 GIL，可真并行 CPU 任务，但要序列化参数与结果</button>
+  <button class="quiz-opt" data-key="c">只能运行一次</button>
+  <p class="quiz-explain" hidden>多进程绕过 GIL 实现 CPU 并行，代价是进程启动、参数和返回值的 pickle 序列化，以及进程间不共享内存。数据量大时传输成本可能吃掉收益。</p>
+</div>
+
+<h2>八、间隔复习（明天开始学习前做）</h2>
+
+<p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言。</p>
+
+<div class="review" data-id="r1" data-mode="code" data-name="chunk_ranges">
+  <p class="review-q">① 默写：<code>chunk_ranges(n, workers)</code>——把 range(n) 均匀切成至多 workers 段，返回 <code>[(start, end), ...]</code>；前 n%workers 段多 1 个；n&lt;=0 返回 []；workers&lt;=0 抛 ValueError</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> chunk_ranges(n, workers):
+    <span class="tk-str">"""均匀切分 range(n)；返回 [(start, end), ...]"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="10">def chunk_ranges(n, workers):
+    &quot;&quot;&quot;均匀切分 range(n)；返回 [(start, end), ...]&quot;&quot;&quot;
+    ...
+</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r2" data-mode="code" data-name="merge_counts">
+  <p class="review-q">② 默写：<code>merge_counts(parts)</code>——合并多个 <code>{键: 次数}</code> 字典，同键相加；空列表返回 <code>{}</code></p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> merge_counts(parts):
+    <span class="tk-str">"""合并计数字典，同键求和"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="7">def merge_counts(parts):
+    &quot;&quot;&quot;合并计数字典，同键求和&quot;&quot;&quot;
+    ...
+</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r3" data-mode="expr" data-name="">
+  <p class="review-q">③ 表达式默写：调用 <code>pick_pool(False, True)</code>——CPU 密集且非 IO 密集，应返回 <code>"process"</code></p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">pick_pool(<span class="tk-kw">False</span>, <span class="tk-kw">True</span>)</pre><textarea class="review-code" spellcheck="false" rows="4">pick_pool(False, True)</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="callout primary">
+<strong>卡住了？随时问。</strong>GIL 与 IO 释放、Lock 写成了普通变量、进程池入口守卫缺失、<code>as_completed</code> 与 <code>map</code> 分不清——直接在对话里贴代码和耗时对比。
+</div>
+
+<div class="lesson-nav">
+  <a href="0010-testing.html">← 第 10 课 · 测试：pytest 断言与自测</a>
+  <a href="0000-course-outline.html">课程大纲</a>
+  <a href="0012-asyncio.html">第 12 课 · 异步 asyncio →</a>
+</div>
+
+<footer class="doc-footer">
+  <p id="cite-1">[1] 官方文档 · <a href="https://docs.python.org/zh-cn/3.15/library/threading.html">threading — 基于线程的并行</a> / <a href="https://docs.python.org/zh-cn/3.15/library/concurrent.futures.html">concurrent.futures — 启动并行任务</a></p>
+  <p id="cite-2">[2] 官方文档 · <a href="https://docs.python.org/zh-cn/3.15/library/multiprocessing.html">multiprocessing — 基于进程的并行</a> / <a href="https://docs.python.org/zh-cn/3.15/library/queue.html">queue — 一个同步的队列类</a></p>
+</footer>
+</main>
+
+<script type="text/x-python" id="prelude-0011">
+
+</script>
+
+<script type="text/x-python" id="tests-0011">
+import json as _json
+
+def _t(name, fn):
+    try:
+        fn()
+        print("TEST|" + _json.dumps({"name": name, "ok": True, "msg": ""}))
+    except Exception as e:
+        print("TEST|" + _json.dumps({"name": name, "ok": False, "msg": f"{type(e).__name__}: {e}"}))
+
+def _eq(actual, expected):
+    assert actual == expected, f"期望 {expected!r}，实际得到 {actual!r}"
+
+if "chunk_ranges" in globals():
+    _t("任务1 · 10 切 3 段", lambda: _eq(chunk_ranges(10, 3), [(0, 4), (4, 7), (7, 10)]))
+    _t("任务1 · 整除", lambda: _eq(chunk_ranges(9, 3), [(0, 3), (3, 6), (6, 9)]))
+    _t("任务1 · workers 超过 n", lambda: _eq(chunk_ranges(3, 5), [(0, 1), (1, 2), (2, 3)]))
+    _t("任务1 · n<=0", lambda: _eq(chunk_ranges(0, 3), []))
+    def _t1bad():
+        try:
+            chunk_ranges(5, 0)
+        except ValueError:
+            return
+        raise AssertionError("workers<=0 应抛 ValueError")
+    _t("任务1 · workers<=0 抛 ValueError", _t1bad)
+else:
+    print("MISSING|chunk_ranges（任务 1 还没定义）")
+
+if "merge_counts" in globals():
+    _t("任务2 · 合并相加", lambda: _eq(merge_counts([{"a": 1, "b": 2}, {"a": 3}, {"c": 4}]), {"a": 4, "b": 2, "c": 4}))
+    _t("任务2 · 空列表", lambda: _eq(merge_counts([]), {}))
+    _t("任务2 · 不改原字典", lambda: _eq(
+        (lambda ps: (merge_counts(ps), ps)[1])([{"a": 1}])[0], {"a": 1}))
+else:
+    print("MISSING|merge_counts（任务 2 还没定义）")
+
+if "pick_pool" in globals():
+    _t("任务3 · IO → thread", lambda: _eq(pick_pool(True, False), "thread"))
+    _t("任务3 · CPU → process", lambda: _eq(pick_pool(False, True), "process"))
+    _t("任务3 · 都重 → hybrid", lambda: _eq(pick_pool(True, True), "hybrid"))
+    _t("任务3 · 都轻 → thread", lambda: _eq(pick_pool(False, False), "thread"))
+else:
+    print("MISSING|pick_pool（任务 3 还没定义）")
+</script>
+
+<script>
+/* quiz.js — 可复用检索练习组件
+ * 用法：
+ * <div class="quiz" data-answer="b">
+ *   <p class="quiz-q">问题</p>
+ *   <button class="quiz-opt" data-key="a">选项 A</button>
+ *   <button class="quiz-opt" data-key="b">选项 B</button>
+ *   <p class="quiz-explain" hidden>解析（答后显示）</p>
+ * </div>
+ * 在每课末尾以内联方式引入本文件内容（不要写 src 引用，见 NOTES.md）
+ */
+(function () {
+  function initQuiz(quiz) {
+    var answer = quiz.getAttribute("data-answer");
+    var opts = quiz.querySelectorAll(".quiz-opt");
+    var explain = quiz.querySelector(".quiz-explain");
+    var done = false;
+    quiz.setAttribute("role", "radiogroup");
+    var qEl = quiz.querySelector(".quiz-q");
+    if (qEl && !quiz.getAttribute("aria-labelledby")) {
+      if (!qEl.id) qEl.id = "quizq-" + (Math.random() * 1e9 | 0);
+      quiz.setAttribute("aria-labelledby", qEl.id);
+    }
+    opts.forEach(function (b) { b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); });
+    opts.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (done) return;
+        done = true;
+        var key = btn.getAttribute("data-key");
+        opts.forEach(function (b) {
+          b.disabled = true;
+          if (b.getAttribute("data-key") === answer) b.classList.add("is-right");
+        });
+        if (key !== answer) btn.classList.add("is-wrong");
+        if (explain) explain.hidden = false;
+        opts.forEach(function (b) { b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+        var liveEl = quiz.querySelector(".quiz-live");
+        if (liveEl) liveEl.textContent = (key === answer ? "回答正确。" : "回答错误，正确答案是 " + answer + "。") +
+          (explain ? explain.textContent : "");
+        quiz.dispatchEvent(new CustomEvent("quiz:answered", {
+          bubbles: true, detail: { correct: key === answer }
+        }));
+        if (window.WBProgress) {
+          var allQ = document.querySelectorAll(".quiz");
+          WBProgress.mark({ kind: "quiz", unit: "q" + (Array.prototype.indexOf.call(allQ, quiz) + 1),
+                            total: allQ.length, passed: key === answer });
+        }
+      });
+    });
+  }
+  function initAll() { document.querySelectorAll(".quiz").forEach(initQuiz); }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script>
+/* pylab.js — 浏览器内 Python 运行组件（基于 Pyodide/WASM，CDN: unpkg）
+ *
+ * 用法（每课自包含，内联引入）：
+ *   div.py-lab[data-prelude][data-tests]
+ *     textarea.py-lab-editor（默认代码）
+ *     button.py-lab-run / button.py-lab-reset / span.py-lab-status
+ *     pre.py-lab-output
+ *   两个 text/x-python 脚本块：prelude（前置代码，用户不可见但参与运行）与 tests（用 print("TEST|" + json) 报告结果）
+ */
+(function () {
+  var PYODIDE_URL = "https://unpkg.com/pyodide@0.29.5/pyodide.js";
+  var PYODIDE_INDEX = "https://unpkg.com/pyodide@0.29.5/";
+  var pyodidePromise = null;
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.integrity = "sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6"; s.crossOrigin = "anonymous";
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getPyodide() {
+    if (!pyodidePromise) {
+      pyodidePromise = loadScript(PYODIDE_URL).then(function () {
+        return window.loadPyodide({ indexURL: PYODIDE_INDEX });
+      }).catch(function (e) { pyodidePromise = null; throw e; });
+    }
+    return pyodidePromise;
+  }
+
+  function escapeHtml(t) {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function initLab(lab) {
+    var editor = lab.querySelector(".py-lab-editor");
+    var runBtn = lab.querySelector(".py-lab-run");
+    var resetBtn = lab.querySelector(".py-lab-reset");
+    var status = lab.querySelector(".py-lab-status");
+    var out = lab.querySelector(".py-lab-output");
+    if (!editor || !runBtn || !out) return;
+    var starter = editor.getAttribute("data-starter") !== null
+      ? editor.getAttribute("data-starter")
+      : editor.value;
+
+
+    // Ctrl/Cmd+Enter 快捷运行（Tab 插入空格由 pyhl.js 统一处理）
+    editor.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runBtn.click(); }
+    });
+
+    resetBtn && resetBtn.addEventListener("click", function () {
+      if (editor.value === starter) { status.textContent = "当前已是初始代码"; return; }
+      if (!confirm("重置为初始代码？当前修改将被覆盖（可先按 Ctrl/Cmd+S 保存）。")) return;
+      editor.value = starter;
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof editor.__wbClearCode === 'function') editor.__wbClearCode();
+      out.hidden = true;
+      status.textContent = "已重置为初始代码";
+    });
+
+    runBtn.addEventListener("click", function () {
+      runBtn.disabled = true;
+      status.setAttribute('aria-live','polite'); status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      out.hidden = false;
+      out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
+
+      var prelude = "";
+      var tests = "";
+      if (lab.getAttribute("data-prelude")) {
+        var p = document.getElementById(lab.getAttribute("data-prelude"));
+        if (p) prelude = p.textContent + "\n";
+      }
+      if (lab.getAttribute("data-tests")) {
+        var t = document.getElementById(lab.getAttribute("data-tests"));
+        if (t) tests = "\n" + t.textContent + "\n";
+      }
+
+      var stdoutLines = [];
+      getPyodide().then(function (py) {
+        py.setStdout({ batched: function (s) { stdoutLines.push(s); } });
+        py.setStderr({ batched: function (s) { stdoutLines.push("[stderr] " + s); } });
+        var code = prelude + "# ==== 你的代码 ====\n" + editor.value + "\n" + tests;
+        return py.runPythonAsync(code);
+      }).then(function () {
+        var html = "";
+        if (stdoutLines.length) {
+          html += stdoutLines.map(function (l) {
+            if (l.indexOf("TEST|") === 0) {
+              try {
+                var r = JSON.parse(l.slice(5));
+                return r.ok
+                  ? '<span class="lab-pass">✅ ' + escapeHtml(r.name) + '</span>'
+                  : '<span class="lab-fail">❌ ' + escapeHtml(r.name) + '</span>\n' +
+                    '<span class="lab-info">    ' + escapeHtml(r.msg) + '</span>';
+              } catch (e2) { return escapeHtml(l); }
+            }
+            if (l.indexOf("MISSING|") === 0) {
+              return '<span class="lab-fail">⚠️ ' + escapeHtml(l.slice(8)) + '</span>';
+            }
+            return escapeHtml(l);
+          }).join("\n");
+        }
+        if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
+        out.innerHTML = html;
+        status.textContent = "运行完成";
+        var _t = stdoutLines.filter(function (l) { return l.indexOf("TEST|") === 0; });
+        var _m = stdoutLines.some(function (l) { return l.indexOf("MISSING|") === 0; });
+        var _all = _t.length > 0 && !_m && _t.every(function (l) {
+          try { return JSON.parse(l.slice(5)).ok === true; } catch (e) { return false; }
+        });
+        if (window.WBProgress) WBProgress.mark({ kind: 'pylab', passed: _all });
+      }).catch(function (err) {
+        var msg = (err && (err.message || String(err))) || "未知错误";
+        out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
+          (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
+            ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
+            : '');
+        status.setAttribute('aria-live','assertive'); status.textContent = "运行出错";
+        var retry = out.querySelector('button.wb-retry');
+        if (!retry) {
+          retry = document.createElement('button');
+          retry.type = 'button'; retry.className = 'py-lab-btn ghost wb-retry';
+          retry.textContent = '重试加载 Python 运行时';
+          retry.addEventListener('click', function () { runBtn.click(); });
+          out.appendChild(retry);
+        }
+        retry.disabled = false;
+      }).finally(function () {
+        runBtn.disabled = false;
+      });
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll(".py-lab").forEach(initLab);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else { initAll(); }
+})();
+
+</script>
+
+<script type="text/x-python" id="review-env">
+from collections import Counter
+</script>
+<script>
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "① Counter 默写：<code>word_counts(text)</code> ——按空白分词统计次数，返回 dict（用 <code>Counter(text.split())</code> 再转 dict）", "starter": "from collections import Counter\n\n\ndef word_counts(text):\n    \"\"\"Counter(text.split()) 再 dict(...)\"\"\"\n    ...", "ref": "from collections import Counter\n\ndef word_counts(text):\n    return dict(Counter(text.split()))", "tind": "        assert _fn(\"a b a\") == {\"a\": 2, \"b\": 1}, f\"实际 {_fn('a b a')!r}\"\n        assert _fn(\"\") == {}, \"空串应返回空 dict\"\n        assert _fn(\"x  x  x\") == {\"x\": 3}, \"多空格 split 自动处理\""}, {"id": "r2", "mode": "code", "name": "extract_dates", "task": "② 正则默写：<code>extract_dates(lines)</code> ——在多行文本里找出所有 ISO 日期（形如 2026-11-26），按出现顺序返回列表（<code>re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", ...)</code>）", "starter": "import re\n\n\ndef extract_dates(lines):\n    \"\"\"把 lines 连成一个文本，findall 找 r\"\\d{4}-\\d{2}-\\d{2}\" \"\"\"\n    ...", "ref": "import re\n\ndef extract_dates(lines):\n    return re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", \"\\n\".join(lines))", "tind": "        assert _fn([\"x 2026-01-02 y\", \"no date\", \"2025-12-31\"]) == [\"2026-01-02\", \"2025-12-31\"], f\"实际 {_fn(['x 2026-01-02'])!r}\"\n        assert _fn([]) == []\n        assert _fn([\"bad 20-01-01\"]) == [], \"三位年份不算日期\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式默写：用 Counter 统计字符串 <code>\"abracadabra\"</code> 各字母次数，取 <code>sorted(...items())[:2]</code>（判分环境已预置 <code>from collections import Counter</code>）", "starter": "sorted(Counter(\"abracadabra\").items())[:2]", "ref": "sorted(Counter(\"abracadabra\").items())[:2]   # [(\"a\", 5), (\"b\", 2)]", "tind": "        assert _val == [(\"a\", 5), (\"b\", 2)], f\"实际 {_val!r}\""}];
+</script>
+<script>
+/* review.js — 间隔复习在线评判引擎（Pyodide）
+ * 页面需提供：
+ *   - 预置数据块：script 标签，type="text/x-python"，id="review-env"（可选）
+ *   - window.REVIEW = [{ id, mode: 'expr'|'code', name, tind, ref }]   // tind 为缩进 8 空格的测试代码
+ *   - .review 块：data-id / data-mode / data-name，含 .review-code、.review-btn、.review-refbtn、.review-status、.review-ref
+ * expr 模式：用户代码 eval 为 _val，测试引用 _val 与 env 全局变量
+ * code 模式：用户代码 exec 进独立命名空间，取 data-name 函数为 _fn，测试引用 _fn
+ */
+(function () {
+  if (!window.REVIEW || !window.REVIEW.length) return;
+  var ENV_CODE = (document.getElementById('review-env') || { textContent: '' }).textContent;
+  var pyodide = null, loading = null;
+
+  function ensurePy() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (!loading) {
+      loading = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+        s.onload = function () {
+          loadPyodide().then(function (py) {
+            var ready = ENV_CODE.trim() ? py.runPythonAsync(ENV_CODE) : Promise.resolve();
+            return ready.then(function () { return py.runPythonAsync('_G = dict(globals())'); })
+              .then(function () { pyodide = py; resolve(py); });
+          }).catch(reject);
+        };
+        s.onerror = function () { reject(new Error('CDN 加载失败，请检查网络')); };
+      });
+      loading.catch(function () { loading = null; });
+    }
+    return loading;
+  }
+
+  function buildCode(cfg, userCode) {
+    if (cfg.mode === 'expr') {
+      return 'import json as _json\n' +
+        '_res = {"ok": False, "msg": ""}\n' +
+        'try:\n' +
+        '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
+        'except BaseException as _e:\n' +
+        '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        'else:\n' +
+        '    try:\n' +
+        cfg.tind + '\n' +
+        '        _res = {"ok": True, "msg": ""}\n' +
+        '    except AssertionError as _e:\n' +
+        '        _res = {"ok": False, "msg": str(_e)}\n' +
+        '    except Exception as _e:\n' +
+        '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+        '_json.dumps(_res)';
+    }
+    return 'import json as _json\n' +
+      '_res = {"ok": False, "msg": ""}\n' +
+      '_lenv = dict(_G)\n' +
+      'try:\n' +
+      '    exec(compile(' + JSON.stringify(userCode) + ', "<review>", "exec"), _lenv)\n' +
+      '    _fn = _lenv.get(' + JSON.stringify(cfg.name) + ')\n' +
+      'except Exception as _e:\n' +
+      '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      'else:\n' +
+      '    try:\n' +
+      '        assert _fn is not None, "函数未定义：检查函数名拼写"\n' +
+      cfg.tind + '\n' +
+      '        _res = {"ok": True, "msg": ""}\n' +
+      '    except AssertionError as _e:\n' +
+      '        _res = {"ok": False, "msg": str(_e)}\n' +
+      '    except Exception as _e:\n' +
+      '        _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
+      '_json.dumps(_res)';
+  }
+
+  function check(id) {
+    var el = document.querySelector('.review[data-id="' + id + '"]');
+    var cfg = window.REVIEW.filter(function (r) { return r.id === id; })[0];
+    if (!el || !cfg) return;
+    var ta = el.querySelector('.review-code');
+    var st = el.querySelector('.review-status');
+    var v = ta.value.trim();
+    if (!v) { st.className = 'review-status info'; st.setAttribute('aria-live', 'polite'); st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info'; st.setAttribute('aria-live', 'polite');
+    st.textContent = '判分中…';
+    ensurePy().then(function (py) {
+      return py.runPythonAsync(buildCode(cfg, v));
+    }).then(function (out) {
+      var res = JSON.parse(out);
+      if (res.ok) {
+        st.className = 'review-status pass';
+        st.setAttribute('aria-live', 'polite');
+        st.textContent = '✓ 通过——明天再来复核一次更稳';
+        if (window.WBSpaced) WBSpaced.pass(id);
+        if (window.WBProgress) WBProgress.mark({ kind: 'review', unit: id, total: window.REVIEW.length, passed: true });
+      } else {
+        var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
+        st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+        st.textContent = '✗ ' + msg;
+      }
+    }).catch(function (e) {
+      st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+      st.textContent = '判分失败：' + ((e && e.message) || String(e));
+      var bar = st.parentNode, retry = el.querySelector('.review-retry');
+      if (!retry && bar) {
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.className = 'review-btn ghost review-retry';
+        retry.textContent = '重试加载 Python 运行时';
+        retry.addEventListener('click', function () {
+          var b = el.querySelector('.review-btn'); if (b) b.click();
+        });
+        bar.appendChild(retry);
+      }
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    window.REVIEW.forEach(function (cfg) {
+      var el = document.querySelector('.review[data-id="' + cfg.id + '"]');
+      if (!el) return;
+      var btn = el.querySelector('.review-btn');
+      var refBtn = el.querySelector('.review-refbtn');
+      var ref = el.querySelector('.review-ref');
+      if (btn) btn.addEventListener('click', function () { check(cfg.id); });
+      if (refBtn && ref) refBtn.addEventListener('click', function () {
+        if (ref.hidden) { ref.textContent = '参考答案：\n' + cfg.ref; ref.hidden = false; refBtn.textContent = '收起参考'; }
+        else { ref.hidden = true; refBtn.textContent = '参考'; }
+      });
+      var ta = el.querySelector('.review-code');
+      if (ta) ta.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(cfg.id); }
+      });
+    });
+  });
+})();
+
+</script>
+<script>
+/* pyhl.js —— Python 语法高亮 + Tab 缩进 + 本地保存组件（自包含，无外部依赖）
+ *
+ * 目标元素：textarea.drill-code / textarea.py-lab-editor / textarea.review-code / input.drill-in
+ * 实现：透明原文本框 + 上层 pointer-events:none 的高亮 pre（内容实时同步）
+ * 附加 1：Tab 键在光标处插入 4 空格（所有编辑器统一行为）
+ * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
+ *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
+ *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
+ */
+(function () {
+  "use strict";
+
+  var KW = ("def return if elif else for while in not and or is None True False import from as class " +
+    "try except finally raise with lambda yield pass break continue global nonlocal assert del " +
+    "async await match case self cls").split(" ");
+  var BUILTIN = ("print len range sum min max sorted enumerate zip map filter isinstance str int float bool " +
+    "list dict set tuple type abs round any all input super dataclass field repr dir help divmod format " +
+    "staticmethod property open exit").split(" ");
+  var KWSET = {}, BSET = {};
+  KW.forEach(function (w) { KWSET[w] = 1; });
+  BUILTIN.forEach(function (w) { BSET[w] = 1; });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var TOK = /("""[\s\S]*?"""|'''[\s\S]*?'''|(?:[fFrRbBuU]{0,2})"(?:\\.|[^"\\\n])*"|(?:[fFrRbBuU]{0,2})'(?:\\.|[^'\\\n])*'|#[^\n]*|@[A-Za-z_][\w.]*|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?j?\b|\b[A-Za-z_]\w*\b)/g;
+
+  function hl(src) {
+    var out = "", last = 0, m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src)) !== null) {
+      var t = m[0];
+      out += esc(src.slice(last, m.index));
+      var cls = "";
+      var c0 = t.charAt(0);
+      if (c0 === "#") cls = "tk-com";
+      else if (c0 === "@") cls = "tk-dec";
+      else if (c0 === '"' || c0 === "'") cls = "tk-str";
+      else if (/\d/.test(c0)) cls = "tk-num";
+      else if (KWSET[t]) cls = "tk-kw";
+      else if (BSET[t]) cls = "tk-fn";
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  var SEL = "textarea.drill-code, textarea.py-lab-editor, textarea.review-code, input.drill-in";
+
+  function num(cs, prop) { return parseFloat(cs[prop]) || 0; }
+
+  /* ---- 本地保存：编辑器内 Cmd/Ctrl+S = 保存代码 ---- */
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
+        "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "opacity:0;transition:opacity 0.25s;pointer-events:none;";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = "0"; }, 1600);
+  }
+
+  function editorKey(ta, idx) {
+    var anchor = null;
+    try {
+      var drill = ta.closest(".drill");
+      if (drill && drill.dataset.n) anchor = "d" + drill.dataset.n;
+      if (!anchor && ta.id) anchor = ta.id;
+    } catch (e) { /* closest 不可用则退回序号 */ }
+    if (!anchor) anchor = "idx" + idx;
+    return "wb-code:" + location.pathname + ":" + anchor;
+  }
+
+  function saveCode(ta, key) {
+    var code = ta.value;
+    try { localStorage.setItem(key, code); } catch (e) { return; }
+    try {
+      document.dispatchEvent(new CustomEvent("wb-code-save", { detail: { ta: ta, code: code, key: key } }));
+    } catch (e) { /* 旧浏览器无 CustomEvent 则跳过桥接 */ }
+    toast("✓ 代码已保存（浏览器本地，刷新不丢）");
+  }
+
+  function enhance(ta, idx) {
+    if (ta.__pyhl) return;
+    ta.__pyhl = true;
+
+    var cs = getComputedStyle(ta);
+    var isInput = ta.tagName === "INPUT";
+
+    // 定位容器：静态烘焙的页面已带 .pyhl-wrap，直接采用；否则现场包一层
+    var wrap = (ta.parentNode && ta.parentNode.classList &&
+                ta.parentNode.classList.contains("pyhl-wrap"))
+      ? ta.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pyhl-wrap";
+      if (cs.display === "block" || !isInput) wrap.style.display = "block";
+      if (isInput) { wrap.style.flex = cs.flex; wrap.style.display = "block"; }
+      ta.parentNode.insertBefore(wrap, ta);
+      wrap.appendChild(ta);
+    }
+    wrap.style.margin = cs.marginTop + " " + cs.marginRight + " " + cs.marginBottom + " " + cs.marginLeft;
+    ta.style.margin = "0";
+
+    // 高亮层：优先采用静态烘焙的 pre，否则创建
+    var pre = wrap.querySelector(":scope > pre.pyhl-hl") ||
+      (function () {
+        var p = document.createElement("pre");
+        p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
+        wrap.insertBefore(p, ta);
+        return p;
+      })();
+    var padT = num(cs, "paddingTop") + num(cs, "borderTopWidth");
+    var padB = num(cs, "paddingBottom") + num(cs, "borderBottomWidth");
+    var padL = num(cs, "paddingLeft") + num(cs, "borderLeftWidth");
+    var padR = num(cs, "paddingRight") + num(cs, "borderRightWidth");
+    pre.style.padding = padT + "px " + padR + "px " + padB + "px " + padL + "px";
+    pre.style.fontFamily = cs.fontFamily;
+    pre.style.fontSize = cs.fontSize;
+    pre.style.fontWeight = cs.fontWeight;
+    pre.style.fontStyle = cs.fontStyle;
+    pre.style.lineHeight = cs.lineHeight;
+    pre.style.letterSpacing = cs.letterSpacing;
+    pre.style.tabSize = cs.tabSize || "4";
+    pre.style.borderRadius = cs.borderRadius;
+    pre.style.whiteSpace = isInput ? "pre" : "pre-wrap";
+    pre.style.overflowWrap = "break-word";
+
+    ta.classList.add("pyhl-src");
+
+    function sync() {
+      pre.innerHTML = hl(ta.value) + "\n";
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    }
+
+    ta.addEventListener("input", sync);
+    ta.addEventListener("scroll", function () {
+      pre.scrollTop = ta.scrollTop;
+      pre.scrollLeft = ta.scrollLeft;
+    });
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(ta);
+    }
+
+    // 本地保存：恢复 + Cmd/Ctrl+S
+    var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
+    try {
+      var saved = localStorage.getItem(codeKey);
+      if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
+        ta.value = saved; // 引擎已恢复过的（≠ 初始值）不覆盖
+      }
+    } catch (e) { /* localStorage 不可用则跳过 */ }
+
+    var escUnlocked = false;
+    ta.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
+          (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); // 拦截浏览器"保存网页"
+        saveCode(ta, codeKey);
+        return;
+      }
+      if (e.key === "Escape") { escUnlocked = true; return; }
+      if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
+      ta.value = v.slice(0, s) + "    " + v.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      sync();
+    });
+
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll(SEL).forEach(function (ta, idx) {
+      try { enhance(ta, idx); } catch (err) {
+        // 单个编辑器失败不影响其余；静态烘焙的高亮仍然可见
+        if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
+      }
+    });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
+  }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+})();</script>
+<script>
+/* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+(function () {
+  var KEY = 'wb-theme-pref';
+  var pref = 'auto';
+  try { pref = localStorage.getItem(KEY) || 'auto'; } catch (e) {}
+  var root = document.documentElement;
+
+  function apply() {
+    if (pref === 'auto') root.removeAttribute('data-theme'); // 交给 prefers-color-scheme
+    else root.dataset.theme = pref;
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = { auto: '🌓 主题·自动', light: '☀️ 浅色', dark: '🌙 深色' }[pref];
+  }
+
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', function () { if (pref === 'auto') apply(); });
+
+  function toggle() {
+    pref = pref === 'auto' ? 'light' : (pref === 'light' ? 'dark' : 'auto');
+    try { localStorage.setItem(KEY, pref); } catch (e) {}
+    apply();
+  }
+
+  function init() {
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.className = 'theme-toggle no-print';
+    btn.title = '切换主题：自动（跟随系统）→ 浅色 → 深色';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+<div id="wb-quicknav">
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：11 并发与 GIL</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html" aria-current="page"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>
+/* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */
+(function () {
+  var btn = document.getElementById('wb-quicknav-btn');
+  var menu = document.getElementById('wb-quicknav-menu');
+  if (!btn || !menu) return;
+  function close() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#wb-quicknav')) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) close();
+  });
+})();
+</script>
+</body>
+</html>

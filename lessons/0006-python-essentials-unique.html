@@ -372,8 +372,8 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </head>
 <body>
 <main>
-<h1>第 6 课 · Python 独有语法专题：切片、闭包与对象模型</h1>
-<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 30 分钟 · 关掉 AI 补全再开始</p>
+<h1>第 6 课 · Python 独有语法与对象模型：切片、闭包、拷贝与 GC</h1>
+<p class="meta">Mission: Python（Agent 开发与面试算法） · 预计 40 分钟 · 关掉 AI 补全再开始</p>
 
 <div class="callout win">
 <strong>本课的 win</strong>：拿下 Java 里<strong>没有对应物</strong>的四个面——切片、闭包与 LEGB、对象模型（is/==、可哈希）、bytes 与 Enum。验收标准：闭包计数器与切片操作全对，能讲清 is 与 == 的区别。
@@ -480,7 +480,100 @@ acct.__pin          <span class="tk-com"># AttributeError！</span>
 acct._Account__pin  <span class="tk-com"># 改名后的真身（知道即可，别这样访问）</span>
 <span class="tk-com"># 双下划线防的是"子类无意覆盖"，不是访问控制</span></span></code></pre>
 
-<h2>五、bytes 与 Enum：数据面与类型面（5 分钟）</h2>
+<h2>五、拷贝：赋值只是贴标签，拷贝才复制（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 三种"复制"完全不同</span><code><span data-pyhl="1"><span class="tk-kw">import</span> copy
+
+a = [[<span class="tk-num">1</span>], [<span class="tk-num">2</span>]]
+b = a                 <span class="tk-com"># 赋值：同一对象的两个名字（Java 的引用赋值）</span>
+c = a[:]              <span class="tk-com"># 浅拷贝：新外层列表，内层元素仍是同一批对象</span>
+d = copy.deepcopy(a)  <span class="tk-com"># 深拷贝：递归复制，完全独立</span>
+
+a[<span class="tk-num">0</span>].append(<span class="tk-num">9</span>)
+b                     <span class="tk-com"># [[1, 9], [2]] —— 跟着变</span>
+c                     <span class="tk-com"># [[1, 9], [2]] —— 外层是新的，内层共享</span>
+d                     <span class="tk-com"># [[1], [2]]     —— 完全不受影响</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 浅拷贝的常见入口与深拷贝的边界</span><code><span data-pyhl="1">lst.copy()            <span class="tk-com"># 等价 lst[:]；dict.copy()；set.copy()</span>
+copy.copy(obj)        <span class="tk-com"># 通用浅拷贝</span>
+copy.deepcopy(obj)    <span class="tk-com"># 通用深拷贝（能处理循环引用，但更慢）</span>
+
+<span class="tk-com"># 自定义类默认浅拷贝；需要控制深拷贝时实现 __deepcopy__(self, memo)</span>
+<span class="tk-com"># 经验：不可变对象（int/str/tuple-of-immutables）拷贝与否无所谓；</span>
+<span class="tk-com">#       嵌套可变结构要问"我要共享还是隔离"。</span></span></code></pre>
+
+<p>Java 对照：<code>b = a</code> 是引用赋值；<code>Object.clone()</code> 默认浅拷贝；深拷贝通常要手写或序列化往返。Python 的 <code>copy</code> 模块把三者都摆明了，面试问"深浅拷贝"就是考这个。</p>
+
+<h2>六、引用计数与 GC：对象什么时候消失（4 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 引用计数是主回收器</span><code><span data-pyhl="1"><span class="tk-kw">import</span> sys, gc
+
+x = []
+sys.getrefcount(x)        <span class="tk-com"># 2 左右（x 本身 + getrefcount 的参数临时引用）</span>
+y = x
+sys.getrefcount(x)        <span class="tk-com"># 3</span>
+<span class="tk-kw">del</span> y                     <span class="tk-com"># 少一个引用</span>
+<span class="tk-kw">del</span> x                     <span class="tk-com"># 归零 → 立即释放</span>
+
+<span class="tk-com"># 循环引用（a.b = b; b.a = a）无法靠计数归零，</span>
+<span class="tk-com"># 由分代垃圾回收器兜底：</span>
+gc.collect()              <span class="tk-com"># 手动触发一轮</span>
+gc.get_threshold()        <span class="tk-com"># (700, 10, 10) 默认阈值</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — 弱引用：缓存不拴住对象</span><code><span data-pyhl="1"><span class="tk-kw">import</span> weakref
+
+<span class="tk-kw">class</span> Agent: ...
+
+registry = weakref.WeakValueDictionary()
+a = Agent()
+registry[<span class="tk-str">"default"</span>] = a
+<span class="tk-fn">len</span>(registry)             <span class="tk-com"># 1</span>
+<span class="tk-kw">del</span> a                     <span class="tk-com"># 没有强引用了</span>
+<span class="tk-com"># 下一次 GC 后 registry 自动变空 —— 缓存不会阻止对象被回收</span>
+
+<span class="tk-com"># 典型用途：按名字找实例的注册表、事件监听器、父子节点反向引用</span></span></code></pre>
+
+<p>与 Java 的差异：Java 只有 tracing GC，对象何时回收不确定；CPython 先用引用计数<strong>即时</strong>回收，再用分代循环检测兜底。<code>__del__</code> 不是可靠的清理钩子（尤其是循环引用场景），资源清理请用 <code>with</code> / <code>try...finally</code>。</p>
+
+<div class="marginnote">
+内存泄漏在 Python 里通常是"逻辑泄漏"：全局缓存、列表里攒监听器、闭包持有大对象。用 <code>gc</code> 与 <code>weakref</code> 排查，而不是等 OOM。
+</div>
+
+<h2>七、__slots__、weakref 与 MRO（5 分钟）</h2>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — __slots__：去掉每实例的 __dict__</span><code><span data-pyhl="1"><span class="tk-kw">class</span> Point:
+    __slots__ = (<span class="tk-str">"x"</span>, <span class="tk-str">"y"</span>)
+
+    <span class="tk-kw">def</span> __init__(<span class="tk-kw">self</span>, x, y):
+        <span class="tk-kw">self</span>.x = x
+        <span class="tk-kw">self</span>.y = y
+
+p = Point(<span class="tk-num">1</span>, <span class="tk-num">2</span>)
+p.z = <span class="tk-num">3</span>                   <span class="tk-com"># AttributeError：没有 __dict__，不能随便加属性</span>
+<span class="tk-com"># 大量小对象时显著省内存；代价是失去动态属性与部分内省灵活性。</span></span></code></pre>
+
+<pre><span class="lang-tag" data-pyhl="1">PYTHON — MRO：多继承的方法查找顺序（C3 线性化）</span><code><span data-pyhl="1"><span class="tk-kw">class</span> A:
+    <span class="tk-kw">def</span> who(<span class="tk-kw">self</span>): <span class="tk-kw">return</span> <span class="tk-str">"A"</span>
+
+<span class="tk-kw">class</span> B(A):
+    <span class="tk-kw">def</span> who(<span class="tk-kw">self</span>): <span class="tk-kw">return</span> <span class="tk-str">"B"</span>
+
+<span class="tk-kw">class</span> C(A):
+    <span class="tk-kw">def</span> who(<span class="tk-kw">self</span>): <span class="tk-kw">return</span> <span class="tk-str">"C"</span>
+
+<span class="tk-kw">class</span> D(B, C):
+    <span class="tk-kw">pass</span>
+
+D.__mro__                 <span class="tk-com"># (D, B, C, A, object)</span>
+D().who()                 <span class="tk-com"># "B"</span>
+<span class="tk-fn">super</span>().who()             <span class="tk-com"># 在 B 的方法里：沿 MRO 找下一个（C）</span>
+
+<span class="tk-com"># Java 没有多继承；接口 default 方法冲突要显式重写。</span>
+<span class="tk-com"># Python 的 super() 永远按 MRO 走，不是"父类"那么简单。</span></span></code></pre>
+
+<p>三条实用结论：<strong>①</strong> 需要省内存、字段固定的值对象用 <code>__slots__</code>（dataclass 也有 <code>slots=True</code>）；<strong>②</strong> 弱引用要显式声明 <code>__weakref__</code>，否则定义了 <code>__slots__</code> 的类不能弱引用；<strong>③</strong> 多继承优先用 mixin 表达"能力"，用 <code>super()</code> 协作，不要手写 <code>Base.method(self)</code>。</p>
+
+<h2>八、bytes 与 Enum：数据面与类型面（5 分钟）</h2>
 
 <pre><span class="lang-tag">PYTHON — bytes：网络与文件的默认单位</span><code><span data-pyhl="1">s = <span class="tk-str">"中文"</span>
 data = s.encode(<span class="tk-str">"utf-8"</span>)     <span class="tk-com"># str → bytes（→ getBytes(Charset)）</span>
@@ -504,7 +597,7 @@ Status.PAID.name             <span class="tk-com"># 'PAID'</span>
 <span class="tk-fn">list</span>(Status)                 <span class="tk-com"># 可迭代所有成员</span>
 <span class="tk-com"># IntEnum 可直接比大小；frozen dataclass 一样不可变，但 Enum 语义更明确</span></span></code></pre>
 
-<h2>六、动手：闭包计数器 + 切片右移 + Enum（8 分钟）</h2>
+<h2>九、动手：闭包计数器 + 切片右移 + Enum（8 分钟）</h2>
 
 <p>三个任务对应三个新概念：<strong>闭包计数器</strong>（nonlocal）→ <strong>切片循环右移</strong>（负索引 + 拼接）→ <strong>Enum 反查</strong>。<code>Ctrl/Cmd + Enter</code> 快捷运行。任务 1 有防作弊测试：把 count 放到全局会当场抓住；任务 3 会检查 <code>Status</code> 真的继承 Enum。</p>
 
@@ -602,7 +695,7 @@ def from_value(s):
 <p>自评清单：① <code>nonlocal</code> 写在内部函数里了吗？两个计数器真的互不影响？② 右移用了 <code>lst[-k:] + lst[:-k]</code> 还是笨办法循环 pop？k=0 和空列表都对吗？③ <code>Status(s)</code> 的 ValueError 被捕获并返回 None 了吗？</p>
 </details>
 
-<h2>四·补、del 与内省三件套（3 分钟）</h2>
+<h2>九·补、del 与内省三件套（3 分钟）</h2>
 
 <p>官网 5.2、6.3 和 9.1 节补齐两个基础概念：<code>del</code> 到底删了什么，以及不会用法时怎么现场问解释器。</p>
 
@@ -641,7 +734,7 @@ inspect.signature(fn)  <span class="tk-com"># 看真实签名（第 3/7 课的�
   <p class="quiz-explain" hidden>dir() 列名字、help() 读 __doc__、inspect.signature() 看签名——这是 Python 的内省三件套，面试手写代码前先在 REPL 里验证语法手感是合理策略。</p>
 </div>
 
-<h2>七、检索练习：先答后看（关补全）</h2>
+<h2>十、检索练习：先答后看（关补全）</h2>
 
 <div class="quiz" data-answer="b">
   <p class="quiz-q">Q1 · <code>letters = ['a','b','c','d','e','f']</code>，<code>letters[-2:]</code> 得到什么？</p>
@@ -667,7 +760,31 @@ inspect.signature(fn)  <span class="tk-com"># 看真实签名（第 3/7 课的�
   <p class="quiz-explain" hidden>== 对应 equals()，is 对应引用比较（Java 的 ==）。纪律：判等永远写 ==；is 只用于 None / True / False 和"是不是同一个对象"的场景。</p>
 </div>
 
-<h2>八、间隔复习（明天开始学习前做）</h2>
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q6 · <code>c = a[:]</code> 之后修改 <code>a[0]</code> 指向的内层列表，<code>c[0]</code> 会怎样？</p>
+  <button class="quiz-opt" data-key="a">不受影响，切片是深拷贝</button>
+  <button class="quiz-opt" data-key="b">跟着改变——浅拷贝只复制外层，内层对象仍共享</button>
+  <button class="quiz-opt" data-key="c">抛异常，因为切片后列表被冻结</button>
+  <p class="quiz-explain" hidden>切片/ copy.copy 都是浅拷贝：新容器、旧元素。内层可变对象被两个列表共同引用，改一个两边都看得见。要完全隔离用 copy.deepcopy。</p>
+</div>
+
+<div class="quiz" data-answer="a">
+  <p class="quiz-q">Q7 · CPython 中对象引用计数归零时通常发生什么？</p>
+  <button class="quiz-opt" data-key="a">立即释放；循环引用则由分代 GC 兜底</button>
+  <button class="quiz-opt" data-key="b">等 JVM 式 Stop-the-world 回收</button>
+  <button class="quiz-opt" data-key="c">永远不会释放，必须手动 free</button>
+  <p class="quiz-explain" hidden>CPython 的主回收器是引用计数：计数归零立即析构。循环引用计数不会归零，交给 gc 模块的循环检测器处理。这也是 Python 与纯 tracing GC 的关键差异。</p>
+</div>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q8 · <code>class D(B, C)</code> 且 B、C 都继承 A，<code>D.__mro__</code> 的顺序是？</p>
+  <button class="quiz-opt" data-key="a">D, A, B, C, object</button>
+  <button class="quiz-opt" data-key="b">D, A, C, B, object</button>
+  <button class="quiz-opt" data-key="c">D, B, C, A, object</button>
+  <p class="quiz-explain" hidden>C3 线性化保证局部优先：先按声明顺序 D → B → C，A 作为共同祖先排在两个子类之后，最后是 object。super() 就是沿这条 MRO 链找下一个实现。</p>
+</div>
+
+<h2>十一、间隔复习（明天开始学习前做）</h2>
 
 <p>三道默写题在线评判：先凭记忆写，再点"检查"——真实 Python 运行时逐条断言，<code>Ctrl/Cmd+Enter</code> 快捷检查。想不起来再看参考。</p>
 
@@ -704,6 +821,29 @@ inspect.signature(fn)  <span class="tk-com"># 看真实签名（第 3/7 课的�
 <div class="review" data-id="r3" data-mode="expr" data-name="">
   <p class="review-q">③ 表达式判断：<code>[1, 2] is [1, 2]</code> 的值是什么？先想清楚 <code>is</code> 与 <code>==</code> 的区别再写</p>
   <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true">[<span class="tk-num">1</span>, <span class="tk-num">2</span>] <span class="tk-kw">is</span> [<span class="tk-num">1</span>, <span class="tk-num">2</span>]</pre><textarea class="review-code" spellcheck="false" rows="6">[1, 2] is [1, 2]</textarea></div>
+  <div class="review-bar">
+    <button class="review-btn">检查</button>
+    <button class="review-btn ghost review-refbtn">参考</button>
+    <span class="review-status"></span>
+  </div>
+  <pre class="review-ref" hidden></pre>
+</div>
+
+<div class="review" data-id="r4" data-mode="code" data-name="deep_copy">
+  <p class="review-q">④ 深拷贝默写：<code>deep_copy(obj)</code>——返回与 obj 完全独立的副本（嵌套列表改原对象不互相影响；判分环境已 <code>import copy</code>）</p>
+  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">import</span> copy
+
+
+<span class="tk-kw">def</span> deep_copy(obj):
+    <span class="tk-str">"""返回与 obj 完全独立的深拷贝"""</span>
+    ...
+</pre><textarea class="review-code" spellcheck="false" rows="6">import copy
+
+
+def deep_copy(obj):
+    &quot;&quot;&quot;返回与 obj 完全独立的深拷贝&quot;&quot;&quot;
+    ...
+</textarea></div>
   <div class="review-bar">
     <button class="review-btn">检查</button>
     <button class="review-btn ghost review-refbtn">参考</button>
@@ -1008,10 +1148,10 @@ else:
 </script>
 
 <script type="text/x-python" id="review-env">
-# 本页复习题自带全部数据，无需预置
+import copy
 </script>
 <script>
-window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "① 闭包计数器默写：<code>make_counter()</code> 返回 <code>inc()</code> 函数——内部 count 每次 +1 并返回新值，两个计数器互不影响（nonlocal）", "starter": "def make_counter():\n    \"\"\"返回 inc()；内部 count 每次 +1；各计数器独立\"\"\"\n    ...", "ref": "def make_counter():\n    count = 0\n    def inc():\n        nonlocal count\n        count += 1\n        return count\n    return inc", "tind": "        c = _fn()\n        assert c() == 1, f\"第一次调用应返回 1，实际 {c() if callable(c) else c!r}\"\n        c()\n        assert c() == 3, \"第三次调用应返回 3\"\n        c1 = _fn()\n        c1()\n        c2 = _fn()\n        assert c2() == 1, \"第二个计数器应从 1 开始——count 是不是放到全局了？\""}, {"id": "r2", "mode": "code", "name": "rotate", "task": "② 切片默写：<code>rotate(lst, k)</code> 循环右移 k 位——尾段 <code>lst[-k:]</code> 拼到 <code>lst[:-k]</code> 前面；空列表返回 <code>[]</code>，k 超长先取模", "starter": "def rotate(lst, k):\n    \"\"\"循环右移 k 位；空列表返回 []；k 超长先取模\"\"\"\n    ...", "ref": "def rotate(lst, k):\n    if not lst:\n        return []\n    k %= len(lst)\n    return lst[-k:] + lst[:-k]", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [4, 5, 1, 2, 3], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2, 3], 3) == [1, 2, 3], \"k 等于长度应还原\"\n        assert _fn([], 2) == [], \"空列表返回空列表\"\n        assert _fn([1, 2, 3], 5) == [2, 3, 1], \"k 超长先取模\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式判断：<code>[1, 2] is [1, 2]</code> 的值是什么？先想清楚 <code>is</code> 与 <code>==</code> 的区别再写", "starter": "[1, 2] is [1, 2]", "ref": "[1, 2] is [1, 2]   # False：is 比较对象身份（两个不同的列表对象）；判等请用 ==", "tind": "        assert _val is False, f\"两个新建列表不是同一个对象，应为 False，实际 {_val!r}\""}];
+window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "① 闭包计数器默写：<code>make_counter()</code> 返回 <code>inc()</code> 函数——内部 count 每次 +1 并返回新值，两个计数器互不影响（nonlocal）", "starter": "def make_counter():\n    \"\"\"返回 inc()；内部 count 每次 +1；各计数器独立\"\"\"\n    ...", "ref": "def make_counter():\n    count = 0\n    def inc():\n        nonlocal count\n        count += 1\n        return count\n    return inc", "tind": "        c = _fn()\n        assert c() == 1, f\"第一次调用应返回 1，实际 {c() if callable(c) else c!r}\"\n        c()\n        assert c() == 3, \"第三次调用应返回 3\"\n        c1 = _fn()\n        c1()\n        c2 = _fn()\n        assert c2() == 1, \"第二个计数器应从 1 开始——count 是不是放到全局了？\""}, {"id": "r2", "mode": "code", "name": "rotate", "task": "② 切片默写：<code>rotate(lst, k)</code> 循环右移 k 位——尾段 <code>lst[-k:]</code> 拼到 <code>lst[:-k]</code> 前面；空列表返回 <code>[]</code>，k 超长先取模", "starter": "def rotate(lst, k):\n    \"\"\"循环右移 k 位；空列表返回 []；k 超长先取模\"\"\"\n    ...", "ref": "def rotate(lst, k):\n    if not lst:\n        return []\n    k %= len(lst)\n    return lst[-k:] + lst[:-k]", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [4, 5, 1, 2, 3], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2, 3], 3) == [1, 2, 3], \"k 等于长度应还原\"\n        assert _fn([], 2) == [], \"空列表返回空列表\"\n        assert _fn([1, 2, 3], 5) == [2, 3, 1], \"k 超长先取模\""}, {"id": "r3", "mode": "expr", "name": "", "task": "③ 表达式判断：<code>[1, 2] is [1, 2]</code> 的值是什么？先想清楚 <code>is</code> 与 <code>==</code> 的区别再写", "starter": "[1, 2] is [1, 2]", "ref": "[1, 2] is [1, 2]   # False：is 比较对象身份（两个不同的列表对象）；判等请用 ==", "tind": "        assert _val is False, f\"两个新建列表不是同一个对象，应为 False，实际 {_val!r}\""}, {"id": "r4", "mode": "code", "name": "deep_copy", "task": "④ 深拷贝默写：<code>deep_copy(obj)</code>——返回完全独立的副本（嵌套列表改原对象不互相影响；判分环境已 <code>import copy</code>）", "starter": "import copy\n\n\ndef deep_copy(obj):\n    \"\"\"返回与 obj 完全独立的深拷贝\"\"\"\n    ...", "ref": "import copy\n\n\ndef deep_copy(obj):\n    return copy.deepcopy(obj)", "tind": "        assert _fn([1, 2]) == [1, 2]\n        _src = [[1], [2]]\n        _cpy = _fn(_src)\n        _src[0].append(9)\n        assert _cpy[0] == [1], f\"内层应独立，实际 {_cpy!r}\""}];
 </script>
 <script>
 /* review.js — 间隔复习在线评判引擎（Pyodide）
@@ -1351,6 +1491,16 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
       }
     });
+    // 选择题选项代码兜底：.opt-text 内联 code（正常由构建脚本烘焙）
+    document.querySelectorAll(".opt-text > code:not([data-pyhl])").forEach(function (codeEl) {
+      try {
+        if (codeEl.children.length) return;
+        codeEl.innerHTML = hl(codeEl.textContent);
+        codeEl.setAttribute("data-pyhl", "1");
+      } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl opt enhance failed:", err);
+      }
+    });
   }
 
   /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
@@ -1499,9 +1649,18 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
 
 </script>
 <div id="wb-quicknav">
-  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：6 Python 独有语法</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html" aria-current="page"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：6 对象模型与独有语法</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html" aria-current="page"><span>6 对象模型与独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-stdlib.html"><span>8 标准库实战</span></a><a href="0009-scripting.html"><span>9 脚本工程化</span></a><a href="0010-testing.html"><span>10 测试与自测</span></a><a href="0011-concurrency.html"><span>11 并发与 GIL</span></a><a href="0012-asyncio.html"><span>12 异步 asyncio</span></a><a href="0013-decorators.html"><span>13 装饰器与回调</span></a><a href="0014-generators.html"><span>14 生成器与流式输出</span></a><a href="0015-fastapi.html"><span>15 FastAPI 最小面</span></a><a href="0016-nano-agent.html"><span>16 Nano Agent 实战</span></a><a href="0017-algorithms.html"><span>17 算法手写套路</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-stdlib-drill.html"><span>8★ 标准库练习</span></a><a href="0009-scripting-drill.html"><span>9★ 脚本工程化练习</span></a><a href="0010-testing-drill.html"><span>10★ 测试与自测练习</span></a><a href="0011-concurrency-drill.html"><span>11★ 并发与 GIL 练习</span></a><a href="0012-asyncio-drill.html"><span>12★ 异步练习</span></a><a href="0013-decorators-drill.html"><span>13★ 装饰器练习</span></a><a href="0014-generators-drill.html"><span>14★ 生成器练习</span></a><a href="0017-algorithms-drill.html"><span>17★ 算法手写练习</span></a><a href="0006-review-drill.html"><span>R1★ 语言地基复盘（22 题）</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
+
+
+
+
+
+
+
+
+
 
 <script>
 /* 右上角快捷导航：点击展开 / Esc 或点外部关闭 */
