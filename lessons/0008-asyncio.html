@@ -383,8 +383,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>Java 近年也有对应物：<code>CompletableFuture</code>（异步但回调地狱）、虚拟线程（Loom，贴近协程）。Python 的模型更彻底：<strong>async def 定义的函数可以中途暂停、把控制权让给别人，等 IO 完成再回来</strong>。调度者叫<strong>事件循环</strong>（event loop）——单线程，谁在等 IO 就切换谁：</p>
 
-<pre><span class="lang-tag">对照 — Java → Python</span>
-Thread / virtual thread      →  协程（coroutine，更轻：不是线程，是可暂停的函数）
+<pre><span class="lang-tag">对照 — Java → Python</span>Thread / virtual thread      →  协程（coroutine，更轻：不是线程，是可暂停的函数）
 ExecutorService.submit       →  asyncio.create_task(coro)
 CompletableFuture.allOf      →  asyncio.gather(c1, c2, c3)
 future.get()                 →  await coro
@@ -466,8 +465,7 @@ asyncio.run(main())
 
 <h2>五、面试高频：协程 vs 线程（3 分钟）</h2>
 
-<pre><span class="lang-tag">一句话答法</span>
-协程：单线程 + 协作式调度 + 用户态切换，只适合【IO 密集】（网络/磁盘）——
+<pre><span class="lang-tag">一句话答法</span>协程：单线程 + 协作式调度 + 用户态切换，只适合【IO 密集】（网络/磁盘）——
       切换成本纳秒级，10 万并发连接也扛得住
 线程：操作系统抢占式调度，适合阻塞式代码；Python 里因 GIL 同一时刻只有一个线程跑字节码
 CPU 密集任务（图像处理/大计算）：两个都别用 → 多进程 multiprocessing
@@ -1258,10 +1256,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "fetch", "task": "① 协�
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

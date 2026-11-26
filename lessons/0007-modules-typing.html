@@ -383,8 +383,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>Python 文件即<strong>模块</strong>（module ≈ 一个 .java 文件），目录加 <code>__init__.py</code> 即<strong>包</strong>（package ≈ Java package）。导入体系的 Java 对照：</p>
 
-<pre><span class="lang-tag">对照 — Java → Python</span>
-import java.util.List;        →  import json              （导入整个模块）
+<pre><span class="lang-tag">对照 — Java → Python</span>import java.util.List;        →  import json              （导入整个模块）
 import static Math.max;       →  from math import sqrt    （导入具体名字）
 import java.util.*;           →  from math import *       （能用，别写——命名空间污染）
 p.println();                  →  json.dumps(x)            （带模块名调用）
@@ -413,8 +412,7 @@ JAR 包                        →  wheel / pip install 包名</pre>
 
 <p>Java 一个项目一份依赖；Python 默认<strong>全局共享</strong>——A 项目要 pydantic 1.x、B 项目要 2.x 就打架。虚拟环境（venv）给每个项目一份独立解释器环境：</p>
 
-<pre><span class="lang-tag">SHELL — 三步建环境</span>
-python3 -m venv .venv           # 在项目下创建虚拟环境目录
+<pre><span class="lang-tag">SHELL — 三步建环境</span>python3 -m venv .venv           # 在项目下创建虚拟环境目录
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install pydantic requests   # 装到 .venv 里，不动全局
 
@@ -429,8 +427,7 @@ deactivate                      # 退出虚拟环境</pre>
 
 <p>要做成<strong>可安装的包</strong>，最小配置是一个 <code>pyproject.toml</code>：</p>
 
-<pre><span class="lang-tag">TOML — pyproject.toml 最小例</span>
-[project]
+<pre><span class="lang-tag">TOML — pyproject.toml 最小例</span>[project]
 name = "miniagent"
 version = "0.1.0"
 dependencies = ["requests"]
@@ -1347,10 +1344,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_temperature", "task
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

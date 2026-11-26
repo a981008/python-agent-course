@@ -383,8 +383,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>Java 的注解（<code>@Override</code>/<code>@Transactional</code>）只是贴在代码上的元数据，要靠反射或 AOP 才生效。Python 装饰器<strong>直接就是函数</strong>：接收一个函数、返回一个包装过的新函数，定义即执行。对照：</p>
 
-<pre><span class="lang-tag">对照 — Java → Python</span>
-Spring @Transactional（AOP 拦截）    →  @log / @retry（装饰器本身就是拦截器）
+<pre><span class="lang-tag">对照 — Java → Python</span>Spring @Transactional（AOP 拦截）    →  @log / @retry（装饰器本身就是拦截器）
 动态代理 InvocationHandler          →  包装函数 wrapper（收原函数、返回新函数）
 Servlet Filter 链                   →  装饰器叠放 @a @b f（自下而上包裹）
 注解要反射/AOP 才生效               →  装饰器是普通函数调用，一行魔法都没有
@@ -1278,10 +1277,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "shout", "task": "① 装�
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

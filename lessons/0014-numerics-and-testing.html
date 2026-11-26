@@ -1226,10 +1226,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "money_total", "task": "�
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

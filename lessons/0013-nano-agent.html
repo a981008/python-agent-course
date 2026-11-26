@@ -381,8 +381,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h2>一、零件清单：每节课各贡献了什么（3 分钟）</h2>
 
-<pre><span class="lang-tag">12 节课 → Nano Agent 的零件表</span>
-函数与类型提示（第 1/7 课）   →  工具函数签名（LLM 靠名字和签名选工具）
+<pre><span class="lang-tag">12 节课 → Nano Agent 的零件表</span>函数与类型提示（第 1/7 课）   →  工具函数签名（LLM 靠名字和签名选工具）
 字典与推导（第 2 课）        →  对话历史、工具注册表
 *args/**kwargs（第 3 课）    →  万能参数透传：分发任意工具调用
 dataclass（第 4 课）        →  消息/工具的结构化形态
@@ -397,8 +396,7 @@ FastAPI 形态（第 12 课）    →  把循环包成 HTTP 服务（下一版�
 
 <h2>二、ReAct 循环：Agent 的心脏（5 分钟）</h2>
 
-<pre><span class="lang-tag">ReAct = Reason + Act 的循环</span>
-  问题 ──→ LLM 思考："我需要查天气"
+<pre><span class="lang-tag">ReAct = Reason + Act 的循环</span>问题 ──→ LLM 思考："我需要查天气"
      │
      ├─ 行动 ACT     调工具 get_weather("北京")
      │
@@ -1229,10 +1227,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "parse_final", "task": "�
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }
