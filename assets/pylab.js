@@ -16,6 +16,7 @@
     return new Promise(function (resolve, reject) {
       var s = document.createElement("script");
       s.src = src;
+      s.integrity = "sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6"; s.crossOrigin = "anonymous";
       s.onload = resolve;
       s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
       document.head.appendChild(s);
@@ -26,7 +27,7 @@
     if (!pyodidePromise) {
       pyodidePromise = loadScript(PYODIDE_URL).then(function () {
         return window.loadPyodide({ indexURL: PYODIDE_INDEX });
-      });
+      }).catch(function (e) { pyodidePromise = null; throw e; });
     }
     return pyodidePromise;
   }
@@ -53,14 +54,18 @@
     });
 
     resetBtn && resetBtn.addEventListener("click", function () {
+      if (editor.value === starter) { status.textContent = "当前已是初始代码"; return; }
+      if (!confirm("重置为初始代码？当前修改将被覆盖（可先按 Ctrl/Cmd+S 保存）。")) return;
       editor.value = starter;
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof editor.__wbClearCode === 'function') editor.__wbClearCode();
       out.hidden = true;
       status.textContent = "已重置为初始代码";
     });
 
     runBtn.addEventListener("click", function () {
       runBtn.disabled = true;
-      status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      status.setAttribute('aria-live','polite'); status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
       out.hidden = false;
       out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
 
@@ -103,13 +108,28 @@
         if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
         out.innerHTML = html;
         status.textContent = "运行完成";
+        var _t = stdoutLines.filter(function (l) { return l.indexOf("TEST|") === 0; });
+        var _m = stdoutLines.some(function (l) { return l.indexOf("MISSING|") === 0; });
+        var _all = _t.length > 0 && !_m && _t.every(function (l) {
+          try { return JSON.parse(l.slice(5)).ok === true; } catch (e) { return false; }
+        });
+        if (window.WBProgress) WBProgress.mark({ kind: 'pylab', passed: _all });
       }).catch(function (err) {
         var msg = (err && (err.message || String(err))) || "未知错误";
         out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
           (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
             ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
             : '');
-        status.textContent = "运行出错";
+        status.setAttribute('aria-live','assertive'); status.textContent = "运行出错";
+        var retry = out.querySelector('button.wb-retry');
+        if (!retry) {
+          retry = document.createElement('button');
+          retry.type = 'button'; retry.className = 'py-lab-btn ghost wb-retry';
+          retry.textContent = '重试加载 Python 运行时';
+          retry.addEventListener('click', function () { runBtn.click(); });
+          out.appendChild(retry);
+        }
+        retry.disabled = false;
       }).finally(function () {
         runBtn.disabled = false;
       });

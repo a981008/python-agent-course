@@ -17,6 +17,7 @@
       loading = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
         s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
         document.head.appendChild(s);
         s.onload = function () {
           loadPyodide().then(function (py) {
@@ -38,7 +39,7 @@
         '_res = {"ok": False, "msg": ""}\n' +
         'try:\n' +
         '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
-        'except Exception as _e:\n' +
+        'except BaseException as _e:\n' +
         '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
         'else:\n' +
         '    try:\n' +
@@ -77,8 +78,8 @@
     var ta = el.querySelector('.review-code');
     var st = el.querySelector('.review-status');
     var v = ta.value.trim();
-    if (!v) { st.className = 'review-status info'; st.textContent = '先凭记忆写出来，再点检查'; return; }
-    st.className = 'review-status info';
+    if (!v) { st.className = 'review-status info'; st.setAttribute('aria-live', 'polite'); st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info'; st.setAttribute('aria-live', 'polite');
     st.textContent = '判分中…';
     ensurePy().then(function (py) {
       return py.runPythonAsync(buildCode(cfg, v));
@@ -86,15 +87,28 @@
       var res = JSON.parse(out);
       if (res.ok) {
         st.className = 'review-status pass';
-        st.textContent = '✓ 通过——这道题已进长期记忆';
+        st.setAttribute('aria-live', 'polite');
+        st.textContent = '✓ 通过——明天再来复核一次更稳';
+        if (window.WBSpaced) WBSpaced.pass(id);
+        if (window.WBProgress) WBProgress.mark({ kind: 'review', unit: id, total: window.REVIEW.length, passed: true });
       } else {
         var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-        st.className = 'review-status fail';
+        st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
         st.textContent = '✗ ' + msg;
       }
     }).catch(function (e) {
-      st.className = 'review-status fail';
-      st.textContent = e.message;
+      st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+      st.textContent = '判分失败：' + ((e && e.message) || String(e));
+      var bar = st.parentNode, retry = el.querySelector('.review-retry');
+      if (!retry && bar) {
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.className = 'review-btn ghost review-retry';
+        retry.textContent = '重试加载 Python 运行时';
+        retry.addEventListener('click', function () {
+          var b = el.querySelector('.review-btn'); if (b) b.click();
+        });
+        bar.appendChild(retry);
+      }
     });
   }
 

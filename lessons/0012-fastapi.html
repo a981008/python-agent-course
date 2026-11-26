@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,14 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +146,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +182,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +238,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +277,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +313,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -299,6 +355,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 #wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
 #wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
 @media print { #wb-quicknav { display: none; } }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -322,39 +391,37 @@ springdoc-openapi / Swagger UI    →  /docs 自动文档（内置零配置）</
 
 <h2>二、最小可跑的 FastAPI（4 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 真实 FastAPI（回本机跑；浏览器判分环境用下面的教学等价物）</span>
-# pip install "fastapi[standard]"
-from fastapi import FastAPI
-from pydantic import BaseModel
+<pre><span class="lang-tag">PYTHON — 真实 FastAPI（回本机跑；浏览器判分环境用下面的教学等价物）</span><code><span data-pyhl="1"><span class="tk-com"># pip install "fastapi[standard]"</span>
+<span class="tk-kw">from</span> fastapi <span class="tk-kw">import</span> FastAPI
+<span class="tk-kw">from</span> pydantic <span class="tk-kw">import</span> BaseModel
 
-class ChatIn(BaseModel):
-    message: str
-    stream: bool = False     # 有默认值 = 可选字段
+<span class="tk-kw">class</span> ChatIn(BaseModel):
+    message: <span class="tk-fn">str</span>
+    stream: <span class="tk-fn">bool</span> = <span class="tk-kw">False</span>     <span class="tk-com"># 有默认值 = 可选字段</span>
 
 app = FastAPI()
 
-@app.post("/chat")
-async def chat(body: ChatIn):
-    return {"reply": f"echo: {body.message}", "stream": body.stream}
+<span class="tk-dec">@app.post</span>(<span class="tk-str">"/chat"</span>)
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> chat(body: ChatIn):
+    <span class="tk-kw">return</span> {<span class="tk-str">"reply"</span>: f"echo: {body.message}", <span class="tk-str">"stream"</span>: body.stream}
 
-# 启动：uvicorn main:app --reload（开发热重载）
-# message 传 int、缺字段 → 自动 422 + 错误明细（Pydantic 在路由边界校验）
-# /docs 开箱即用的交互文档（OpenAPI 自动生成）</pre>
+<span class="tk-com"># 启动：uvicorn main:app --reload（开发热重载）</span>
+<span class="tk-com"># message 传 int、缺字段 → 自动 422 + 错误明细（Pydantic 在路由边界校验）</span>
+<span class="tk-com"># /docs 开箱即用的交互文档（OpenAPI 自动生成）</span></span></code></pre>
 
 <h2>三、关键机制：类型提示从"文档"变"校验"（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — 同一种注解，两种命运</span>
-def f(x: int):
-    return x
-f("abc")            # 照样跑——纯类型提示运行时不校验（第 7 课讲的）
+<pre><span class="lang-tag">PYTHON — 同一种注解，两种命运</span><code><span data-pyhl="1"><span class="tk-kw">def</span> f(x: <span class="tk-fn">int</span>):
+    <span class="tk-kw">return</span> x
+f(<span class="tk-str">"abc"</span>)            <span class="tk-com"># 照样跑——纯类型提示运行时不校验（第 7 课讲的）</span>
 
-from pydantic import BaseModel
-class M(BaseModel):
-    x: int
-M(x="abc")          # ValidationError ← Pydantic 在运行时真的查
+<span class="tk-kw">from</span> pydantic <span class="tk-kw">import</span> BaseModel
+<span class="tk-kw">class</span> M(BaseModel):
+    x: <span class="tk-fn">int</span>
+M(x=<span class="tk-str">"abc"</span>)          <span class="tk-com"># ValidationError ← Pydantic 在运行时真的查</span>
 
-# FastAPI 的设计：签名注解 → 请求体自动校验 → 错了自动 422
-# "类型提示是文档"在 Web 边界升级成"类型提示是防火墙"</pre>
+<span class="tk-com"># FastAPI 的设计：签名注解 → 请求体自动校验 → 错了自动 422</span>
+<span class="tk-com"># "类型提示是文档"在 Web 边界升级成"类型提示是防火墙"</span></span></code></pre>
 
 <div class="marginnote">
 类型提示与 dataclass：<br>
@@ -363,17 +430,16 @@ M(x="abc")          # ValidationError ← Pydantic 在运行时真的查
 
 <h2>四、异步端点与错误处理（3 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — async 端点 + HTTPException</span>
-from fastapi import HTTPException
+<pre><span class="lang-tag">PYTHON — async 端点 + HTTPException</span><code><span data-pyhl="1"><span class="tk-kw">from</span> fastapi <span class="tk-kw">import</span> HTTPException
 
-@app.get("/tool/{name}")
-async def get_tool(name: str):
-    if name not in TOOLS:
-        raise HTTPException(404, f"工具 {name} 不存在")   # 自动转成 404 响应
-    return {"name": name}
+<span class="tk-dec">@app.get</span>(<span class="tk-str">"/tool/{name}"</span>)
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> get_tool(name: <span class="tk-fn">str</span>):
+    <span class="tk-kw">if</span> name <span class="tk-kw">not</span> <span class="tk-kw">in</span> TOOLS:
+        <span class="tk-kw">raise</span> HTTPException(<span class="tk-num">404</span>, f"工具 {name} 不存在")   <span class="tk-com"># 自动转成 404 响应</span>
+    <span class="tk-kw">return</span> {<span class="tk-str">"name"</span>: name}
 
-# async def 端点：await LLM API / 数据库时让出事件循环，单机扛并发（第 8 课）
-# 同步 def 端点 FastAPI 也不拒绝——丢线程池跑，小工具够用</pre>
+<span class="tk-com"># async def 端点：await LLM API / 数据库时让出事件循环，单机扛并发（第 8 课）</span>
+<span class="tk-com"># 同步 def 端点 FastAPI 也不拒绝——丢线程池跑，小工具够用</span></span></code></pre>
 
 <h2>五、动手：MiniAPI 上的完整端点（8 分钟）</h2>
 
@@ -381,29 +447,28 @@ async def get_tool(name: str):
 
 <p><strong>先花 1 分钟看懂 MiniAPI 的心脏</strong>（判分环境已预置，可直接用）——它只有两样东西：<code>routes</code> 路由表和 <code>call()</code> 模拟请求：</p>
 
-<pre><span class="lang-tag">PYTHON — MiniAPI 核心机制（真实 FastAPI 的对应物写在注释里）</span>
-class MiniAPI:
-    def __init__(self):
-        self.routes = {}              # 路由表：(方法, 路径) → 处理函数
+<pre><span class="lang-tag">PYTHON — MiniAPI 核心机制（真实 FastAPI 的对应物写在注释里）</span><code><span data-pyhl="1"><span class="tk-kw">class</span> MiniAPI:
+    <span class="tk-kw">def</span> __init__(<span class="tk-kw">self</span>):
+        <span class="tk-kw">self</span>.routes = {}              <span class="tk-com"># 路由表：(方法, 路径) → 处理函数</span>
 
-    def post(self, path):             # @app.post("/chat") 用的就是它
-        def deco(fn):
-            self.routes[("POST", path)] = fn   # 注册：收到函数记进表
-            return fn
-        return deco                   # 两层——正是第 10 课的无参装饰器
+    <span class="tk-kw">def</span> post(<span class="tk-kw">self</span>, path):             <span class="tk-com"># @app.post("/chat") 用的就是它</span>
+        <span class="tk-kw">def</span> deco(fn):
+            <span class="tk-kw">self</span>.routes[(<span class="tk-str">"POST"</span>, path)] = fn   <span class="tk-com"># 注册：收到函数记进表</span>
+            <span class="tk-kw">return</span> fn
+        <span class="tk-kw">return</span> deco                   <span class="tk-com"># 两层——正是第 10 课的无参装饰器</span>
 
-    async def call(self, method, path, payload=None):
-        fn = self.routes.get((method, path))
-        if fn is None:
-            raise HTTPException(404, ...)   # ① 路由不存在 → 404
-        # ② 按端点签名的注解逐个校验 payload：
-        #    类型对不上 → 422（真实 FastAPI 由 Pydantic 模型做同一件事）
-        #    必填参数缺失 → 422
-        return await fn(**kwargs)         # ③ 校验通过才调用端点
+    <span class="tk-kw">async</span> <span class="tk-kw">def</span> call(<span class="tk-kw">self</span>, method, path, payload=<span class="tk-kw">None</span>):
+        fn = <span class="tk-kw">self</span>.routes.get((method, path))
+        <span class="tk-kw">if</span> fn <span class="tk-kw">is</span> <span class="tk-kw">None</span>:
+            <span class="tk-kw">raise</span> HTTPException(<span class="tk-num">404</span>, ...)   <span class="tk-com"># ① 路由不存在 → 404</span>
+        <span class="tk-com"># ② 按端点签名的注解逐个校验 payload：</span>
+        <span class="tk-com">#    类型对不上 → 422（真实 FastAPI 由 Pydantic 模型做同一件事）</span>
+        <span class="tk-com">#    必填参数缺失 → 422</span>
+        <span class="tk-kw">return</span> <span class="tk-kw">await</span> fn(**kwargs)         <span class="tk-com"># ③ 校验通过才调用端点</span>
 
-class HTTPException(Exception):
-    def __init__(self, status, detail):   # 异常对象带 e.status / e.detail
-        ...</pre>
+<span class="tk-kw">class</span> HTTPException(Exception):
+    <span class="tk-kw">def</span> __init__(<span class="tk-kw">self</span>, status, detail):   <span class="tk-com"># 异常对象带 e.status / e.detail</span>
+        ...</span></code></pre>
 
 <p>对照着读：<code>@app.post</code> 的注册本质就是第 10 课的装饰器注册表；任务 1 的请求模型在真实 FastAPI 里是 Pydantic <code>BaseModel</code>（运行时真校验），在 MiniAPI 里退化为 dataclass + 签名注解校验，判分语义一致；任务 3 捕获的 <code>HTTPException</code> 带 <code>status</code>/<code>detail</code> 两个属性（真实 FastAPI 里叫 <code>status_code</code>/<code>detail</code>）。</p>
 
@@ -461,25 +526,25 @@ async def safe(method, path, payload=None):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code>from dataclasses import dataclass
+<pre><code><span class="tk-kw">from</span> dataclasses <span class="tk-kw">import</span> <span class="tk-fn">dataclass</span>
 
-# 任务 1 — 请求模型（真实 FastAPI 里是 Pydantic BaseModel，形态一致）
-@dataclass
-class ChatIn:
-    message: str
-    stream: bool = False
+<span class="tk-com"># 任务 1 — 请求模型（真实 FastAPI 里是 Pydantic BaseModel，形态一致）</span>
+<span class="tk-dec">@dataclass</span>
+<span class="tk-kw">class</span> ChatIn:
+    message: <span class="tk-fn">str</span>
+    stream: <span class="tk-fn">bool</span> = <span class="tk-kw">False</span>
 
-# 任务 2 — 异步端点 + 路由注册（注解即校验声明）
-@app.post("/chat")
-async def chat(message: str, stream: bool = False):
-    return {"reply": "echo: " + message, "stream": stream}
+<span class="tk-com"># 任务 2 — 异步端点 + 路由注册（注解即校验声明）</span>
+<span class="tk-dec">@app.post</span>(<span class="tk-str">"/chat"</span>)
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> chat(message: <span class="tk-fn">str</span>, stream: <span class="tk-fn">bool</span> = <span class="tk-kw">False</span>):
+    <span class="tk-kw">return</span> {<span class="tk-str">"reply"</span>: <span class="tk-str">"echo: "</span> + message, <span class="tk-str">"stream"</span>: stream}
 
-# 任务 3 — 统一错误处理：HTTPException → 结构化响应
-async def safe(method, path, payload=None):
-    try:
-        return await app.call(method, path, payload)
-    except HTTPException as e:
-        return {"status": e.status, "detail": e.detail}</code></pre>
+<span class="tk-com"># 任务 3 — 统一错误处理：HTTPException → 结构化响应</span>
+<span class="tk-kw">async</span> <span class="tk-kw">def</span> safe(method, path, payload=<span class="tk-kw">None</span>):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">return</span> <span class="tk-kw">await</span> app.call(method, path, payload)
+    <span class="tk-kw">except</span> HTTPException <span class="tk-kw">as</span> e:
+        <span class="tk-kw">return</span> {<span class="tk-str">"status"</span>: e.status, <span class="tk-str">"detail"</span>: e.detail}</code></pre>
 <p>自评清单：① stream 有默认值吗——必填与可选字段分清了吗？② chat 是 async def、注解写了吗（校验靠签名）？③ safe 把 HTTPException 的 status/detail 都带上了吗？</p>
 </details>
 
@@ -715,6 +780,13 @@ else:
     var opts = quiz.querySelectorAll(".quiz-opt");
     var explain = quiz.querySelector(".quiz-explain");
     var done = false;
+    quiz.setAttribute("role", "radiogroup");
+    var qEl = quiz.querySelector(".quiz-q");
+    if (qEl && !quiz.getAttribute("aria-labelledby")) {
+      if (!qEl.id) qEl.id = "quizq-" + (Math.random() * 1e9 | 0);
+      quiz.setAttribute("aria-labelledby", qEl.id);
+    }
+    opts.forEach(function (b) { b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); });
     opts.forEach(function (btn) {
       btn.addEventListener("click", function () {
         if (done) return;
@@ -726,9 +798,18 @@ else:
         });
         if (key !== answer) btn.classList.add("is-wrong");
         if (explain) explain.hidden = false;
+        opts.forEach(function (b) { b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+        var liveEl = quiz.querySelector(".quiz-live");
+        if (liveEl) liveEl.textContent = (key === answer ? "回答正确。" : "回答错误，正确答案是 " + answer + "。") +
+          (explain ? explain.textContent : "");
         quiz.dispatchEvent(new CustomEvent("quiz:answered", {
           bubbles: true, detail: { correct: key === answer }
         }));
+        if (window.WBProgress) {
+          var allQ = document.querySelectorAll(".quiz");
+          WBProgress.mark({ kind: "quiz", unit: "q" + (Array.prototype.indexOf.call(allQ, quiz) + 1),
+                            total: allQ.length, passed: key === answer });
+        }
       });
     });
   }
@@ -759,6 +840,7 @@ else:
     return new Promise(function (resolve, reject) {
       var s = document.createElement("script");
       s.src = src;
+      s.integrity = "sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6"; s.crossOrigin = "anonymous";
       s.onload = resolve;
       s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
       document.head.appendChild(s);
@@ -769,7 +851,7 @@ else:
     if (!pyodidePromise) {
       pyodidePromise = loadScript(PYODIDE_URL).then(function () {
         return window.loadPyodide({ indexURL: PYODIDE_INDEX });
-      });
+      }).catch(function (e) { pyodidePromise = null; throw e; });
     }
     return pyodidePromise;
   }
@@ -796,14 +878,18 @@ else:
     });
 
     resetBtn && resetBtn.addEventListener("click", function () {
+      if (editor.value === starter) { status.textContent = "当前已是初始代码"; return; }
+      if (!confirm("重置为初始代码？当前修改将被覆盖（可先按 Ctrl/Cmd+S 保存）。")) return;
       editor.value = starter;
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof editor.__wbClearCode === 'function') editor.__wbClearCode();
       out.hidden = true;
       status.textContent = "已重置为初始代码";
     });
 
     runBtn.addEventListener("click", function () {
       runBtn.disabled = true;
-      status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      status.setAttribute('aria-live','polite'); status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
       out.hidden = false;
       out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
 
@@ -846,13 +932,28 @@ else:
         if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
         out.innerHTML = html;
         status.textContent = "运行完成";
+        var _t = stdoutLines.filter(function (l) { return l.indexOf("TEST|") === 0; });
+        var _m = stdoutLines.some(function (l) { return l.indexOf("MISSING|") === 0; });
+        var _all = _t.length > 0 && !_m && _t.every(function (l) {
+          try { return JSON.parse(l.slice(5)).ok === true; } catch (e) { return false; }
+        });
+        if (window.WBProgress) WBProgress.mark({ kind: 'pylab', passed: _all });
       }).catch(function (err) {
         var msg = (err && (err.message || String(err))) || "未知错误";
         out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
           (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
             ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
             : '');
-        status.textContent = "运行出错";
+        status.setAttribute('aria-live','assertive'); status.textContent = "运行出错";
+        var retry = out.querySelector('button.wb-retry');
+        if (!retry) {
+          retry = document.createElement('button');
+          retry.type = 'button'; retry.className = 'py-lab-btn ghost wb-retry';
+          retry.textContent = '重试加载 Python 运行时';
+          retry.addEventListener('click', function () { runBtn.click(); });
+          out.appendChild(retry);
+        }
+        retry.disabled = false;
       }).finally(function () {
         runBtn.disabled = false;
       });
@@ -916,6 +1017,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
       loading = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
         s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
         document.head.appendChild(s);
         s.onload = function () {
           loadPyodide().then(function (py) {
@@ -937,7 +1039,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
         '_res = {"ok": False, "msg": ""}\n' +
         'try:\n' +
         '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
-        'except Exception as _e:\n' +
+        'except BaseException as _e:\n' +
         '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
         'else:\n' +
         '    try:\n' +
@@ -976,8 +1078,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
     var ta = el.querySelector('.review-code');
     var st = el.querySelector('.review-status');
     var v = ta.value.trim();
-    if (!v) { st.className = 'review-status info'; st.textContent = '先凭记忆写出来，再点检查'; return; }
-    st.className = 'review-status info';
+    if (!v) { st.className = 'review-status info'; st.setAttribute('aria-live', 'polite'); st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info'; st.setAttribute('aria-live', 'polite');
     st.textContent = '判分中…';
     ensurePy().then(function (py) {
       return py.runPythonAsync(buildCode(cfg, v));
@@ -985,15 +1087,28 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
       var res = JSON.parse(out);
       if (res.ok) {
         st.className = 'review-status pass';
-        st.textContent = '✓ 通过——这道题已进长期记忆';
+        st.setAttribute('aria-live', 'polite');
+        st.textContent = '✓ 通过——明天再来复核一次更稳';
+        if (window.WBSpaced) WBSpaced.pass(id);
+        if (window.WBProgress) WBProgress.mark({ kind: 'review', unit: id, total: window.REVIEW.length, passed: true });
       } else {
         var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-        st.className = 'review-status fail';
+        st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
         st.textContent = '✗ ' + msg;
       }
     }).catch(function (e) {
-      st.className = 'review-status fail';
-      st.textContent = e.message;
+      st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+      st.textContent = '判分失败：' + ((e && e.message) || String(e));
+      var bar = st.parentNode, retry = el.querySelector('.review-retry');
+      if (!retry && bar) {
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.className = 'review-btn ghost review-retry';
+        retry.textContent = '重试加载 Python 运行时';
+        retry.addEventListener('click', function () {
+          var b = el.querySelector('.review-btn'); if (b) b.click();
+        });
+        bar.appendChild(retry);
+      }
     });
   }
 
@@ -1027,6 +1142,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1080,7 +1197,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -1137,6 +1254,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -1175,6 +1293,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -1182,6 +1301,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1189,7 +1309,9 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1207,17 +1329,116 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';
@@ -1260,7 +1481,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "LoginIn", "task": "① �
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：12 FastAPI 最小面</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html" aria-current="page"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html" aria-current="page"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,14 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +146,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +182,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +238,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +277,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +313,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -317,7 +373,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-code { display: block; width: 100%; min-height: 5.5rem; margin-top: .6rem; border: 1px solid var(--line); border-radius: 6px; outline: none; resize: vertical; background: var(--code-bg); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; line-height: 1.55; padding: .7rem .9rem; tab-size: 4; }
 .drill-code:focus { border-color: var(--accent); }
 .drill-row { display: flex; gap: .5rem; margin-top: .5rem; align-items: center; flex-wrap: wrap; }
-.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
+.drill-btn { font: inherit; font-size: .82rem; background: var(--accent); color: var(--on-accent); border: none; border-radius: 6px; padding: .4rem .9rem; cursor: pointer; }
 .drill-btn:hover { opacity: .88; }
 .drill-btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
 .drill-status { font-size: .8rem; font-family: "SF Mono", Menlo, monospace; word-break: break-all; }
@@ -326,6 +382,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 .drill-status.info { color: var(--ink-soft); }
 .drill-ansbox { margin: .6rem 0 0; background: var(--code-bg); border-radius: 6px; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
 .rt-note { font-size: .8rem; color: var(--ink-soft); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -333,7 +402,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h1>练习场 · 20 题独有语法训练</h1>
 <p class="meta">第 6 课配套 · 切片 / 闭包与 nonlocal / 对象模型 / bytes 与编码 / 综合 · 自动判分</p>
-<div class="callout win"><strong>玩法</strong>：写的是<strong>完整函数或工厂</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；闭包题的防作弊测试会检查"两个实例状态必须独立"，#12 会用身份不同的同值对象抓 ==，#19 考 name mangling 真名。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
+<div class="callout win"><strong>玩法</strong>：本场的<strong>概念选择题</strong>直接点选选项再检查，不用写代码；写的是<strong>完整函数或工厂</strong>——把每题起始代码里的 <code>...</code> 补成实现，点"检查"会真实运行你的代码并跑断言；闭包题的防作弊测试会检查"两个实例状态必须独立"，#12 会用身份不同的同值对象抓 ==，#19 考 name mangling 真名。<code>Ctrl/Cmd+Enter</code> 快捷检查，进度自动保存。</div>
 <div class="callout" id="data-preview">
 <strong>数据一览</strong>：判分环境已预置 <code>Secret</code> 类（#19 用，见下）；其余题目入参即数据。
 </div>
@@ -390,13 +459,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-4" data-n="4" data-cat="A">
-  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task">去头去尾：<code>middle(seq)</code> 返回去掉首尾各一个的副本——观察一下：长度 0 或 1 时切片结果恰好就是 <code>[]</code>，不需要特判</div></div>
-  <div class="drill-ex">例：<code>middle([1, 2, 3, 4, 5])</code> → <code>[2, 3, 4]</code>；<code>middle([1])</code> → <code>[]</code></div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> middle(seq):
-    <span class="tk-str">"""去掉首尾各一个；空或单元素自然得空"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def middle(seq):
-    &quot;&quot;&quot;去掉首尾各一个；空或单元素自然得空&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#04</span><div class="drill-task">对长度为 1 的列表执行 <code>seq[1:-1]</code>，结果是？</div></div>
+  <div class="drill-ex">例：<code>[7][1:-1]</code> → <code>[]</code>，<code>[][1:-1]</code> → <code>[]</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-4" value="0"><span class="opt-letter">A</span><span class="opt-text">抛 <code>IndexError</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="1"><span class="opt-letter">B</span><span class="opt-text">返回含一个元素的列表</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="2"><span class="opt-letter">C</span><span class="opt-text">返回空列表 <code>[]</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-4" value="3"><span class="opt-letter">D</span><span class="opt-text">返回 <code>None</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -506,13 +575,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <h2 class="drill-cat" data-cat="C">C · 对象模型：is/== 与可哈希<span class="cat-done" data-range="11-13">第 11–13 题 · 0/3</span></h2>
 
 <div class="drill" id="d-11" data-n="11" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#11</span><div class="drill-task">对象身份：<code>same_object(a, b)</code> 用 <strong>is</strong> 判断两者是否同一个对象</div></div>
-  <div class="drill-ex">例：<code>x = [1]</code> 时 <code>same_object(x, x)</code> → <code>True</code>；两个各自新建的 <code>[1]</code> → <code>False</code>（值相等≠同一个对象）</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> same_object(a, b):
-    <span class="tk-str">"""is 比较对象身份（≈ Java 的 ==），不是值比较"""</span>
-    ...  <span class="tk-com"># 一行</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def same_object(a, b):
-    &quot;&quot;&quot;is 比较对象身份（≈ Java 的 ==），不是值比较&quot;&quot;&quot;
-    ...  # 一行</textarea></div>
+  <div class="drill-head"><span class="drill-no">#11</span><div class="drill-task">要判断两个变量<strong>是不是同一个对象</strong>（而非值相等），应使用？</div></div>
+  <div class="drill-ex">例：<code>a = [1]; b = [1]</code> → <code>a == b</code> 为 True，<code>a is b</code> 为 False</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-11" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>a == b</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-11" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>a is b</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-11" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>a is b and a == b</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-11" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>id(a) in globals()</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -538,13 +607,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-13" data-n="13" data-cat="C">
-  <div class="drill-head"><span class="drill-no">#13</span><div class="drill-task">可哈希判断：<code>hashable_or_not(obj)</code>——能 <code>hash(obj)</code> 返回 <code>"hashable"</code>；抛 <code>TypeError</code>（list/dict/set）返回 <code>"unhashable"</code></div></div>
-  <div class="drill-ex">例：<code>hashable_or_not((1, 2))</code> → <code>"hashable"</code>；<code>hashable_or_not([1])</code> → <code>"unhashable"</code>（dict、set 同理）</div>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> hashable_or_not(obj):
-    <span class="tk-str">"""try hash(obj) 返回 "hashable"；except TypeError 返回 "unhashable" """</span>
-    ...  <span class="tk-com"># try / except</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def hashable_or_not(obj):
-    &quot;&quot;&quot;try hash(obj) 返回 &quot;hashable&quot;；except TypeError 返回 &quot;unhashable&quot; &quot;&quot;&quot;
-    ...  # try / except</textarea></div>
+  <div class="drill-head"><span class="drill-no">#13</span><div class="drill-task">下面哪个对象<strong>不能</strong>作为 <code>dict</code> 的键（不可哈希）？</div></div>
+  <div class="drill-ex">例：<code>{ [1,2]: 1 }</code> → <code>TypeError: unhashable type: 'list'</code></div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-13" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>(1, 2)</code> 元组</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-13" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>frozenset({1, 2})</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-13" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>[1, 2]</code> 列表</span></label>
+  <label class="drill-opt"><input type="radio" name="opt-13" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>"hello"</code> 字符串</span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -638,16 +707,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 </div>
 
 <div class="drill" id="d-19" data-n="19" data-cat="E">
-  <div class="drill-head"><span class="drill-no">#19</span><div class="drill-task">name mangling：下面 <code>Secret</code> 的 <code>__pin</code> 因双下划线被改名——写 <code>reveal(obj)</code> 返回改名的真身属性值</div></div>
-  <div class="drill-ex">例：<code>reveal(Secret())</code> → <code>"1234"</code>——取的是被改名后"真身"属性的值（真名是什么自己推）</div>
-  <pre class="drill-data" aria-label="本题数据">class Secret:
-    def __init__(self):
-        self.__pin = "1234"  # 双下划线开头的属性名会被解释器悄悄改名（改成什么？自己想）</pre>
-  <div class="pyhl-wrap"><pre class="pyhl-hl" aria-hidden="true"><span class="tk-kw">def</span> reveal(obj):
-    <span class="tk-str">"""双下划线触发 name mangling——想想真实名字被改成了什么"""</span>
-    ...  <span class="tk-com"># 一行 return</span></pre><textarea class="drill-code" spellcheck="false" rows="6">def reveal(obj):
-    &quot;&quot;&quot;双下划线触发 name mangling——想想真实名字被改成了什么&quot;&quot;&quot;
-    ...  # 一行 return</textarea></div>
+  <div class="drill-head"><span class="drill-no">#19</span><div class="drill-task">类 <code>Secret</code> 中定义 <code>self.__pin</code>，从类外访问时属性真名是？</div></div>
+  <div class="drill-ex">例：<code>getattr(obj, "_Secret__pin")</code> 能取到值</div>
+  <div class="drill-opts">  <label class="drill-opt"><input type="radio" name="opt-19" value="0"><span class="opt-letter">A</span><span class="opt-text"><code>obj.__pin</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-19" value="1"><span class="opt-letter">B</span><span class="opt-text"><code>obj._Secret__pin</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-19" value="2"><span class="opt-letter">C</span><span class="opt-text"><code>obj.pin_</code></span></label>
+  <label class="drill-opt"><input type="radio" name="opt-19" value="3"><span class="opt-letter">D</span><span class="opt-text"><code>obj.__Secret_pin</code></span></label>
+  </div>
   <div class="drill-row">
     <button class="drill-btn drill-check">检查</button>
     <button class="drill-btn ghost drill-ans">答案</button>
@@ -685,7 +751,7 @@ class Secret:
 </script>
 
 <script>
-const EX = [{"n": 1, "cat": "A", "name": "last_n", "task": "取尾部：`last_n(seq, n)` 返回**最后 n 个元素**——n<=0 返回 `[]`；n 超长返回整份浅拷贝（切片越界不炸）", "starter": "def last_n(seq, n):\n    \"\"\"最后 n 个：n<=0 返回 []；n 超长返回整份拷贝\"\"\"\n    ...  # n<=0 先挡掉，再一行切片", "ans": "def last_n(seq, n):\n    if n <= 0:\n        return []\n    return seq[-n:]", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [4, 5], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2, 3], 0) == [], \"n=0 应返回空列表\"\n        _s = [1, 2, 3, 4, 5]\n        assert _fn(_s, 10) == [1, 2, 3, 4, 5], \"n 超长应返回整份拷贝\"\n        assert _fn(_s, 1) == [5] and _s == [1, 2, 3, 4, 5], \"不要修改原列表\"", "snip": null, "ex": "例：`last_n([1, 2, 3, 4], 2)` → `[3, 4]`；`last_n([1, 2], 5)` → `[1, 2]`（超长给整份拷贝）；`last_n([1], 0)` → `[]`"}, {"n": 2, "cat": "A", "name": "every_other", "task": "隔一个取一个：`every_other(seq)` 每两个取一个（下标 0、2、4…）——列表、字符串都要能用", "starter": "def every_other(seq):\n    \"\"\"每两个取一个（想想切片的第三个参数）\"\"\"\n    ...  # 一行", "ans": "def every_other(seq):\n    return seq[::2]", "tind": "        assert _fn([1, 2, 3, 4, 5]) == [1, 3, 5], f\"实际 {_fn([1, 2, 3, 4, 5])!r}\"\n        assert _fn(\"abcde\") == \"ace\", \"字符串也要能用（切片通用）\"\n        assert _fn([]) == []", "snip": null, "ex": "例：`every_other([10, 20, 30, 40, 50])` → `[10, 30, 50]`；`every_other(\"hello\")` → `\"hlo\"`"}, {"n": 3, "cat": "A", "name": "reverse_str", "task": "反转字符串：`reverse_str(s)` 返回倒序副本——想想步长为负的切片（Java 要 StringBuilder.reverse）", "starter": "def reverse_str(s):\n    \"\"\"想想步长为负会怎样\"\"\"\n    ...  # 一行", "ans": "def reverse_str(s):\n    return s[::-1]", "tind": "        assert _fn(\"abc\") == \"cba\", f\"实际 {_fn('abc')!r}\"\n        assert _fn(\"ab\") == \"ba\"\n        assert _fn(\"\") == \"\"", "snip": null, "ex": "例：`reverse_str(\"python\")` → `\"nohtyp\"`；空串还是空串"}, {"n": 4, "cat": "A", "name": "middle", "task": "去头去尾：`middle(seq)` 返回去掉首尾各一个的副本——观察一下：长度 0 或 1 时切片结果恰好就是 `[]`，不需要特判", "starter": "def middle(seq):\n    \"\"\"去掉首尾各一个；空或单元素自然得空\"\"\"\n    ...  # 一行", "ans": "def middle(seq):\n    return seq[1:-1]", "tind": "        assert _fn([1, 2, 3, 4]) == [2, 3], f\"实际 {_fn([1, 2, 3, 4])!r}\"\n        assert _fn([1, 2]) == []\n        assert _fn([1]) == [], \"单元素应得 []\"\n        assert _fn([]) == [], \"空列表应得 []\"", "snip": null, "ex": "例：`middle([1, 2, 3, 4, 5])` → `[2, 3, 4]`；`middle([1])` → `[]`"}, {"n": 5, "cat": "A", "name": "swap_ends", "task": "首尾交换：`swap_ends(lst)` 返回新列表 `[末尾] + 中段 + [开头]`——全用切片拼，长度 <2 返回浅拷贝", "starter": "def swap_ends(lst):\n    \"\"\"[末尾] + 中段 + [开头] 三段拼接；len < 2 返回整份拷贝\"\"\"\n    ...  # 三段切片拼接", "ans": "def swap_ends(lst):\n    if len(lst) < 2:\n        return lst[:]\n    return lst[-1:] + lst[1:-1] + lst[:1]", "tind": "        assert _fn([1, 2, 3]) == [3, 2, 1], f\"实际 {_fn([1, 2, 3])!r}\"\n        assert _fn([1, 2]) == [2, 1]\n        assert _fn([1]) == [1], \"单元素返回内容相同的拷贝\"\n        _s = [1, 2, 3]\n        _r = _fn(_s)\n        assert _s == [1, 2, 3], \"不要修改原列表\"", "snip": null, "ex": "例：`swap_ends([1, 2, 3, 4])` → `[4, 2, 3, 1]`——只有首尾换位置，中段不动；原列表不许被改"}, {"n": 6, "cat": "B", "name": "make_accumulator", "task": "累加器：`make_accumulator()` 返回 `add(x)`——每次累加并返回当前总和；**两个累加器的状态必须独立**（防作弊：total 放全局会被抓住）", "starter": "def make_accumulator():\n    \"\"\"返回 add(x)；内部 total 用 nonlocal 累加\"\"\"\n    ...  # 状态放外层函数里，记得让它\"改得动\"", "ans": "def make_accumulator():\n    total = 0\n    def add(x):\n        nonlocal total\n        total += x\n        return total\n    return add", "tind": "        _a = _fn()\n        assert _a(1) == 1, \"第一次应返回 1\"\n        assert _a(2) == 3, \"第二次应返回 3\"\n        _b = _fn()\n        assert _b(10) == 10, \"第二个累加器应从 0 开始（total 是不是放全局了？）\"\n        assert _a(1) == 4, \"第一个累加器不应被 _b 影响\"", "snip": null, "ex": "例：`add = make_accumulator()` 后 `add(1)` → `1`、`add(5)` → `6`；再造一个新累加器，从 0 重新数、互不干扰"}, {"n": 7, "cat": "B", "name": "make_multiplier", "task": "乘法工厂：`make_multiplier(k)` 返回 `times(x)` 返回 `x * k`——闭包**只读**外层变量，不需要 nonlocal", "starter": "def make_multiplier(k):\n    \"\"\"返回 times(x)；内部只读 k，不需要声明\"\"\"\n    ...", "ans": "def make_multiplier(k):\n    def times(x):\n        return x * k\n    return times", "tind": "        _double = _fn(2)\n        assert _double(5) == 10, f\"实际 {_double(5)!r}\"\n        _triple = _fn(3)\n        assert _triple(5) == 15, \"每个工厂实例有自己的 k\"\n        assert _double(1) == 2, \"之前的 _double 不受影响\"", "snip": null, "ex": "例：`double = make_multiplier(2)` 后 `double(6)` → `12`；再造 `triple`，两者互不影响"}, {"n": 8, "cat": "B", "name": "make_greeter", "task": "问候工厂：`make_greeter(name)` 返回 `greet(greeting)` 返回 `f\"{greeting}，{name}\"`", "starter": "def make_greeter(name):\n    \"\"\"返回 greet(greeting)；f-string 里引用闭包里的 name\"\"\"\n    ...", "ans": "def make_greeter(name):\n    def greet(greeting):\n        return f\"{greeting}，{name}\"\n    return greet", "tind": "        _g = _fn(\"小明\")\n        assert _g(\"你好\") == \"你好，小明\", f\"实际 {_g('你好')!r}\"\n        assert _g(\"早上好\") == \"早上好，小明\"\n        assert _fn(\"Ann\")(\"Hi\") == \"Hi，Ann\"", "snip": null, "ex": "例：`g = make_greeter(\"小明\")` 后 `g(\"你好\")` → `\"你好，小明\"`、`g(\"晚安\")` → `\"晚安，小明\"`"}, {"n": 9, "cat": "B", "name": "make_even_counter", "task": "偶数计数器：`make_even_counter()` 返回 `inc()`——每调一次加 2，依次返回 2、4、6（状态要活在外层函数里，还得\"改得动\"）", "starter": "def make_even_counter():\n    \"\"\"返回 inc()；count 每次 +2 并返回新值\"\"\"\n    ...", "ans": "def make_even_counter():\n    count = 0\n    def inc():\n        nonlocal count\n        count += 2\n        return count\n    return inc", "tind": "        _c = _fn()\n        assert _c() == 2, \"第一次应返回 2\"\n        assert _c() == 4, \"第二次应返回 4\"\n        _c2 = _fn()\n        assert _c2() == 2, \"新计数器应从 2 开始\"", "snip": null, "ex": "例：`c = make_even_counter()` 后连调三次依次得 `2`、`4`、`6`；新造一个又从 2 开始"}, {"n": 10, "cat": "B", "name": "make_token_issuer", "task": "编号发放器：`make_token_issuer(prefix)` 返回 `next()`——依次返回 `\"prefix-1\"`、`\"prefix-2\"`…；两个发放器编号独立（防作弊）", "starter": "def make_token_issuer(prefix):\n    \"\"\"返回 next()；内部编号 n 每次 +1，返回 f\"{prefix}-{n}\" \"\"\"\n    ...", "ans": "def make_token_issuer(prefix):\n    n = 0\n    def nxt():\n        nonlocal n\n        n += 1\n        return f\"{prefix}-{n}\"\n    return nxt", "tind": "        _t1 = _fn(\"id\")\n        assert _t1() == \"id-1\", \"第一个编号应为 prefix-1\"\n        assert _t1() == \"id-2\"\n        _t2 = _fn(\"req\")\n        assert _t2() == \"req-1\", \"防作弊：两个发放器编号必须独立\"", "snip": null, "ex": "例：`t = make_token_issuer(\"id\")` 后依次得 `\"id-1\"`、`\"id-2\"`；另一个 `\"req\"` 发放器从 `\"req-1\"` 独立起号"}, {"n": 11, "cat": "C", "name": "same_object", "task": "对象身份：`same_object(a, b)` 用 **is** 判断两者是否同一个对象", "starter": "def same_object(a, b):\n    \"\"\"is 比较对象身份（≈ Java 的 ==），不是值比较\"\"\"\n    ...  # 一行", "ans": "def same_object(a, b):\n    return a is b", "tind": "        _x = [1]\n        assert _fn(_x, _x) is True, f\"同一对象应为 True，实际 {_fn(_x, _x)!r}\"\n        assert _fn([1], [1]) is False, \"两个值相等的新列表不是同一个对象\"\n        assert _fn(None, None) is True", "snip": null, "ex": "例：`x = [1]` 时 `same_object(x, x)` → `True`；两个各自新建的 `[1]` → `False`（值相等≠同一个对象）"}, {"n": 12, "cat": "C", "name": "find_by_identity", "task": "按身份查找：`find_by_identity(items, target)` 返回 target 在 items 中的索引（**用 is 逐个比对**），找不到返回 -1。防作弊：测试里有\"值相等但身份不同\"的对象，用 == 会当场现形", "starter": "def find_by_identity(items, target):\n    \"\"\"enumerate 遍历，item is target 时返回 i；循环结束返回 -1\"\"\"\n    ...", "ans": "def find_by_identity(items, target):\n    for i, item in enumerate(items):\n        if item is target:\n            return i\n    return -1", "tind": "        _a = [1]\n        _b = [1]\n        _items = [_a, _b]\n        assert _fn(_items, _a) == 0, f\"实际 {_fn(_items, _a)!r}\"\n        assert _fn(_items, _b) == 1\n        assert _fn(_items, [1]) == -1, \"防作弊：[1] 值相等但不是同一个对象——用 == 会返回 0\"\n        assert _fn([], _a) == -1", "snip": null, "ex": "例：items 里有两个\"值相等但身份不同\"的对象时，只返回 target **真正所在**的那个下标；找不到 → `-1`"}, {"n": 13, "cat": "C", "name": "hashable_or_not", "task": "可哈希判断：`hashable_or_not(obj)`——能 `hash(obj)` 返回 `\"hashable\"`；抛 `TypeError`（list/dict/set）返回 `\"unhashable\"`", "starter": "def hashable_or_not(obj):\n    \"\"\"try hash(obj) 返回 \"hashable\"；except TypeError 返回 \"unhashable\" \"\"\"\n    ...  # try / except", "ans": "def hashable_or_not(obj):\n    try:\n        hash(obj)\n        return \"hashable\"\n    except TypeError:\n        return \"unhashable\"", "tind": "        assert _fn(1) == \"hashable\" and _fn(\"a\") == \"hashable\" and _fn((1, 2)) == \"hashable\", \"数字/字符串/tuple 可哈希\"\n        assert _fn([1]) == \"unhashable\", \"list 不可哈希\"\n        assert _fn({\"a\": 1}) == \"unhashable\" and _fn({1, 2}) == \"unhashable\"", "snip": null, "ex": "例：`hashable_or_not((1, 2))` → `\"hashable\"`；`hashable_or_not([1])` → `\"unhashable\"`（dict、set 同理）"}, {"n": 14, "cat": "D", "name": "to_utf8", "task": "编码：`to_utf8(s)` 返回 `s.encode(\"utf-8\")`——str 变 bytes（→ getBytes(UTF_8)）", "starter": "def to_utf8(s):\n    \"\"\"str → bytes\"\"\"\n    ...  # 一行", "ans": "def to_utf8(s):\n    return s.encode(\"utf-8\")", "tind": "        assert _fn(\"hello\") == b\"hello\", f\"实际 {_fn('hello')!r}\"\n        assert _fn(\"中\") == b\"\\xe4\\xb8\\xad\", \"中文 UTF-8 占 3 字节\"", "snip": null, "ex": "例：`to_utf8(\"hi\")` → `b\"hi\"`；`to_utf8(\"中\")` 是 3 个字节的 bytes"}, {"n": 15, "cat": "D", "name": "from_utf8", "task": "解码：`from_utf8(data)` 返回 `data.decode(\"utf-8\")`——bytes 变 str", "starter": "def from_utf8(data):\n    \"\"\"bytes → str\"\"\"\n    ...  # 一行", "ans": "def from_utf8(data):\n    return data.decode(\"utf-8\")", "tind": "        assert _fn(b\"hello\") == \"hello\", f\"实际 {_fn(b'hello')!r}\"\n        assert _fn(b\"\\xe4\\xb8\\xad\") == \"中\"", "snip": null, "ex": "例：`from_utf8(b\"hi\")` → `\"hi\"`——bytes 变回 str"}, {"n": 16, "cat": "D", "name": "safe_decode", "task": "容错解码：`safe_decode(data)` 尝试 `data.decode(\"utf-8\")`；抛 `UnicodeDecodeError` 时返回 `None`（先 EAFP 再兜底）", "starter": "def safe_decode(data):\n    \"\"\"try decode；except UnicodeDecodeError 返回 None\"\"\"\n    ...  # try / except", "ans": "def safe_decode(data):\n    try:\n        return data.decode(\"utf-8\")\n    except UnicodeDecodeError:\n        return None", "tind": "        assert _fn(b\"hello\") == \"hello\", f\"实际 {_fn(b'hello')!r}\"\n        assert _fn(b\"\\xff\\xfe\\xfa\") is None, \"非法 UTF-8 字节应返回 None\"", "snip": null, "ex": "例：合法 UTF-8 字节 → 正常解码出字符串；乱码字节 → 不崩，返回 `None`"}, {"n": 17, "cat": "E", "name": "sliding", "task": "滑窗：`sliding(seq, k)` 返回所有长度 k 的窗口（切片）——如 [1,2,3,4] 取 2 → [[1,2],[2,3],[3,4]]；k<=0 或 k>len 返回 `[]`", "starter": "def sliding(seq, k):\n    \"\"\"共 len(seq)-k+1 个窗口，每个窗口取连续 k 个元素\"\"\"\n    ...  # 一个列表推导", "ans": "def sliding(seq, k):\n    if k <= 0 or k > len(seq):\n        return []\n    return [seq[i:i + k] for i in range(len(seq) - k + 1)]", "tind": "        assert _fn([1, 2, 3, 4], 2) == [[1, 2], [2, 3], [3, 4]], f\"实际 {_fn([1, 2, 3, 4], 2)!r}\"\n        assert _fn([1, 2, 3, 4], 4) == [[1, 2, 3, 4]], \"k 等于长度只有一个窗口\"\n        assert _fn([1, 2], 5) == [], \"k 超长返回空\"\n        assert _fn([1, 2], 0) == [], \"k<=0 返回空\"", "snip": null, "ex": "例：`sliding([1, 2, 3, 4], 3)` → `[[1, 2, 3], [2, 3, 4]]`——窗口个数是 len−k+1；k 超长或 ≤0 给 `[]`"}, {"n": 18, "cat": "E", "name": "chunk", "task": "分块：`chunk(seq, size)` 把序列按 size 切块——[1,2,3,4,5] 按 2 → [[1,2],[3,4],[5]]；size<=0 返回 `[]`", "starter": "def chunk(seq, size):\n    \"\"\"从头每 size 个切一块，最后一块可以不满\"\"\"\n    ...", "ans": "def chunk(seq, size):\n    if size <= 0:\n        return []\n    return [seq[i:i + size] for i in range(0, len(seq), size)]", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2], 5) == [[1, 2]], \"一块装得下就一块\"\n        assert _fn([], 3) == []\n        assert _fn([1], 0) == [], \"size<=0 返回空\"", "snip": null, "ex": "例：`chunk([1, 2, 3, 4, 5], 2)` → `[[1, 2], [3, 4], [5]]`——最后一块可以不满"}, {"n": 19, "cat": "E", "name": "reveal", "task": "name mangling：下面 `Secret` 的 `__pin` 因双下划线被改名——写 `reveal(obj)` 返回改名的真身属性值", "starter": "def reveal(obj):\n    \"\"\"双下划线触发 name mangling——想想真实名字被改成了什么\"\"\"\n    ...  # 一行 return", "ans": "def reveal(obj):\n    return obj._Secret__pin", "tind": "        _s = Secret()\n        assert _fn(_s) == \"1234\", \"没取到改名后的属性值\"\n        assert not hasattr(_s, \"__pin\"), \"原名 __pin 不应还能直接访问——已被解释器改名\"\n        assert hasattr(_s, \"_Secret__pin\"), \"改名后的真名应该存在（答案在报错里不提示，自己算）\"", "snip": "class Secret:\n    def __init__(self):\n        self.__pin = \"1234\"  # 双下划线开头的属性名会被解释器悄悄改名（改成什么？自己想）", "ex": "例：`reveal(Secret())` → `\"1234\"`——取的是被改名后\"真身\"属性的值（真名是什么自己推）"}, {"n": 20, "cat": "E", "name": "normalize_tags", "task": "标签清洗（综合）：`normalize_tags(tags)`——每个元素 `strip().lower()`，**保序去重**，空串丢弃；如 [\" A \", \"b\", \"A\", \" c \"] → [\"a\", \"b\", \"c\"]", "starter": "def normalize_tags(tags):\n    \"\"\"循环：strip().lower() 后非空且未见过的才收进结果列表\"\"\"\n    ...", "ans": "def normalize_tags(tags):\n    seen = []\n    for t in tags:\n        t = t.strip().lower()\n        if t and t not in seen:\n            seen.append(t)\n    return seen", "tind": "        assert _fn([\" A \", \"b\", \"A\", \" c \"]) == [\"a\", \"b\", \"c\"], f\"实际 {_fn([' A ', 'b', 'A', ' c '])!r}\"\n        assert _fn([\"\", \"  \"]) == [], \"空串要丢弃\"\n        assert _fn([\"X\", \"x\"]) == [\"x\"], \"大小写归一后去重\"\n        assert _fn([]) == []", "snip": null, "ex": "例：`normalize_tags([\" X \", \"y\", \"X\", \"\"])` → `[\"x\", \"y\"]`——清洗、保序去重、丢空串"}];
+const EX = [{"n": 1, "cat": "A", "name": "last_n", "task": "取尾部：`last_n(seq, n)` 返回**最后 n 个元素**——n<=0 返回 `[]`；n 超长返回整份浅拷贝（切片越界不炸）", "starter": "def last_n(seq, n):\n    \"\"\"最后 n 个：n<=0 返回 []；n 超长返回整份拷贝\"\"\"\n    ...  # n<=0 先挡掉，再一行切片", "ans": "def last_n(seq, n):\n    if n <= 0:\n        return []\n    return seq[-n:]", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [4, 5], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2, 3], 0) == [], \"n=0 应返回空列表\"\n        _s = [1, 2, 3, 4, 5]\n        assert _fn(_s, 10) == [1, 2, 3, 4, 5], \"n 超长应返回整份拷贝\"\n        assert _fn(_s, 1) == [5] and _s == [1, 2, 3, 4, 5], \"不要修改原列表\"", "snip": null, "ex": "例：`last_n([1, 2, 3, 4], 2)` → `[3, 4]`；`last_n([1, 2], 5)` → `[1, 2]`（超长给整份拷贝）；`last_n([1], 0)` → `[]`"}, {"n": 2, "cat": "A", "name": "every_other", "task": "隔一个取一个：`every_other(seq)` 每两个取一个（下标 0、2、4…）——列表、字符串都要能用", "starter": "def every_other(seq):\n    \"\"\"每两个取一个（想想切片的第三个参数）\"\"\"\n    ...  # 一行", "ans": "def every_other(seq):\n    return seq[::2]", "tind": "        assert _fn([1, 2, 3, 4, 5]) == [1, 3, 5], f\"实际 {_fn([1, 2, 3, 4, 5])!r}\"\n        assert _fn(\"abcde\") == \"ace\", \"字符串也要能用（切片通用）\"\n        assert _fn([]) == []", "snip": null, "ex": "例：`every_other([10, 20, 30, 40, 50])` → `[10, 30, 50]`；`every_other(\"hello\")` → `\"hlo\"`"}, {"n": 3, "cat": "A", "name": "reverse_str", "task": "反转字符串：`reverse_str(s)` 返回倒序副本——想想步长为负的切片（Java 要 StringBuilder.reverse）", "starter": "def reverse_str(s):\n    \"\"\"想想步长为负会怎样\"\"\"\n    ...  # 一行", "ans": "def reverse_str(s):\n    return s[::-1]", "tind": "        assert _fn(\"abc\") == \"cba\", f\"实际 {_fn('abc')!r}\"\n        assert _fn(\"ab\") == \"ba\"\n        assert _fn(\"\") == \"\"", "snip": null, "ex": "例：`reverse_str(\"python\")` → `\"nohtyp\"`；空串还是空串"}, {"n": 4, "cat": "A", "name": "slice_bound", "type": "mc", "task": "对长度为 1 的列表执行 `seq[1:-1]`，结果是？", "options": ["抛 `IndexError`", "返回含一个元素的列表", "返回空列表 `[]`", "返回 `None`"], "correct": 2, "explain": "Python 切片越界不报错，会自动截断到有效范围；这是“切片比手写索引安全”的关键理由。", "ex": "例：`[7][1:-1]` → `[]`，`[][1:-1]` → `[]`"}, {"n": 5, "cat": "A", "name": "swap_ends", "task": "首尾交换：`swap_ends(lst)` 返回新列表 `[末尾] + 中段 + [开头]`——全用切片拼，长度 <2 返回浅拷贝", "starter": "def swap_ends(lst):\n    \"\"\"[末尾] + 中段 + [开头] 三段拼接；len < 2 返回整份拷贝\"\"\"\n    ...  # 三段切片拼接", "ans": "def swap_ends(lst):\n    if len(lst) < 2:\n        return lst[:]\n    return lst[-1:] + lst[1:-1] + lst[:1]", "tind": "        assert _fn([1, 2, 3]) == [3, 2, 1], f\"实际 {_fn([1, 2, 3])!r}\"\n        assert _fn([1, 2]) == [2, 1]\n        assert _fn([1]) == [1], \"单元素返回内容相同的拷贝\"\n        _s = [1, 2, 3]\n        _r = _fn(_s)\n        assert _s == [1, 2, 3], \"不要修改原列表\"", "snip": null, "ex": "例：`swap_ends([1, 2, 3, 4])` → `[4, 2, 3, 1]`——只有首尾换位置，中段不动；原列表不许被改"}, {"n": 6, "cat": "B", "name": "make_accumulator", "task": "累加器：`make_accumulator()` 返回 `add(x)`——每次累加并返回当前总和；**两个累加器的状态必须独立**（防作弊：total 放全局会被抓住）", "starter": "def make_accumulator():\n    \"\"\"返回 add(x)；内部 total 用 nonlocal 累加\"\"\"\n    ...  # 状态放外层函数里，记得让它\"改得动\"", "ans": "def make_accumulator():\n    total = 0\n    def add(x):\n        nonlocal total\n        total += x\n        return total\n    return add", "tind": "        _a = _fn()\n        assert _a(1) == 1, \"第一次应返回 1\"\n        assert _a(2) == 3, \"第二次应返回 3\"\n        _b = _fn()\n        assert _b(10) == 10, \"第二个累加器应从 0 开始（total 是不是放全局了？）\"\n        assert _a(1) == 4, \"第一个累加器不应被 _b 影响\"", "snip": null, "ex": "例：`add = make_accumulator()` 后 `add(1)` → `1`、`add(5)` → `6`；再造一个新累加器，从 0 重新数、互不干扰"}, {"n": 7, "cat": "B", "name": "make_multiplier", "task": "乘法工厂：`make_multiplier(k)` 返回 `times(x)` 返回 `x * k`——闭包**只读**外层变量，不需要 nonlocal", "starter": "def make_multiplier(k):\n    \"\"\"返回 times(x)；内部只读 k，不需要声明\"\"\"\n    ...", "ans": "def make_multiplier(k):\n    def times(x):\n        return x * k\n    return times", "tind": "        _double = _fn(2)\n        assert _double(5) == 10, f\"实际 {_double(5)!r}\"\n        _triple = _fn(3)\n        assert _triple(5) == 15, \"每个工厂实例有自己的 k\"\n        assert _double(1) == 2, \"之前的 _double 不受影响\"", "snip": null, "ex": "例：`double = make_multiplier(2)` 后 `double(6)` → `12`；再造 `triple`，两者互不影响"}, {"n": 8, "cat": "B", "name": "make_greeter", "task": "问候工厂：`make_greeter(name)` 返回 `greet(greeting)` 返回 `f\"{greeting}，{name}\"`", "starter": "def make_greeter(name):\n    \"\"\"返回 greet(greeting)；f-string 里引用闭包里的 name\"\"\"\n    ...", "ans": "def make_greeter(name):\n    def greet(greeting):\n        return f\"{greeting}，{name}\"\n    return greet", "tind": "        _g = _fn(\"小明\")\n        assert _g(\"你好\") == \"你好，小明\", f\"实际 {_g('你好')!r}\"\n        assert _g(\"早上好\") == \"早上好，小明\"\n        assert _fn(\"Ann\")(\"Hi\") == \"Hi，Ann\"", "snip": null, "ex": "例：`g = make_greeter(\"小明\")` 后 `g(\"你好\")` → `\"你好，小明\"`、`g(\"晚安\")` → `\"晚安，小明\"`"}, {"n": 9, "cat": "B", "name": "make_even_counter", "task": "偶数计数器：`make_even_counter()` 返回 `inc()`——每调一次加 2，依次返回 2、4、6（状态要活在外层函数里，还得\"改得动\"）", "starter": "def make_even_counter():\n    \"\"\"返回 inc()；count 每次 +2 并返回新值\"\"\"\n    ...", "ans": "def make_even_counter():\n    count = 0\n    def inc():\n        nonlocal count\n        count += 2\n        return count\n    return inc", "tind": "        _c = _fn()\n        assert _c() == 2, \"第一次应返回 2\"\n        assert _c() == 4, \"第二次应返回 4\"\n        _c2 = _fn()\n        assert _c2() == 2, \"新计数器应从 2 开始\"", "snip": null, "ex": "例：`c = make_even_counter()` 后连调三次依次得 `2`、`4`、`6`；新造一个又从 2 开始"}, {"n": 10, "cat": "B", "name": "make_token_issuer", "task": "编号发放器：`make_token_issuer(prefix)` 返回 `next()`——依次返回 `\"prefix-1\"`、`\"prefix-2\"`…；两个发放器编号独立（防作弊）", "starter": "def make_token_issuer(prefix):\n    \"\"\"返回 next()；内部编号 n 每次 +1，返回 f\"{prefix}-{n}\" \"\"\"\n    ...", "ans": "def make_token_issuer(prefix):\n    n = 0\n    def nxt():\n        nonlocal n\n        n += 1\n        return f\"{prefix}-{n}\"\n    return nxt", "tind": "        _t1 = _fn(\"id\")\n        assert _t1() == \"id-1\", \"第一个编号应为 prefix-1\"\n        assert _t1() == \"id-2\"\n        _t2 = _fn(\"req\")\n        assert _t2() == \"req-1\", \"防作弊：两个发放器编号必须独立\"", "snip": null, "ex": "例：`t = make_token_issuer(\"id\")` 后依次得 `\"id-1\"`、`\"id-2\"`；另一个 `\"req\"` 发放器从 `\"req-1\"` 独立起号"}, {"n": 11, "cat": "C", "name": "is_vs_eq", "type": "mc", "task": "要判断两个变量**是不是同一个对象**（而非值相等），应使用？", "options": ["`a == b`", "`a is b`", "`a is b and a == b`", "`id(a) in globals()`"], "correct": 1, "explain": "`is` 比较身份（`id`），`==` 调用 `__eq__` 比较值；B 是身份判断的标准写法。", "ex": "例：`a = [1]; b = [1]` → `a == b` 为 True，`a is b` 为 False"}, {"n": 12, "cat": "C", "name": "find_by_identity", "task": "按身份查找：`find_by_identity(items, target)` 返回 target 在 items 中的索引（**用 is 逐个比对**），找不到返回 -1。防作弊：测试里有\"值相等但身份不同\"的对象，用 == 会当场现形", "starter": "def find_by_identity(items, target):\n    \"\"\"enumerate 遍历，item is target 时返回 i；循环结束返回 -1\"\"\"\n    ...", "ans": "def find_by_identity(items, target):\n    for i, item in enumerate(items):\n        if item is target:\n            return i\n    return -1", "tind": "        _a = [1]\n        _b = [1]\n        _items = [_a, _b]\n        assert _fn(_items, _a) == 0, f\"实际 {_fn(_items, _a)!r}\"\n        assert _fn(_items, _b) == 1\n        assert _fn(_items, [1]) == -1, \"防作弊：[1] 值相等但不是同一个对象——用 == 会返回 0\"\n        assert _fn([], _a) == -1", "snip": null, "ex": "例：items 里有两个\"值相等但身份不同\"的对象时，只返回 target **真正所在**的那个下标；找不到 → `-1`"}, {"n": 13, "cat": "C", "name": "hashable", "type": "mc", "task": "下面哪个对象**不能**作为 `dict` 的键（不可哈希）？", "options": ["`(1, 2)` 元组", "`frozenset({1, 2})`", "`[1, 2]` 列表", "`\"hello\"` 字符串"], "correct": 2, "explain": "可变容器 `list`/`dict`/`set` 不可哈希；元组（元素均可哈希时）、`frozenset`、字符串均可哈希。", "ex": "例：`{ [1,2]: 1 }` → `TypeError: unhashable type: 'list'`"}, {"n": 14, "cat": "D", "name": "to_utf8", "task": "编码：`to_utf8(s)` 返回 `s.encode(\"utf-8\")`——str 变 bytes（→ getBytes(UTF_8)）", "starter": "def to_utf8(s):\n    \"\"\"str → bytes\"\"\"\n    ...  # 一行", "ans": "def to_utf8(s):\n    return s.encode(\"utf-8\")", "tind": "        assert _fn(\"hello\") == b\"hello\", f\"实际 {_fn('hello')!r}\"\n        assert _fn(\"中\") == b\"\\xe4\\xb8\\xad\", \"中文 UTF-8 占 3 字节\"", "snip": null, "ex": "例：`to_utf8(\"hi\")` → `b\"hi\"`；`to_utf8(\"中\")` 是 3 个字节的 bytes"}, {"n": 15, "cat": "D", "name": "from_utf8", "task": "解码：`from_utf8(data)` 返回 `data.decode(\"utf-8\")`——bytes 变 str", "starter": "def from_utf8(data):\n    \"\"\"bytes → str\"\"\"\n    ...  # 一行", "ans": "def from_utf8(data):\n    return data.decode(\"utf-8\")", "tind": "        assert _fn(b\"hello\") == \"hello\", f\"实际 {_fn(b'hello')!r}\"\n        assert _fn(b\"\\xe4\\xb8\\xad\") == \"中\"", "snip": null, "ex": "例：`from_utf8(b\"hi\")` → `\"hi\"`——bytes 变回 str"}, {"n": 16, "cat": "D", "name": "safe_decode", "task": "容错解码：`safe_decode(data)` 尝试 `data.decode(\"utf-8\")`；抛 `UnicodeDecodeError` 时返回 `None`（先 EAFP 再兜底）", "starter": "def safe_decode(data):\n    \"\"\"try decode；except UnicodeDecodeError 返回 None\"\"\"\n    ...  # try / except", "ans": "def safe_decode(data):\n    try:\n        return data.decode(\"utf-8\")\n    except UnicodeDecodeError:\n        return None", "tind": "        assert _fn(b\"hello\") == \"hello\", f\"实际 {_fn(b'hello')!r}\"\n        assert _fn(b\"\\xff\\xfe\\xfa\") is None, \"非法 UTF-8 字节应返回 None\"", "snip": null, "ex": "例：合法 UTF-8 字节 → 正常解码出字符串；乱码字节 → 不崩，返回 `None`"}, {"n": 17, "cat": "E", "name": "sliding", "task": "滑窗：`sliding(seq, k)` 返回所有长度 k 的窗口（切片）——如 [1,2,3,4] 取 2 → [[1,2],[2,3],[3,4]]；k<=0 或 k>len 返回 `[]`", "starter": "def sliding(seq, k):\n    \"\"\"共 len(seq)-k+1 个窗口，每个窗口取连续 k 个元素\"\"\"\n    ...  # 一个列表推导", "ans": "def sliding(seq, k):\n    if k <= 0 or k > len(seq):\n        return []\n    return [seq[i:i + k] for i in range(len(seq) - k + 1)]", "tind": "        assert _fn([1, 2, 3, 4], 2) == [[1, 2], [2, 3], [3, 4]], f\"实际 {_fn([1, 2, 3, 4], 2)!r}\"\n        assert _fn([1, 2, 3, 4], 4) == [[1, 2, 3, 4]], \"k 等于长度只有一个窗口\"\n        assert _fn([1, 2], 5) == [], \"k 超长返回空\"\n        assert _fn([1, 2], 0) == [], \"k<=0 返回空\"", "snip": null, "ex": "例：`sliding([1, 2, 3, 4], 3)` → `[[1, 2, 3], [2, 3, 4]]`——窗口个数是 len−k+1；k 超长或 ≤0 给 `[]`"}, {"n": 18, "cat": "E", "name": "chunk", "task": "分块：`chunk(seq, size)` 把序列按 size 切块——[1,2,3,4,5] 按 2 → [[1,2],[3,4],[5]]；size<=0 返回 `[]`", "starter": "def chunk(seq, size):\n    \"\"\"从头每 size 个切一块，最后一块可以不满\"\"\"\n    ...", "ans": "def chunk(seq, size):\n    if size <= 0:\n        return []\n    return [seq[i:i + size] for i in range(0, len(seq), size)]", "tind": "        assert _fn([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]], f\"实际 {_fn([1, 2, 3, 4, 5], 2)!r}\"\n        assert _fn([1, 2], 5) == [[1, 2]], \"一块装得下就一块\"\n        assert _fn([], 3) == []\n        assert _fn([1], 0) == [], \"size<=0 返回空\"", "snip": null, "ex": "例：`chunk([1, 2, 3, 4, 5], 2)` → `[[1, 2], [3, 4], [5]]`——最后一块可以不满"}, {"n": 19, "cat": "E", "name": "name_mangling", "type": "mc", "task": "类 `Secret` 中定义 `self.__pin`，从类外访问时属性真名是？", "options": ["`obj.__pin`", "`obj._Secret__pin`", "`obj.pin_`", "`obj.__Secret_pin`"], "correct": 1, "explain": "Python 的 name mangling 规则把 `__pin` 改写为 `_<类名>__pin`，目的是避免子类命名冲突（不是真正的私有）。", "ex": "例：`getattr(obj, \"_Secret__pin\")` 能取到值"}, {"n": 20, "cat": "E", "name": "normalize_tags", "task": "标签清洗（综合）：`normalize_tags(tags)`——每个元素 `strip().lower()`，**保序去重**，空串丢弃；如 [\" A \", \"b\", \"A\", \" c \"] → [\"a\", \"b\", \"c\"]", "starter": "def normalize_tags(tags):\n    \"\"\"循环：strip().lower() 后非空且未见过的才收进结果列表\"\"\"\n    ...", "ans": "def normalize_tags(tags):\n    seen = []\n    for t in tags:\n        t = t.strip().lower()\n        if t and t not in seen:\n            seen.append(t)\n    return seen", "tind": "        assert _fn([\" A \", \"b\", \"A\", \" c \"]) == [\"a\", \"b\", \"c\"], f\"实际 {_fn([' A ', 'b', 'A', ' c '])!r}\"\n        assert _fn([\"\", \"  \"]) == [], \"空串要丢弃\"\n        assert _fn([\"X\", \"x\"]) == [\"x\"], \"大小写归一后去重\"\n        assert _fn([]) == []", "snip": null, "ex": "例：`normalize_tags([\" X \", \"y\", \"X\", \"\"])` → `[\"x\", \"y\"]`——清洗、保序去重、丢空串"}];
 const ENV_CODE = document.getElementById('env-code').textContent;
 
 const LS_KEY = 'lesson-0006-drill-progress';
@@ -710,17 +776,30 @@ const byN = {}; EX.forEach(e => byN[e.n] = e);
 function refreshUI() {
   document.querySelectorAll('.drill').forEach(el => {
     const n = +el.dataset.n;
+    const ex = byN[n];
     el.classList.toggle('solved', prog.solved.includes(n));
     el.classList.toggle('revealed', prog.revealed.includes(n));
-    if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
     const ab = ansbox(n);
-    if (prog.revealed.includes(n) && ab.hidden) {
-      ab.hidden = false;
-      ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+    if (ex.type === 'mc') {
+      const saved = prog.answers[n];
+      if (saved !== undefined) {
+        const radio = row(n).querySelector('input[type=radio][value="' + saved + '"]');
+        if (radio) radio.checked = true;
+      }
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '正确答案：' + 'ABCD'[ex.correct] + '\n' + ex.options[ex.correct] + '\n\n解析：' + ex.explain + '\n\n说明：先自己选完再看。';
+      }
+    } else {
+      if (prog.answers[n] !== undefined && !codeEl(n).value) codeEl(n).value = prog.answers[n];
+      if (prog.revealed.includes(n) && ab.hidden) {
+        ab.hidden = false;
+        ab.textContent = '参考实现：\n' + byN[n].ans + '\n\n说明：先自己过一遍测试再看。';
+      }
     }
   });
   const done = prog.solved.length;
-  document.getElementById('pfill').style.width = (done / 20 * 100) + '%';
+  document.getElementById('pfill').style.width = (done / EX.length * 100) + '%';
   document.getElementById('ptext').textContent = '已完成 ' + done + ' / 20';
   document.querySelectorAll('.drill-cat').forEach(h => {
     const cat = h.dataset.cat;
@@ -740,6 +819,7 @@ async function ensurePy() {
       rt.textContent = '正在加载 Python 运行时（首次约 10-20 秒）…';
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+      s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
       await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN 加载失败，请检查网络')); });
       const py = await loadPyodide();
@@ -757,11 +837,23 @@ async function ensurePy() {
 async function check(n) {
   const codeVal = codeEl(n).value;
   const st = statusEl(n);
+  const ex = byN[n];
+  if (ex.type === 'mc') {
+    const sel = row(n).querySelector('input[type=radio]:checked');
+    if (!sel) { st.className = 'drill-status info'; st.textContent = '先选一个选项再检查'; return; }
+    prog.answers[n] = +sel.value; save();
+    if (+sel.value === ex.correct) {
+      st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 正确';
+      if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
+    } else {
+      st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ 不对——再想想，或点"答案"看解析';
+    }
+    return;
+  }
   if (!codeVal.trim()) { st.className = 'drill-status info'; st.textContent = '先补全函数实现'; return; }
   prog.answers[n] = codeVal; save();
   let py;
-  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.textContent = e.message; return; }
-  const ex = byN[n];
+  try { py = await ensurePy(); } catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '加载 Python 运行时失败：' + e.message + '。可把代码保存为 .py 文件，终端运行 python3 文件名本地自测。'; var rb = st.parentNode.querySelector('.drill-retry'); if (!rb) { rb = document.createElement('button'); rb.type = 'button'; rb.className = 'drill-btn ghost drill-retry'; rb.textContent = '重试加载 Python 运行时'; rb.addEventListener('click', () => check(n)); st.parentNode.appendChild(rb); } return; }
   const code = `import json as _json
 _res = {"ok": False, "msg": ""}
 _lenv = dict(_G)
@@ -782,18 +874,18 @@ ${ex.tind}
 _json.dumps(_res)`;
   let out;
   try { out = JSON.parse(await py.runPythonAsync(code)); }
-  catch (e) { st.className = 'drill-status fail'; st.textContent = '运行时错误: ' + e.message; return; }
+  catch (e) { st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '运行时错误: ' + e.message; return; }
   if (out.ok) {
-    st.className = 'drill-status pass'; st.textContent = '✓ 全部断言通过';
+    st.className = 'drill-status pass'; st.setAttribute('aria-live','polite'); st.textContent = '✓ 全部断言通过';
     if (!prog.solved.includes(n)) prog.solved.push(n); save(); refreshUI();
   } else {
     let msg = out.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-    st.className = 'drill-status fail'; st.textContent = '✗ ' + msg;
+    st.className = 'drill-status fail'; st.setAttribute('aria-live','assertive'); st.textContent = '✗ ' + msg;
   }
 }
 
 async function checkAll() {
-  const filled = EX.filter(e => codeEl(e.n).value.trim());
+  const filled = EX.filter(e => e.type === 'mc' ? row(e.n).querySelector('input[type=radio]:checked') : codeEl(e.n).value.trim());
   if (!filled.length) { rt.textContent = '没有已填写但未检查的题'; return; }
   rt.textContent = '批量检查中…';
   let pass = 0;
@@ -809,13 +901,14 @@ EX.forEach(e => {
     if (!prog.revealed.includes(e.n)) { prog.revealed.push(e.n); save(); refreshUI(); }
     else { ab.hidden = !ab.hidden; }
   });
-  codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
+  if (e.type !== 'mc') codeEl(e.n).addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); check(e.n); } });
 });
 document.getElementById('btn-checkall').addEventListener('click', checkAll);
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('清空全部进度与已填代码？')) return;
   prog = { solved: [], revealed: [], answers: {} }; save();
   document.querySelectorAll('.drill-code').forEach(t => t.value = t.defaultValue);
+  document.querySelectorAll('.drill-opts input[type=radio]').forEach(r => r.checked = false);
   document.querySelectorAll('.drill-status').forEach(s => { s.textContent = ''; s.className = 'drill-status'; });
   document.querySelectorAll('.drill-ansbox').forEach(a => { a.hidden = true; a.textContent = ''; });
   refreshUI();
@@ -832,6 +925,8 @@ refreshUI();
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -885,7 +980,7 @@ refreshUI();
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -942,6 +1037,7 @@ refreshUI();
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -980,6 +1076,7 @@ refreshUI();
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -987,6 +1084,7 @@ refreshUI();
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -994,7 +1092,9 @@ refreshUI();
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1012,17 +1112,116 @@ refreshUI();
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';
@@ -1065,7 +1264,7 @@ refreshUI();
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：6★ 独有语法练习</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html" aria-current="page"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html" aria-current="page"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

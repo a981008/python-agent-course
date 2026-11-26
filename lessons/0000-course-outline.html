@@ -11,15 +11,24 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
-  --warn: #b76b01;
+  --warn: #a65c00;
   --line: #e3ddd5;
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -38,6 +47,15 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -49,11 +67,20 @@
   --ok-bg: #1e2b1e;
   --bad: #e08a84;
   --bad-bg: #301d1c;
-    --warn: #ffc46b;
+  --warn: #ffc46b;
   --line: #3a3733;
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -68,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -101,7 +128,14 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -112,6 +146,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -145,7 +182,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -178,7 +238,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -217,7 +277,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -242,6 +302,9 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   padding: 0.12rem 0.65rem; cursor: pointer; white-space: nowrap;
 }
 .status-chip[data-state="doing"] { color: var(--warn); border-color: var(--warn); }
+tr.wb-next td { background: var(--accent-soft); }
+.wb-next-tag { display:inline-block; margin-left:.35rem; font-size:.7rem; font-weight:700; color:var(--accent); }
+@media print { tr.wb-next td { background: transparent !important; } .wb-next-tag { display:none; } }
 .status-chip[data-state="done"] { color: var(--ok); border-color: var(--ok); }
 .status-chip:hover { background: var(--accent-soft); }
 .status-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -267,20 +330,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -314,60 +370,82 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 #wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
 #wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
 @media print { #wb-quicknav { display: none; } }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
-<main>
+<main id="top">
 <h1>课程大纲 · Python 线</h1>
-<p class="meta">13 节课 · 从 Java 后端到能独立手写 Agent · 对应《一个月转型 Agent 学习计划》</p>
+<p class="meta">15 节课 · 从 Java 后端到能独立手写 Agent · 对应《一个月转型 Agent 学习计划》</p>
 
 <div class="callout win">
 <strong>使命锚点</strong>（来自 MISSION.md）：30 天转型 Agent，Python 要达到<strong>独立手写、面试不依赖 AI</strong>。每节课的验收标准都是可检验的动作——"能写出什么/能通过什么测试"，不是"看懂了"。
 </div>
 
 <div class="callout">
-<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的 <strong>9 个练习场共 244 题</strong>（1★-9★；第 10-13 课的动手任务在课件内）每题都带例子说明，先写后看、自动判分；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。每个页面右上角的<strong>当前页小标题</strong>可展开快速跳转，编辑区按 <strong>Cmd/Ctrl+S</strong> 保存代码。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成。状态只保存在当前浏览器本地：首次打开全部为 ○ 未开始，换浏览器/设备或清除浏览器数据后需要重新标记，不会自动同步。想开下一课直接在对话里说"继续学 Python"。
+<strong>使用方式</strong>：按顺序学，每课 20-30 分钟；学完当天做间隔复习，隔天开新课前先默写。配套的 <strong>10 个练习场共 266 题</strong>（1★-10★；第 10-15 课的动手任务在课件内）每题都带例子说明，先写后看、自动判分（代码题在线跑断言，概念题点选选项判分）；手写卡壳时查<a href="../reference/java-to-python-syntax.html">Python 全语法速查表</a>（35 节全覆盖，打印友好）。每个页面右上角的<strong>当前页小标题</strong>可展开快速跳转，编辑区按 <strong>Cmd/Ctrl+S</strong> 保存代码。课程表格的状态列可<strong>点击自行标记</strong>：○ 未开始 → ● 进行中 → ✓ 已完成。状态只保存在当前浏览器本地：首次打开全部为 ○ 未开始，换浏览器/设备或清除浏览器数据后需要重新标记，不会自动同步。想开下一课直接在对话里说"继续学 Python"。
 </div>
 
 <h2 class="drill-cat">阶段一 · 语言基础（对应学习计划 W1-W2 前半）</h2>
-<table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
-<tr><td><strong>1</strong></td><td><a href="0001-from-java-to-first-function.html">从 Java 到第一个 Python 函数</a></td><td>缩进/类型提示/推导初见</td><td>独立重写 Java 工具方法并通过自动测试</td><td><button class="status-chip" data-key="1" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>1★</strong></td><td><a href="0001-basics-drill.html">练习场 · 20 题语言基础训练</a></td><td>变量与字符串 / 数字运算 / 条件 / 循环 / 函数与综合</td><td>20 题先写后看全对（含 #9 #11 边界题、#17 类型提示内省检查）</td><td><button class="status-chip" data-key="1★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<div class="table-scroll"><table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<tr><td><strong>1</strong></td><td><a href="0001-from-java-to-first-function.html">从 Java 到第一个 Python 函数</a></td><td>缩进/类型提示/推导初见/break-continue/for-else/match 结构匹配</td><td>独立重写 Java 工具方法并通过自动测试</td><td><button class="status-chip" data-key="1" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>1★</strong></td><td><a href="0001-basics-drill.html">练习场 · 20 题语言基础训练</a></td><td>变量与字符串 / 数字运算 / 条件 / 循环 / 函数与综合</td><td>20 题先写后看全对（含 #9 #11 边界题；#17 为类型提示概念选择题）</td><td><button class="status-chip" data-key="1★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>2</strong></td><td><a href="0002-comprehensions-and-generators.html">列表推导与字典推导</a></td><td>四种推导式 + 生成器表达式</td><td>Stream 链 10 秒翻译成一行推导</td><td><button class="status-chip" data-key="2" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>2★</strong></td><td><a href="0002-expressions-drill.html">练习场 · 100 题表达式训练</a></td><td>9 大类持续刷题</td><td>累计 80+ 题先写后看全对</td><td><button class="status-chip" data-key="2★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>3</strong></td><td><a href="0003-functions-deep.html">函数进阶：签名、陷阱与 lambda</a></td><td>默认参数/仅关键字/*args/**kwargs/可变默认参数坑</td><td>写出完整签名并通过防作弊测试</td><td><button class="status-chip" data-key="3" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>3★</strong></td><td><a href="0003-functions-drill.html">练习场 · 20 题函数设计训练</a></td><td>默认参数 / 仅关键字 / *args / **kwargs / 陷阱修复 / lambda 排序</td><td>20 题先写后看全对（含 #8 #19 防作弊题）</td><td><button class="status-chip" data-key="3★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>4</strong></td><td><a href="0004-classes-and-dataclass.html">类与 dataclass</a></td><td>self/__init__/继承/@dataclass/Protocol</td><td>手写 AgentState 数据类并比较 record 写法</td><td><button class="status-chip" data-key="4" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>4★</strong></td><td><a href="0004-classes-drill.html">练习场 · 20 题类与 dataclass 训练</a></td><td>手写类 / @dataclass / 继承与 super / Protocol / 综合</td><td>20 题先写后看全对（含 #15 协议结构检查、#19 防作弊题）</td><td><button class="status-chip" data-key="4★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-</table>
+<tr><td><strong>3</strong></td><td><a href="0003-functions-deep.html">函数进阶：签名、陷阱与 lambda</a></td><td>默认参数/仅位置与仅关键字/*args/**kwargs/解包/文档字符串/可变默认参数坑</td><td>写出完整签名并通过防作弊测试</td><td><button class="status-chip" data-key="3" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>3★</strong></td><td><a href="0003-functions-drill.html">练习场 · 20 题函数设计训练</a></td><td>默认参数 / 仅关键字 / *args / **kwargs / 陷阱修复 / lambda 排序</td><td>20 题先写后看全对（含 #8 #19 防作弊题、#12/#16/#17/#18 概念选择题）</td><td><button class="status-chip" data-key="3★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>4</strong></td><td><a href="0004-classes-and-dataclass.html">类与 dataclass</a></td><td>self/__init__/类变量与实例变量/继承/classmethod-staticmethod-property/@dataclass/Protocol</td><td>手写 AgentState 数据类并比较 record 写法</td><td><button class="status-chip" data-key="4" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>4★</strong></td><td><a href="0004-classes-drill.html">练习场 · 20 题类与 dataclass 训练</a></td><td>手写类 / @dataclass / 继承与 super / Protocol / 综合</td><td>20 题先写后看全对（含 #4/#15/#17 概念选择题、#19 防作弊题）</td><td><button class="status-chip" data-key="4★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+</table></div>
 
 <h2 class="drill-cat">阶段二 · 工程能力（对应学习计划 W2 后半-W3）</h2>
-<table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<div class="table-scroll"><table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
 <tr><td><strong>5</strong></td><td><a href="0005-exceptions-and-context-managers.html">异常与资源管理</a></td><td>try/except/raise from/with/@contextmanager</td><td>给支付函数写三层防御（业务异常/重试/兜底）</td><td><button class="status-chip" data-key="5" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>5★</strong></td><td><a href="0005-exceptions-drill.html">练习场 · 20 题异常与资源管理训练</a></td><td>try/except/finally / 自定义异常与异常链 / 重试与精确捕获 / with 与 @contextmanager / 综合</td><td>20 题先写后看全对（含 #10 防作弊、#13 结构检查、#7 原因链验证）</td><td><button class="status-chip" data-key="5★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>6</strong></td><td><a href="0006-python-essentials-unique.html">Python 独有语法专题：切片、闭包与对象模型</a></td><td>切片深挖/bytes 与编码/LEGB 与 nonlocal/is 与 ==、可哈希/name mangling/Enum/REPL 内省</td><td>闭包计数器与切片操作全对，能讲清 is 与 == 的区别</td><td><button class="status-chip" data-key="6" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>6★</strong></td><td><a href="0006-essentials-drill.html">练习场 · 20 题独有语法训练</a></td><td>切片 / 闭包 nonlocal / is 与 ==、可哈希 / bytes 编码 / name mangling / 综合</td><td>20 题先写后看全对（含闭包状态独立防作弊测试）</td><td><button class="status-chip" data-key="6★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>7</strong></td><td><a href="0007-modules-typing.html">模块、项目结构与 typing</a></td><td>import/__main__/项目布局/venv 与 pip/typing 全量</td><td>在 venv 里把练习代码重组为可 pip 安装的小项目</td><td><button class="status-chip" data-key="7" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>5★</strong></td><td><a href="0005-exceptions-drill.html">练习场 · 20 题异常与资源管理训练</a></td><td>try/except/finally / 自定义异常与异常链 / 重试与精确捕获 / with 与 @contextmanager / 综合</td><td>20 题先写后看全对（含 #10/#15 概念选择题、#13 结构检查、#7 原因链验证）</td><td><button class="status-chip" data-key="5★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>6</strong></td><td><a href="0006-python-essentials-unique.html">Python 独有语法专题：切片、闭包与对象模型</a></td><td>切片深挖/bytes 与编码/LEGB 与 nonlocal/del 绑定/is 与 ==、可哈希/name mangling/Enum/dir-help-inspect 内省</td><td>闭包计数器与切片操作全对，能讲清 is 与 == 的区别</td><td><button class="status-chip" data-key="6" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>6★</strong></td><td><a href="0006-essentials-drill.html">练习场 · 20 题独有语法训练</a></td><td>切片 / 闭包 nonlocal / is 与 ==、可哈希 / bytes 编码 / name mangling / 综合</td><td>20 题先写后看全对（含闭包状态独立防作弊测试、#4/#11/#13/#19 概念选择题）</td><td><button class="status-chip" data-key="6★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>7</strong></td><td><a href="0007-modules-typing.html">模块、项目结构与 typing</a></td><td>import/__main__/sys.path/相对导入/__pycache__ 与 .pyc/项目布局/venv 与 pip/typing 全量</td><td>在 venv 里把练习代码重组为可 pip 安装的小项目</td><td><button class="status-chip" data-key="7" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>7★</strong></td><td><a href="0007-modules-drill.html">练习场 · 13 题模块与 typing 训练</a></td><td>__main__ 守卫 / 类型提示（str | None / Callable / TypedDict）/ keyword-only 参数</td><td>13 题先写后看全对（含签名内省类型提示检查、__main__ 守卫防作弊）</td><td><button class="status-chip" data-key="7★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>8</strong></td><td><a href="0008-asyncio.html">异步 asyncio</a></td><td>async def/await/gather/wait_for 超时/create_task+wait 竞速/事件循环心智模型</td><td>并发调三个协程并解释和线程的差别</td><td><button class="status-chip" data-key="8" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>8★</strong></td><td><a href="0008-asyncio-drill.html">练习场 · 11 题异步 asyncio 训练</a></td><td>async/await / asyncio.gather 并发 / wait_for 超时 / 异步综合</td><td>11 题先写后看全对（判分测试内含 await，gather 并发计时防顺序写法）</td><td><button class="status-chip" data-key="8★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>8★</strong></td><td><a href="0008-asyncio-drill.html">练习场 · 11 题异步 asyncio 训练</a></td><td>async/await / asyncio.gather 并发 / wait_for 超时 / 异步综合</td><td>11 题先写后看全对（判分测试内含 await，gather 并发计时防顺序写法；#1/#2/#6/#7 概念选择题）</td><td><button class="status-chip" data-key="8★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>9</strong></td><td><a href="0009-stdlib.html">标准库实战</a></td><td>文件 I/O/json/pathlib/re/collections/datetime</td><td>日志文件解析小工具，零第三方依赖</td><td><button class="status-chip" data-key="9" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-<tr><td><strong>9★</strong></td><td><a href="0009-stdlib-drill.html">练习场 · 20 题标准库实战训练</a></td><td>json / 文件 I/O（真实临时文件读写）/ 正则 / collections / datetime</td><td>20 题先写后看全对（运行时真实读写文件验证）</td><td><button class="status-chip" data-key="9★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-</table>
+<tr><td><strong>9★</strong></td><td><a href="0009-stdlib-drill.html">练习场 · 20 题标准库实战训练</a></td><td>json / 文件 I/O（真实临时文件读写）/ 正则 / collections / datetime</td><td>20 题先写后看全对（运行时真实读写文件验证；#6/#15/#16 概念选择题）</td><td><button class="status-chip" data-key="9★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+</table></div>
 
 <h2 class="drill-cat">阶段三 · Agent 应用（对应学习计划 W3-W4）</h2>
-<table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<div class="table-scroll"><table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
 <tr><td><strong>10</strong></td><td><a href="0010-decorators.html">装饰器与回调</a></td><td>装饰器三段式/带参装饰器（工厂）/functools.wraps/@tool 注册模式</td><td>手写 @retry(times=3) 和 @log 装饰器</td><td><button class="status-chip" data-key="10" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>11</strong></td><td><a href="0011-generators.html">生成器与流式输出</a></td><td>yield/迭代器协议/yield from/send 双向通信/惰性管道</td><td>手写 token 流式输出的生成器</td><td><button class="status-chip" data-key="11" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>12</strong></td><td><a href="0012-fastapi.html">FastAPI 最小面</a></td><td>路由/Pydantic 模型/异步端点（浏览器用预置 MiniAPI 教学框架）</td><td>在 MiniAPI 上写出请求模型 + 异步端点 + 统一错误处理（404/422）</td><td><button class="status-chip" data-key="12" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
 <tr><td><strong>13</strong></td><td><a href="0013-nano-agent.html">综合实战：手写 Nano Agent</a></td><td>ReAct 循环/工具注册/上下文拼接</td><td>无 AI 辅助跑通一次完整 ReAct 循环</td><td><button class="status-chip" data-key="13" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
-</table>
+</table></div>
+
+
+<h2 class="drill-cat">阶段四 · 官网教程补齐（对应 Python 3.15 官方教程盲区）</h2>
+<div class="table-scroll"><table><tr><th style="width:4rem">课号</th><th>主题</th><th>覆盖点</th><th>验收标准</th><th style="width:6rem">状态</th></tr>
+<tr><td><strong>14</strong></td><td><a href="0014-numerics-and-testing.html">数值、异常进阶与测试</a></td><td>浮点表示错误/Decimal 精确算钱/ExceptionGroup/except*/add_note/pytest 断言</td><td>手写精确算钱函数 + 批量异常收集，全部断言通过</td><td><button class="status-chip" data-key="14" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>15</strong></td><td><a href="0015-stdlib-gaps.html">标准库补漏</a></td><td>argparse/sys.argv/logging/string.Template/weakref/bisect/heapq/timeit</td><td>写出带 CLI 参数、结构化日志与 Prompt 模板的小工具</td><td><button class="status-chip" data-key="15" data-main="1" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+<tr><td><strong>10★</strong></td><td><a href="0010-gaps-drill.html">练习场 · 22 题官网缺口补齐训练</a></td><td>break/continue/循环 else/match/仅位置参数/类变量/classmethod/Decimal/ExceptionGroup/argparse 等 12 类考点</td><td>22 题先写后看全对（12 代码题 + 10 概念选择题，含结构与内省检查）</td><td><button class="status-chip" data-key="10★" data-main="0" title="点击切换状态：未开始 → 进行中 → 已完成（本地自动保存）">○ 未开始</button></td></tr>
+</table></div>
 
 <h2 class="drill-cat">进度总览</h2>
-<p id="progress-note">已完成 <span id="done-count">0</span>/13 课 + 各课练习场 + 速查表。进度以本机浏览器记录为准；预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。</p>
+<p id="progress-note">已完成 <span id="done-count">0</span>/15 课 + 各课练习场 + 速查表。<span id="progress-tail">进度以本机浏览器记录为准；预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。</span></p>
+<p id="review-due-note" class="meta" hidden></p>
 
 <footer class="doc-footer">
-  本大纲由 teach skill 维护，共 13 课 + 9 个练习场（244 题）· 返回 <a href="0013-nano-agent.html">第 13 课（收官）</a>
+  本大纲由 teach skill 维护，共 15 课 + 10 个练习场（266 题）· <a href="#top">↑ 回到顶部</a>
 </footer>
 </main>
 <script>
@@ -379,6 +457,8 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -432,7 +512,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -489,6 +569,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -527,6 +608,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -534,6 +616,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -541,7 +624,9 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -559,17 +644,116 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';
@@ -635,30 +819,70 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
     });
   });
 
+  function allTrue(map, total) {
+    if (!map || !total) return false;
+    var keys = Object.keys(map);
+    return keys.length >= total && keys.every(function (k) { return map[k] === true; });
+  }
+  function syncFromProgress() {
+    if (!window.WBProgress) return;
+    var prog = WBProgress.read(), changed = false;
+    chips.forEach(function (chip) {
+      if (chip.dataset.main !== '1') return;
+      var lesson = ('000' + chip.dataset.key).slice(-4), s = prog[lesson];
+      if (!s) return;
+      var qOK = allTrue(s.quiz && s.quiz.units, s.quiz && s.quiz.total);
+      var lOK = !!(s.pylab && s.pylab.passed);
+      var rOK = allTrue(s.review && s.review.units, s.review && s.review.total);
+      var want = (lOK && rOK) ? 'done' : ((qOK || lOK || rOK) ? 'doing' : null);
+      var rank = { todo: 0, doing: 1, done: 2 };
+      if (want && rank[want] > rank[chip.dataset.state || 'todo']) {
+        apply(chip, want); saved[chip.dataset.key] = want; changed = true;
+      }
+    });
+    if (changed) { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} }
+  }
   function updateProgress() {
     var done = 0, total = 0;
     chips.forEach(function (c) {
       if (c.dataset.main !== '1') return;
-      total++;
-      if (c.dataset.state === 'done') done++;
+      total++; if (c.dataset.state === 'done') done++;
     });
     var el = document.getElementById('done-count');
     if (el) el.textContent = String(done);
-    var note = document.getElementById('progress-note');
-    if (note && total) {
-      // 进度描述：主课全完为“已完成”，有进行中则提示当前课
-      var doing = chips.filter(function (c) { return c.dataset.main === '1' && c.dataset.state === 'doing'; });
-      var tail = doing.length ? '当前进行中：第 ' + doing[0].dataset.key + ' 课。' : '';
-      note.innerHTML = '已完成 <span id="done-count">' + done + '</span>/13 课 + 各课练习场 + 速查表。' + tail + '预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。';
+    var doing = chips.filter(function (c) { return c.dataset.main === '1' && c.dataset.state === 'doing'; });
+    var tailEl = document.getElementById('progress-tail');
+    if (tailEl) tailEl.textContent = (doing.length ? '当前进行中：第 ' + doing[0].dataset.key + ' 课。' : '') +
+      '进度以本机浏览器记录为准；预计节奏：工程阶段每 2 天 1 课（配合练习场巩固），Agent 阶段回到学习计划主线的 LangGraph/RAG。';
+    var dueEl = document.getElementById('review-due-note');
+    if (dueEl && window.WBSpaced) {
+      var n = WBSpaced.dueCount(); dueEl.hidden = n === 0;
+      dueEl.textContent = '今日待复习 ' + n + ' 题（打开任一课件第五节复核即可）。';
+    }
+    var next = chips.filter(function (c) { return c.dataset.main === '1' && c.dataset.state !== 'done'; })
+                    .sort(function (a, b) { return (+a.dataset.key) - (+b.dataset.key); })[0];
+    document.querySelectorAll('tr.wb-next').forEach(function (tr) {
+      tr.classList.remove('wb-next');
+      var old = tr.querySelector('.wb-next-tag'); if (old) old.remove();
+    });
+    if (next && next.closest) {
+      var tr = next.closest('tr');
+      if (tr) {
+        tr.classList.add('wb-next');
+        var tag = document.createElement('span');
+        tag.className = 'wb-next-tag'; tag.textContent = '建议下一课';
+        next.parentNode.appendChild(tag);
+      }
     }
   }
-
+  syncFromProgress();
   updateProgress();
+  window.addEventListener('wb:progress', function () { syncFromProgress(); updateProgress(); });
 })();
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：课程大纲</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html" aria-current="page"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html" aria-current="page"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>

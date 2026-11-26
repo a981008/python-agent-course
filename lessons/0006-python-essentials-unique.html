@@ -11,7 +11,7 @@
   --ink-soft: #5a5a5a;
   --accent: #a0522d;
   --accent-soft: #f5efe9;
-  --ok: #2e7d32;
+  --ok: #256b29;
   --ok-bg: #e8f2e8;
   --bad: #b3261e;
   --bad-bg: #fbeae9;
@@ -19,6 +19,16 @@
   --code-bg: #f7f5f2;
   --bg: #fffdf9;
   --card: #ffffff;
+  --warn: #a65c00;
+  --on-accent: #ffffff;
+  --link-underline: #d8c4b4;
+  --tk-kw: #8e1f8b;
+  --tk-str: #2f7d2f;
+  --tk-com: #5f6672;
+  --tk-num: #8a4e00;
+  --tk-fn: #2b5fa8;
+  --tk-dec: #7d5604;
+  --sel-bg: rgba(110, 140, 220, 0.30);
   --max-w: 42rem;
 }
 /* 暗色主题：跟随系统自动切换（prefers-color-scheme），手动偏好可覆盖 */
@@ -36,6 +46,16 @@
     --code-bg: #26241f;
     --bg: #1b1916;
     --card: #232019;
+    --warn: #ffc46b;
+    --on-accent: #1b1916;
+    --link-underline: #6b4f3d;
+    --tk-kw: #c792ea;
+    --tk-str: #9ece6a;
+    --tk-com: #9aa3c7;
+    --tk-num: #ff9e64;
+    --tk-fn: #7aa2f7;
+    --tk-dec: #ffc46b;
+    --sel-bg: rgba(120, 150, 255, 0.28);
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +71,16 @@
   --code-bg: #26241f;
   --bg: #1b1916;
   --card: #232019;
+  --warn: #ffc46b;
+  --on-accent: #1b1916;
+  --link-underline: #6b4f3d;
+  --tk-kw: #c792ea;
+  --tk-str: #9ece6a;
+  --tk-com: #9aa3c7;
+  --tk-num: #ff9e64;
+  --tk-fn: #7aa2f7;
+  --tk-dec: #ffc46b;
+  --sel-bg: rgba(120, 150, 255, 0.28);
 }
 * { box-sizing: border-box; }
 body {
@@ -65,9 +95,9 @@ body {
 main { max-width: var(--max-w); margin: 0 auto; }
 h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 0.4rem; font-weight: 700; }
 h2 { font-size: 1.25rem; margin: 2.4rem 0 0.8rem; padding-top: 0.6rem; border-top: 2px solid var(--line); }
-h3 { font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
 p { margin: 0.7rem 0; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #d8c4b4; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--link-underline); }
 a:hover { background: var(--accent-soft); }
 sup a { border: none; }
 .meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 2rem; }
@@ -98,7 +128,14 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
   color: var(--ink-soft);
   line-height: 1.6;
 }
-@media (max-width: 900px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 1200px) { .marginnote { float: none; width: auto; margin: 1rem 0; border-left: 3px solid var(--line); padding-left: 0.8rem; } }
+@media (max-width: 600px) { body { padding: 1.5rem 1rem 3rem; } }
+@media (max-width: 700px) {
+  main table:has(.status-chip) th:nth-child(3),
+  main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
+}
+
 .callout {
   background: var(--accent-soft);
   border-radius: 6px;
@@ -109,6 +146,9 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 .callout.win { background: var(--ok-bg); }
 .callout.primary { border-left: 4px solid var(--accent); background: var(--card); border: 1px solid var(--line); }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
+.table-scroll table { margin: 0; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
@@ -142,7 +182,30 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .quiz-explain { font-size: 0.88rem; color: var(--ink-soft); margin: 0.7rem 0 0.2rem; }
 /* 打印 */
 @media print {
-  body { padding: 0; font-size: 11pt; background: var(--card); }
+  :root, :root[data-theme] {
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --accent: #a0522d;
+    --accent-soft: #f5efe9;
+    --ok: #256b29;
+    --ok-bg: #e8f2e8;
+    --bad: #b3261e;
+    --bad-bg: #fbeae9;
+    --warn: #a65c00;
+    --line: #e3ddd5;
+    --code-bg: #ffffff;
+    --card: #ffffff;
+    --bg: #ffffff;
+    --on-accent: #ffffff;
+    --link-underline: #d8c4b4;
+    --tk-kw: #8e1f8b;
+    --tk-str: #2f7d2f;
+    --tk-com: #5f6672;
+    --tk-num: #8a4e00;
+    --tk-fn: #2b5fa8;
+    --tk-dec: #7d5604;
+  }
+  body { padding: 0; font-size: 11pt; background: #fff; color: #1a1a1a; }
   .quiz-opt { border: 1px solid #ccc; }
   .no-print { display: none !important; }
   a { color: var(--ink); border: none; }
@@ -175,7 +238,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 }
 .py-lab-btn {
   font: inherit; font-size: 0.9rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.45rem 1.1rem; cursor: pointer;
 }
@@ -214,7 +277,7 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
 .review-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
 .review-btn {
   font: inherit; font-size: 0.82rem;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   border: none; border-radius: 6px;
   padding: 0.4rem 0.9rem; cursor: pointer;
 }
@@ -250,20 +313,13 @@ footer.doc-footer { margin-top: 3rem; color: var(--ink-soft); font-size: 0.82rem
   font-variant-ligatures: none;
 }
 .pyhl-src { color: transparent; caret-color: var(--ink); }
-.pyhl-src::selection { background: rgba(110, 140, 220, 0.30); color: transparent; }
-.tk-kw { color: #a626a4; font-weight: 600; }
-.tk-str { color: #3f9a3f; }
-.tk-com { color: #98a0ab; font-style: italic; }
-.tk-num { color: #b76b01; }
-.tk-fn { color: #3d7bd9; }
-.tk-dec { color: #a8720a; }
-[data-theme="dark"] .pyhl-src::selection { background: rgba(120, 150, 255, 0.28); }
-[data-theme="dark"] .tk-kw { color: #c792ea; }
-[data-theme="dark"] .tk-str { color: #9ece6a; }
-[data-theme="dark"] .tk-com { color: #6b7394; }
-[data-theme="dark"] .tk-num { color: #ff9e64; }
-[data-theme="dark"] .tk-fn { color: #7aa2f7; }
-[data-theme="dark"] .tk-dec { color: #ffc46b; }
+.pyhl-src::selection { background: var(--sel-bg); color: transparent; }
+.tk-kw { color: var(--tk-kw); font-weight: 600; }
+.tk-str { color: var(--tk-str); }
+.tk-com { color: var(--tk-com); font-style: italic; }
+.tk-num { color: var(--tk-num); }
+.tk-fn { color: var(--tk-fn); }
+.tk-dec { color: var(--tk-dec); }
 /* 静态烘焙兜底：JS 未运行时 pre 也有合理内边距（JS 运行后会被逐项覆盖） */
 pre.pyhl-hl { padding: calc(0.7rem + 1px) calc(0.9rem + 1px); }
 pre.pyhl-hl:has(+ textarea.py-lab-editor) { padding: 1rem 1.2rem; }
@@ -299,6 +355,19 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 #wb-quicknav-menu a[aria-current="page"] { color: var(--accent); font-weight: 800; background: var(--accent-soft); }
 #wb-quicknav-menu a small { color: var(--ink-soft); font-size: .7rem; white-space: nowrap; }
 @media print { #wb-quicknav { display: none; } }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.py-lab-editor:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.drill-code:focus-visible,
+.drill-in:focus-visible,
+.review-code:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 </style>
 </head>
 <body>
@@ -316,17 +385,16 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p><strong>REPL 是 Python 的一部分</strong>（Java 没有的开发节奏）：终端敲 <code>python3</code> 直接进入，语句立刻执行并回显。三个必备工具：</p>
 
-<pre><span class="lang-tag">REPL — 直接敲 python3 进入</span>
-&gt;&gt;&gt; letters = ['a', 'b', 'c']
-&gt;&gt;&gt; letters[-1]          # 负索引从尾部数
-'c'
-&gt;&gt;&gt; _                    # _ 是上一个表达式的结果（REPL 独有）
-'c'
-&gt;&gt;&gt; help(str.split)      # 看文档；dir("abc") 列出所有方法
-&gt;&gt;&gt; type(letters), len(letters)
+<pre><span class="lang-tag">REPL — 直接敲 python3 进入</span><code><span data-pyhl="1">&gt;&gt;&gt; letters = [<span class="tk-str">'a'</span>, <span class="tk-str">'b'</span>, <span class="tk-str">'c'</span>]
+&gt;&gt;&gt; letters[-<span class="tk-num">1</span>]          <span class="tk-com"># 负索引从尾部数</span>
+<span class="tk-str">'c'</span>
+&gt;&gt;&gt; _                    <span class="tk-com"># _ 是上一个表达式的结果（REPL 独有）</span>
+<span class="tk-str">'c'</span>
+&gt;&gt;&gt; <span class="tk-fn">help</span>(<span class="tk-fn">str</span>.split)      <span class="tk-com"># 看文档；dir("abc") 列出所有方法</span>
+&gt;&gt;&gt; <span class="tk-fn">type</span>(letters), <span class="tk-fn">len</span>(letters)
 
-# 脚本调试：python3 -i script.py
-# 出错后停在交互态，变量还在现场，直接查</pre>
+<span class="tk-com"># 脚本调试：python3 -i script.py</span>
+<span class="tk-com"># 出错后停在交互态，变量还在现场，直接查</span></span></code></pre>
 
 <p>面试手写代码前，先用 REPL 试语法手感是合理策略——它就是为试错而生的。</p>
 
@@ -337,16 +405,15 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 <a href="../reference/java-to-python-syntax.html">参考 · 全语法速查表 · 切片</a>
 </div>
 
-<pre><span class="lang-tag">PYTHON — seq[start:stop:step]，含头不含尾</span>
-letters = ['a', 'b', 'c', 'd', 'e', 'f']
-letters[1:4]        # ['b', 'c', 'd']      → list.subList(1, 4)
-letters[-2:]        # ['e', 'f']           负索引从尾部数（Java 没有）
-letters[::2]        # ['a', 'c', 'e']      步长 2
-letters[::-1]       # 反转，等价 Collections.reverse
-nums = [1, 2, 3]
-copy = nums[:]      # 浅拷贝整个序列（切片总是产生新对象）
-letters[10:]        # [] —— 切片越界不抛异常（Java 直接 IndexOutOfBounds）
-nums[1:3] = [20, 30]   # 切片赋值：直接改片段</pre>
+<pre><span class="lang-tag">PYTHON — seq[start:stop:step]，含头不含尾</span><code><span data-pyhl="1">letters = [<span class="tk-str">'a'</span>, <span class="tk-str">'b'</span>, <span class="tk-str">'c'</span>, <span class="tk-str">'d'</span>, <span class="tk-str">'e'</span>, <span class="tk-str">'f'</span>]
+letters[<span class="tk-num">1</span>:<span class="tk-num">4</span>]        <span class="tk-com"># ['b', 'c', 'd']      → list.subList(1, 4)</span>
+letters[-<span class="tk-num">2</span>:]        <span class="tk-com"># ['e', 'f']           负索引从尾部数（Java 没有）</span>
+letters[::<span class="tk-num">2</span>]        <span class="tk-com"># ['a', 'c', 'e']      步长 2</span>
+letters[::-<span class="tk-num">1</span>]       <span class="tk-com"># 反转，等价 Collections.reverse</span>
+nums = [<span class="tk-num">1</span>, <span class="tk-num">2</span>, <span class="tk-num">3</span>]
+copy = nums[:]      <span class="tk-com"># 浅拷贝整个序列（切片总是产生新对象）</span>
+letters[<span class="tk-num">10</span>:]        <span class="tk-com"># [] —— 切片越界不抛异常（Java 直接 IndexOutOfBounds）</span>
+nums[<span class="tk-num">1</span>:<span class="tk-num">3</span>] = [<span class="tk-num">20</span>, <span class="tk-num">30</span>]   <span class="tk-com"># 切片赋值：直接改片段</span></span></code></pre>
 
 <p>三条记忆点：① <strong>含头不含尾</strong>（和 subList 一样）；② <strong>负索引</strong>从尾部数，取尾不再手算 size-1；③ <strong>越界不炸</strong>——切片是"取窗口"，窗口外面没有就给空。字符串、元组同样支持。</p>
 
@@ -356,92 +423,86 @@ nums[1:3] = [20, 30]   # 切片赋值：直接改片段</pre>
 
 <p>Java 匿名类只能捕获 <code>final</code> 变量；Python 闭包能<strong>读写</strong>外层变量——但有个坑。变量查找顺序叫 <strong>LEGB</strong>：Local（本函数）→ Enclosing（外层函数）→ Global（模块）→ Builtins（内建）。</p>
 
-<pre><span class="lang-tag">PYTHON — 查找就近遮蔽，赋值才要声明</span>
-x = "global"
-def outer():
-    x = "enclosing"
-    def inner():
-        x = "local"        # 就近遮蔽，不改外层
-        return x
-    return inner()
+<pre><span class="lang-tag">PYTHON — 查找就近遮蔽，赋值才要声明</span><code><span data-pyhl="1">x = <span class="tk-str">"global"</span>
+<span class="tk-kw">def</span> outer():
+    x = <span class="tk-str">"enclosing"</span>
+    <span class="tk-kw">def</span> inner():
+        x = <span class="tk-str">"local"</span>        <span class="tk-com"># 就近遮蔽，不改外层</span>
+        <span class="tk-kw">return</span> x
+    <span class="tk-kw">return</span> inner()
 
-# 闭包写状态：内部函数引用外层变量，外层函数返回它
-def make_counter():
-    count = 0              # 状态藏在闭包里
-    def inc():
-        nonlocal count     # ★ 没有它，count += 1 会创建新局部变量！
-        count += 1
-        return count
-    return inc
+<span class="tk-com"># 闭包写状态：内部函数引用外层变量，外层函数返回它</span>
+<span class="tk-kw">def</span> make_counter():
+    count = <span class="tk-num">0</span>              <span class="tk-com"># 状态藏在闭包里</span>
+    <span class="tk-kw">def</span> inc():
+        <span class="tk-kw">nonlocal</span> count     <span class="tk-com"># ★ 没有它，count += 1 会创建新局部变量！</span>
+        count += <span class="tk-num">1</span>
+        <span class="tk-kw">return</span> count
+    <span class="tk-kw">return</span> inc
 
 c = make_counter()
-c(); c()                   # 1, 2 —— 每次调用 make_counter 得到独立计数器</pre>
+c(); c()                   <span class="tk-com"># 1, 2 —— 每次调用 make_counter 得到独立计数器</span></span></code></pre>
 
 <p><code>nonlocal</code> 是 Java 程序员最容易漏的字：闭包里<strong>读</strong>外层变量不需要声明，<strong>写</strong>（赋值）才需要。<code>global</code> 是另一层——模块级变量。</p>
 
 <p>经典坑：循环变量被闭包<strong>共享</strong>：</p>
 
-<pre><span class="lang-tag">PYTHON — 三处闭包引用同一个 i</span>
-funcs = [lambda: i for i in range(3)]
-[f() for f in funcs]      # [2, 2, 2]！都指向循环结束后的 i
-funcs = [lambda i=i: i for i in range(3)]   # 用默认参数冻结当前值
-[f() for f in funcs]      # [0, 1, 2]</pre>
+<pre><span class="lang-tag">PYTHON — 三处闭包引用同一个 i</span><code><span data-pyhl="1">funcs = [<span class="tk-kw">lambda</span>: i <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">3</span>)]
+[f() <span class="tk-kw">for</span> f <span class="tk-kw">in</span> funcs]      <span class="tk-com"># [2, 2, 2]！都指向循环结束后的 i</span>
+funcs = [<span class="tk-kw">lambda</span> i=i: i <span class="tk-kw">for</span> i <span class="tk-kw">in</span> <span class="tk-fn">range</span>(<span class="tk-num">3</span>)]   <span class="tk-com"># 用默认参数冻结当前值</span>
+[f() <span class="tk-kw">for</span> f <span class="tk-kw">in</span> funcs]      <span class="tk-com"># [0, 1, 2]</span></span></code></pre>
 
 <h2>四、对象模型：is 与 ==、可哈希、name mangling（6 分钟）</h2>
 
 <p>Java 里 <code>==</code> 是引用比较、<code>equals()</code> 是值比较。Python 反过来：<strong><code>==</code> 是值比较</strong>（默认调 <code>__eq__</code>），<strong><code>is</code> 才是对象身份比较</strong>（≈ Java 的 ==）：</p>
 
-<pre><span class="lang-tag">PYTHON — 判等纪律</span>
-a = [1]; b = [1]
-a == b        # True：值相等 → equals()
-a is b        # False：两个不同对象 → Java 的 ==
-id(a) == id(b)   # False：id() 是对象身份（≈ identityHashCode）
+<pre><span class="lang-tag">PYTHON — 判等纪律</span><code><span data-pyhl="1">a = [<span class="tk-num">1</span>]; b = [<span class="tk-num">1</span>]
+a == b        <span class="tk-com"># True：值相等 → equals()</span>
+a <span class="tk-kw">is</span> b        <span class="tk-com"># False：两个不同对象 → Java 的 ==</span>
+id(a) == id(b)   <span class="tk-com"># False：id() 是对象身份（≈ identityHashCode）</span>
 
-# 纪律：判等永远写 ==；is 只用于 None / True / False
-if x is None: ...        # → if (x == null)
-if lst: ...              # truthiness：空容器/0/None 为假</pre>
+<span class="tk-com"># 纪律：判等永远写 ==；is 只用于 None / True / False</span>
+<span class="tk-kw">if</span> x <span class="tk-kw">is</span> <span class="tk-kw">None</span>: ...        <span class="tk-com"># → if (x == null)</span>
+<span class="tk-kw">if</span> lst: ...              <span class="tk-com"># truthiness：空容器/0/None 为假</span></span></code></pre>
 
 <p>第二个概念：<strong>可哈希</strong>。Python 对象做 dict 键、进 set，要求可哈希（≈ Java 要求 hashCode 稳定）：数字、字符串、tuple 可以；list、dict、set 不行——所以 <code>{[1,2]: "x"}</code> 直接 TypeError，但 <code>{(1,2): "x"}</code> 合法。frozen dataclass 有真 <code>__hash__</code>，可变对象没有。</p>
 
 <p>第三个：Python 没有 <code>private</code> 关键字，靠<strong>约定 + 改名</strong>：</p>
 
-<pre><span class="lang-tag">PYTHON — 下划线的三种含义</span>
-class Account:
-    def __init__(self):
-        self.owner = "公开"       # → public
-        self._balance = 0         # 约定"内部使用"，外部仍能访问（→ @VisibleForTesting 的味道）
-        self.__pin = "1234"       # 触发 name mangling：真实名字变成 _Account__pin
+<pre><span class="lang-tag">PYTHON — 下划线的三种含义</span><code><span data-pyhl="1"><span class="tk-kw">class</span> Account:
+    <span class="tk-kw">def</span> __init__(<span class="tk-kw">self</span>):
+        <span class="tk-kw">self</span>.owner = <span class="tk-str">"公开"</span>       <span class="tk-com"># → public</span>
+        <span class="tk-kw">self</span>._balance = <span class="tk-num">0</span>         <span class="tk-com"># 约定"内部使用"，外部仍能访问（→ @VisibleForTesting 的味道）</span>
+        <span class="tk-kw">self</span>.__pin = <span class="tk-str">"1234"</span>       <span class="tk-com"># 触发 name mangling：真实名字变成 _Account__pin</span>
 
 acct = Account()
-acct.__pin          # AttributeError！
-acct._Account__pin  # 改名后的真身（知道即可，别这样访问）
-# 双下划线防的是"子类无意覆盖"，不是访问控制</pre>
+acct.__pin          <span class="tk-com"># AttributeError！</span>
+acct._Account__pin  <span class="tk-com"># 改名后的真身（知道即可，别这样访问）</span>
+<span class="tk-com"># 双下划线防的是"子类无意覆盖"，不是访问控制</span></span></code></pre>
 
 <h2>五、bytes 与 Enum：数据面与类型面（5 分钟）</h2>
 
-<pre><span class="lang-tag">PYTHON — bytes：网络与文件的默认单位</span>
-s = "中文"
-data = s.encode("utf-8")     # str → bytes（→ getBytes(Charset)）
-data.decode("utf-8")         # bytes → str（→ new String(bytes, UTF_8)）
+<pre><span class="lang-tag">PYTHON — bytes：网络与文件的默认单位</span><code><span data-pyhl="1">s = <span class="tk-str">"中文"</span>
+data = s.encode(<span class="tk-str">"utf-8"</span>)     <span class="tk-com"># str → bytes（→ getBytes(Charset)）</span>
+data.decode(<span class="tk-str">"utf-8"</span>)         <span class="tk-com"># bytes → str（→ new String(bytes, UTF_8)）</span>
 b = b"hello"
-b[0]                         # 104 —— bytes 的元素是 int
-# open() 忘写 encoding 在 Windows 会用 GBK——永远显式写！
-with open("a.txt", encoding="utf-8") as f:
-    text = f.read()</pre>
+b[<span class="tk-num">0</span>]                         <span class="tk-com"># 104 —— bytes 的元素是 int</span>
+<span class="tk-com"># open() 忘写 encoding 在 Windows 会用 GBK——永远显式写！</span>
+<span class="tk-kw">with</span> <span class="tk-fn">open</span>(<span class="tk-str">"a.txt"</span>, encoding=<span class="tk-str">"utf-8"</span>) <span class="tk-kw">as</span> f:
+    text = f.read()</span></code></pre>
 
-<pre><span class="lang-tag">PYTHON — Enum（→ Java enum）</span>
-from enum import Enum, auto
+<pre><span class="lang-tag">PYTHON — Enum（→ Java enum）</span><code><span data-pyhl="1"><span class="tk-kw">from</span> enum <span class="tk-kw">import</span> Enum, auto
 
-class Status(Enum):
-    PENDING = auto()          # auto() 自动编号
-    PAID = "paid"
-    SHIPPED = "shipped"
+<span class="tk-kw">class</span> Status(Enum):
+    PENDING = auto()          <span class="tk-com"># auto() 自动编号</span>
+    PAID = <span class="tk-str">"paid"</span>
+    SHIPPED = <span class="tk-str">"shipped"</span>
 
-Status.PAID.value            # 'paid'
-Status("paid")               # 按值反查（查不到抛 ValueError）
-Status.PAID.name             # 'PAID'
-list(Status)                 # 可迭代所有成员
-# IntEnum 可直接比大小；frozen dataclass 一样不可变，但 Enum 语义更明确</pre>
+Status.PAID.value            <span class="tk-com"># 'paid'</span>
+Status(<span class="tk-str">"paid"</span>)               <span class="tk-com"># 按值反查（查不到抛 ValueError）</span>
+Status.PAID.name             <span class="tk-com"># 'PAID'</span>
+<span class="tk-fn">list</span>(Status)                 <span class="tk-com"># 可迭代所有成员</span>
+<span class="tk-com"># IntEnum 可直接比大小；frozen dataclass 一样不可变，但 Enum 语义更明确</span></span></code></pre>
 
 <h2>六、动手：闭包计数器 + 切片右移 + Enum（8 分钟）</h2>
 
@@ -507,39 +568,78 @@ def from_value(s):
 
 <details>
 <summary>参考实现（先自己写完再看）</summary>
-<pre><code># 任务 1 — 闭包计数器
-def make_counter():
-    count = 0                 # 状态藏在闭包里，不在全局
-    def inc():
-        nonlocal count        # 没有它，count += 1 会创建新的局部变量
-        count += 1
-        return count
-    return inc
+<pre><code><span class="tk-com"># 任务 1 — 闭包计数器</span>
+<span class="tk-kw">def</span> make_counter():
+    count = <span class="tk-num">0</span>                 <span class="tk-com"># 状态藏在闭包里，不在全局</span>
+    <span class="tk-kw">def</span> inc():
+        <span class="tk-kw">nonlocal</span> count        <span class="tk-com"># 没有它，count += 1 会创建新的局部变量</span>
+        count += <span class="tk-num">1</span>
+        <span class="tk-kw">return</span> count
+    <span class="tk-kw">return</span> inc
 
-# 任务 2 — 切片循环右移
-def rotate(lst, k):
-    if not lst:               # 空列表：k %= len 会除零，先挡掉
-        return []
-    k %= len(lst)             # k 超过长度先取模
-    return lst[-k:] + lst[:-k]   # 尾段搬到前面；k=0 时 -0 就是 0，结果恰好是全拷贝
+<span class="tk-com"># 任务 2 — 切片循环右移</span>
+<span class="tk-kw">def</span> rotate(lst, k):
+    <span class="tk-kw">if</span> <span class="tk-kw">not</span> lst:               <span class="tk-com"># 空列表：k %= len 会除零，先挡掉</span>
+        <span class="tk-kw">return</span> []
+    k %= <span class="tk-fn">len</span>(lst)             <span class="tk-com"># k 超过长度先取模</span>
+    <span class="tk-kw">return</span> lst[-k:] + lst[:-k]   <span class="tk-com"># 尾段搬到前面；k=0 时 -0 就是 0，结果恰好是全拷贝</span>
 
-# 任务 3 — Enum 与按值反查
-from enum import Enum
+<span class="tk-com"># 任务 3 — Enum 与按值反查</span>
+<span class="tk-kw">from</span> enum <span class="tk-kw">import</span> Enum
 
-class Status(Enum):
-    PENDING = "pending"
-    PAID = "paid"
-    SHIPPED = "shipped"
-    CANCELLED = "cancelled"
+<span class="tk-kw">class</span> Status(Enum):
+    PENDING = <span class="tk-str">"pending"</span>
+    PAID = <span class="tk-str">"paid"</span>
+    SHIPPED = <span class="tk-str">"shipped"</span>
+    CANCELLED = <span class="tk-str">"cancelled"</span>
 
-def from_value(s):
-    try:
-        return Status(s)
-    except ValueError:
-        return None
+<span class="tk-kw">def</span> from_value(s):
+    <span class="tk-kw">try</span>:
+        <span class="tk-kw">return</span> Status(s)
+    <span class="tk-kw">except</span> ValueError:
+        <span class="tk-kw">return</span> <span class="tk-kw">None</span>
 </code></pre>
 <p>自评清单：① <code>nonlocal</code> 写在内部函数里了吗？两个计数器真的互不影响？② 右移用了 <code>lst[-k:] + lst[:-k]</code> 还是笨办法循环 pop？k=0 和空列表都对吗？③ <code>Status(s)</code> 的 ValueError 被捕获并返回 None 了吗？</p>
 </details>
+
+<h2>四·补、del 与内省三件套（3 分钟）</h2>
+
+<p>官网 5.2、6.3 和 9.1 节补齐两个基础概念：<code>del</code> 到底删了什么，以及不会用法时怎么现场问解释器。</p>
+
+<pre><span class="lang-tag">PYTHON — 官网 5.2 / 6.3 / 9.1 节</span><code><span data-pyhl="1"><span class="tk-com"># ① del 删的是"名字到对象的绑定"，不是对象本身</span>
+a = [<span class="tk-num">1</span>, <span class="tk-num">2</span>]
+b = a                  <span class="tk-com"># b 和 a 是贴到同一个列表上的两个标签（别名）</span>
+<span class="tk-kw">del</span> a                  <span class="tk-com"># 只撕掉 a 这个标签</span>
+b                      <span class="tk-com"># [1, 2] —— 列表还在，b 仍可用</span>
+
+<span class="tk-kw">del</span> b[<span class="tk-num">0</span>]               <span class="tk-com"># 删的是容器里的元素，原地修改 → [2]</span>
+<span class="tk-kw">del</span> b                  <span class="tk-com"># 引用计数归零后对象才被回收</span>
+
+<span class="tk-com"># 这正是官网 9.1"名称和对象"：变量是标签，不是装值的盒子</span>
+<span class="tk-com"># 也解释了第 3 课的可变默认参数坑——多个名字指向同一个列表</span>
+
+<span class="tk-com"># ② 内省三件套：语法记不住时，不要猜，直接问解释器</span>
+<span class="tk-fn">dir</span>(obj)               <span class="tk-com"># 列出对象所有属性和方法名</span>
+<span class="tk-fn">help</span>(<span class="tk-fn">str</span>.split)        <span class="tk-com"># 看文档字符串（就是第 3 课讲的 __doc__）</span>
+inspect.signature(fn)  <span class="tk-com"># 看真实签名（第 3/7 课的判分也在用它）</span>
+
+<span class="tk-com"># 脚本调试：python3 -i script.py 出错后停在交互态，变量还在现场</span></span></code></pre>
+
+<div class="quiz" data-answer="c">
+  <p class="quiz-q">Q4 · a = [1, 2]; b = a; del a 之后，b 还能用吗？</p>
+  <button class="quiz-opt" data-key="a">不能，a 删了对象就被销毁了</button>
+  <button class="quiz-opt" data-key="b">能，但内容变成空列表</button>
+  <button class="quiz-opt" data-key="c">能，仍是 [1, 2]；del 只删掉 a 这个绑定，对象由 b 继续引用</button>
+  <p class="quiz-explain" hidden>变量是贴到对象上的标签。del a 只撕掉 a 这张标签；对象是否回收取决于还有没有别的引用。这也是"名称和对象"一节要讲清的别名语义。</p>
+</div>
+
+<div class="quiz" data-answer="b">
+  <p class="quiz-q">Q5 · 想知道一个字符串对象有哪些方法，最快的现场手段是？</p>
+  <button class="quiz-opt" data-key="a">翻 Java 文档类比</button>
+  <button class="quiz-opt" data-key="b">在 REPL 里执行 dir(s)；想看某个方法的用法再 help(s.split)</button>
+  <button class="quiz-opt" data-key="c">读 .pyc 字节码</button>
+  <p class="quiz-explain" hidden>dir() 列名字、help() 读 __doc__、inspect.signature() 看签名——这是 Python 的内省三件套，面试手写代码前先在 REPL 里验证语法手感是合理策略。</p>
+</div>
 
 <h2>七、检索练习：先答后看（关补全）</h2>
 
@@ -717,6 +817,13 @@ else:
     var opts = quiz.querySelectorAll(".quiz-opt");
     var explain = quiz.querySelector(".quiz-explain");
     var done = false;
+    quiz.setAttribute("role", "radiogroup");
+    var qEl = quiz.querySelector(".quiz-q");
+    if (qEl && !quiz.getAttribute("aria-labelledby")) {
+      if (!qEl.id) qEl.id = "quizq-" + (Math.random() * 1e9 | 0);
+      quiz.setAttribute("aria-labelledby", qEl.id);
+    }
+    opts.forEach(function (b) { b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); });
     opts.forEach(function (btn) {
       btn.addEventListener("click", function () {
         if (done) return;
@@ -728,9 +835,18 @@ else:
         });
         if (key !== answer) btn.classList.add("is-wrong");
         if (explain) explain.hidden = false;
+        opts.forEach(function (b) { b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+        var liveEl = quiz.querySelector(".quiz-live");
+        if (liveEl) liveEl.textContent = (key === answer ? "回答正确。" : "回答错误，正确答案是 " + answer + "。") +
+          (explain ? explain.textContent : "");
         quiz.dispatchEvent(new CustomEvent("quiz:answered", {
           bubbles: true, detail: { correct: key === answer }
         }));
+        if (window.WBProgress) {
+          var allQ = document.querySelectorAll(".quiz");
+          WBProgress.mark({ kind: "quiz", unit: "q" + (Array.prototype.indexOf.call(allQ, quiz) + 1),
+                            total: allQ.length, passed: key === answer });
+        }
       });
     });
   }
@@ -761,6 +877,7 @@ else:
     return new Promise(function (resolve, reject) {
       var s = document.createElement("script");
       s.src = src;
+      s.integrity = "sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6"; s.crossOrigin = "anonymous";
       s.onload = resolve;
       s.onerror = function () { reject(new Error("脚本加载失败：" + src)); };
       document.head.appendChild(s);
@@ -771,7 +888,7 @@ else:
     if (!pyodidePromise) {
       pyodidePromise = loadScript(PYODIDE_URL).then(function () {
         return window.loadPyodide({ indexURL: PYODIDE_INDEX });
-      });
+      }).catch(function (e) { pyodidePromise = null; throw e; });
     }
     return pyodidePromise;
   }
@@ -798,14 +915,18 @@ else:
     });
 
     resetBtn && resetBtn.addEventListener("click", function () {
+      if (editor.value === starter) { status.textContent = "当前已是初始代码"; return; }
+      if (!confirm("重置为初始代码？当前修改将被覆盖（可先按 Ctrl/Cmd+S 保存）。")) return;
       editor.value = starter;
+      editor.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof editor.__wbClearCode === 'function') editor.__wbClearCode();
       out.hidden = true;
       status.textContent = "已重置为初始代码";
     });
 
     runBtn.addEventListener("click", function () {
       runBtn.disabled = true;
-      status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
+      status.setAttribute('aria-live','polite'); status.textContent = "首次运行需加载 Python 运行时（约 10–20 秒），请稍候…";
       out.hidden = false;
       out.innerHTML = '<span class="lab-info">⏳ 正在启动 Python 运行环境…</span>';
 
@@ -848,13 +969,28 @@ else:
         if (!html) html = '<span class="lab-info">（程序没有输出。你的函数已运行，看上面的测试结果——没有测试块则说明执行通过）</span>';
         out.innerHTML = html;
         status.textContent = "运行完成";
+        var _t = stdoutLines.filter(function (l) { return l.indexOf("TEST|") === 0; });
+        var _m = stdoutLines.some(function (l) { return l.indexOf("MISSING|") === 0; });
+        var _all = _t.length > 0 && !_m && _t.every(function (l) {
+          try { return JSON.parse(l.slice(5)).ok === true; } catch (e) { return false; }
+        });
+        if (window.WBProgress) WBProgress.mark({ kind: 'pylab', passed: _all });
       }).catch(function (err) {
         var msg = (err && (err.message || String(err))) || "未知错误";
         out.innerHTML = '<span class="lab-err">💥 ' + escapeHtml(msg) + '</span>' +
           (msg.indexOf("unpkg") > -1 || msg.indexOf("加载失败") > -1
             ? '<span class="lab-info">\n网络无法加载 Python 运行时？可改用本地验证：把代码保存为 .py 文件，终端运行 python3 文件名，测试用例见页面下方参考实现。</span>'
             : '');
-        status.textContent = "运行出错";
+        status.setAttribute('aria-live','assertive'); status.textContent = "运行出错";
+        var retry = out.querySelector('button.wb-retry');
+        if (!retry) {
+          retry = document.createElement('button');
+          retry.type = 'button'; retry.className = 'py-lab-btn ghost wb-retry';
+          retry.textContent = '重试加载 Python 运行时';
+          retry.addEventListener('click', function () { runBtn.click(); });
+          out.appendChild(retry);
+        }
+        retry.disabled = false;
       }).finally(function () {
         runBtn.disabled = false;
       });
@@ -897,6 +1033,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
       loading = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
         s.src = 'https://unpkg.com/pyodide@0.29.5/pyodide.js';
+        s.integrity = 'sha384-VR47TfKeAmT7vMej7bwOVg0tHTQLLGMSIpsXtFMCZG5OpKZSIXoSLtGY//qHcxc6'; s.crossOrigin = 'anonymous';
         document.head.appendChild(s);
         s.onload = function () {
           loadPyodide().then(function (py) {
@@ -918,7 +1055,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
         '_res = {"ok": False, "msg": ""}\n' +
         'try:\n' +
         '    _val = eval(' + JSON.stringify(userCode) + ')\n' +
-        'except Exception as _e:\n' +
+        'except BaseException as _e:\n' +
         '    _res = {"ok": False, "msg": type(_e).__name__ + ": " + str(_e)}\n' +
         'else:\n' +
         '    try:\n' +
@@ -957,8 +1094,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
     var ta = el.querySelector('.review-code');
     var st = el.querySelector('.review-status');
     var v = ta.value.trim();
-    if (!v) { st.className = 'review-status info'; st.textContent = '先凭记忆写出来，再点检查'; return; }
-    st.className = 'review-status info';
+    if (!v) { st.className = 'review-status info'; st.setAttribute('aria-live', 'polite'); st.textContent = '先凭记忆写出来，再点检查'; return; }
+    st.className = 'review-status info'; st.setAttribute('aria-live', 'polite');
     st.textContent = '判分中…';
     ensurePy().then(function (py) {
       return py.runPythonAsync(buildCode(cfg, v));
@@ -966,15 +1103,28 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
       var res = JSON.parse(out);
       if (res.ok) {
         st.className = 'review-status pass';
-        st.textContent = '✓ 通过——这道题已进长期记忆';
+        st.setAttribute('aria-live', 'polite');
+        st.textContent = '✓ 通过——明天再来复核一次更稳';
+        if (window.WBSpaced) WBSpaced.pass(id);
+        if (window.WBProgress) WBProgress.mark({ kind: 'review', unit: id, total: window.REVIEW.length, passed: true });
       } else {
         var msg = res.msg; if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-        st.className = 'review-status fail';
+        st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
         st.textContent = '✗ ' + msg;
       }
     }).catch(function (e) {
-      st.className = 'review-status fail';
-      st.textContent = e.message;
+      st.className = 'review-status fail'; st.setAttribute('aria-live', 'assertive');
+      st.textContent = '判分失败：' + ((e && e.message) || String(e));
+      var bar = st.parentNode, retry = el.querySelector('.review-retry');
+      if (!retry && bar) {
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.className = 'review-btn ghost review-retry';
+        retry.textContent = '重试加载 Python 运行时';
+        retry.addEventListener('click', function () {
+          var b = el.querySelector('.review-btn'); if (b) b.click();
+        });
+        bar.appendChild(retry);
+      }
     });
   }
 
@@ -1008,6 +1158,8 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
  * 附加 2：Cmd/Ctrl+S 在编辑器内 = 保存代码到 localStorage（并拦截浏览器"保存网页"）
  *         加载时若编辑器仍是初始/空白状态，恢复上次保存的内容
  *         同时派发 'wb-code-save' 事件（detail: {ta, code, key}），页面引擎可监听桥接
+ * 附加 3：静态代码块 <pre><code> 兜底高亮（正常由构建脚本烘焙进 HTML，
+ *         此处仅处理未烘焙的块；非 Python 块标 data-nohl 退出）
  */
 (function () {
   "use strict";
@@ -1061,7 +1213,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
       toastEl = document.createElement("div");
       toastEl.style.cssText = "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);" +
         "padding:0.45rem 1rem;border-radius:999px;font-size:0.82rem;font-weight:600;z-index:9999;" +
-        "background:var(--accent,#4a6fd4);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
+        "background:var(--accent,#a0522d);color:var(--on-accent,#fff);box-shadow:0 4px 14px rgba(0,0,0,0.25);" +
         "opacity:0;transition:opacity 0.25s;pointer-events:none;";
       document.body.appendChild(toastEl);
     }
@@ -1118,6 +1270,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
       (function () {
         var p = document.createElement("pre");
         p.className = "pyhl-hl";
+        p.setAttribute('aria-hidden', 'true');
         wrap.insertBefore(p, ta);
         return p;
       })();
@@ -1156,6 +1309,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
 
     // 本地保存：恢复 + Cmd/Ctrl+S
     var codeKey = editorKey(ta, idx);
+    ta.__wbClearCode = function () { try { localStorage.removeItem(codeKey); } catch (e) {} };
     try {
       var saved = localStorage.getItem(codeKey);
       if (saved !== null && saved !== "" && (ta.value === "" || ta.value === ta.defaultValue)) {
@@ -1163,6 +1317,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
       }
     } catch (e) { /* localStorage 不可用则跳过 */ }
 
+    var escUnlocked = false;
     ta.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey &&
           (e.key === "s" || e.key === "S")) {
@@ -1170,7 +1325,9 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
         saveCode(ta, codeKey);
         return;
       }
+      if (e.key === "Escape") { escUnlocked = true; return; }
       if (e.key !== "Tab") return;
+      if (e.shiftKey || escUnlocked) { escUnlocked = false; return; }
       e.preventDefault();
       var s = ta.selectionStart, en = ta.selectionEnd, v = ta.value;
       ta.value = v.slice(0, s) + "    " + v.slice(en);
@@ -1188,17 +1345,116 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
         if (typeof console !== "undefined") console.warn("pyhl enhance failed:", err);
       }
     });
+    // 静态块兜底：仅形状一 pre>code（形状二 lang-tag 块由构建脚本烘焙）
+    document.querySelectorAll("pre > code:not([data-nohl])").forEach(function (codeEl) {
+      try { enhanceStatic(codeEl); } catch (err) {
+        if (typeof console !== "undefined") console.warn("pyhl static enhance failed:", err);
+      }
+    });
   }
+
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  function enhanceStatic(codeEl) {
+    var pre = codeEl.closest("pre");
+    if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    codeEl.innerHTML = hl(codeEl.textContent);
+    pre.classList.add("pyhl-static");
+  }
+
+  window.PYHL = { hl: hl };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAll);
   } else {
     initAll();
   }
-})();
-
-</script>
+})();</script>
 <script>
 /* theme.js — 白天/黑夜主题：默认跟随系统自动切换，可手动循环 自动→浅色→深色 */
+/* WBProgress + WBSpaced + 反馈语义 —— 体验侧公共运行时 */
+(function () {
+  if (window.WBProgress) return;
+  var KEY = 'wb-progress-v1';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function lessonOf() { var m = location.pathname.match(/\/(\d{4})-/); return m ? m[1] : ''; }
+  function mark(detail) {
+    var d = detail || {}, lesson = d.lesson || lessonOf();
+    if (!lesson) return;
+    var s = read(), L = s[lesson] || (s[lesson] = {});
+    if (d.kind === 'quiz') {
+      var q = L.quiz || (L.quiz = { total: 0, units: {} });
+      q.total = d.total || q.total; q.units[d.unit] = !!d.passed; q.ts = Date.now();
+    } else if (d.kind === 'pylab') {
+      L.pylab = { passed: !!d.passed, ts: Date.now() };
+    } else if (d.kind === 'review') {
+      var r = L.review || (L.review = { total: 0, units: {} });
+      r.total = d.total || r.total; r.units[d.unit] = !!d.passed; r.ts = Date.now();
+    } else if (d.kind === 'drill') {
+      L.drill = { solved: d.solved || 0, total: d.total || 0, ts: Date.now() };
+    }
+    write(s);
+    try {
+      var ev = {}; Object.keys(d).forEach(function (k) { ev[k] = d[k]; });
+      ev.lesson = lesson; ev.ts = Date.now();
+      document.dispatchEvent(new CustomEvent('wb:progress', { bubbles: true, detail: ev }));
+    } catch (e) {}
+  }
+  window.WBProgress = { key: KEY, read: read, write: write, mark: mark, lessonOf: lessonOf };
+})();
+(function () {
+  if (window.WBSpaced) return;
+  var KEY = 'wb-review-v1', DAY = 86400000;
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function pass(unit) {
+    var m = location.pathname.match(/\/(\d{4})-/); if (!m) return;
+    var s = read(), L = s[m[1]] || (s[m[1]] = {});
+    L[unit] = { passed: true, ts: Date.now() }; write(s);
+  }
+  function dueCount() {
+    var s = read(), now = Date.now(), n = 0;
+    Object.keys(s).forEach(function (lesson) {
+      var L = s[lesson] || {};
+      Object.keys(L).forEach(function (u) {
+        var r = L[u]; if (r && r.passed && r.ts + DAY <= now) n++;
+      });
+    });
+    return n;
+  }
+  window.WBSpaced = { key: KEY, read: read, pass: pass, dueCount: dueCount };
+})();
+(function () {
+  function tag(sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    });
+  }
+  function init() {
+    tag('.review-status'); tag('.drill-status'); tag('.py-lab-status');
+    document.querySelectorAll('.quiz').forEach(function (q) {
+      if (q.querySelector('.quiz-live')) return;
+      var live = document.createElement('span');
+      live.className = 'quiz-live';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+      q.appendChild(live);
+    });
+    [['textarea.py-lab-editor', 'Python 代码编辑区'],
+     ['textarea.review-code', '间隔复习默写区'],
+     ['textarea.drill-code', '练习作答代码区']].forEach(function (p) {
+      document.querySelectorAll(p[0]).forEach(function (ta, i) {
+        if (!ta.getAttribute('aria-label') && !(ta.labels && ta.labels.length))
+          ta.setAttribute('aria-label', p[1] + '，第 ' + (i + 1) + ' 个');
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 (function () {
   var KEY = 'wb-theme-pref';
   var pref = 'auto';
@@ -1241,7 +1497,7 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "make_counter", "task": "�
 </script>
 <div id="wb-quicknav">
   <button id="wb-quicknav-btn" type="button" aria-expanded="false" aria-controls="wb-quicknav-menu" title="点击快速跳转到其他课程 / 练习场"><span>当前：6 Python 独有语法</span><span class="wb-qn-arrow" aria-hidden="true">▾</span></button>
-  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html" aria-current="page"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
+  <nav id="wb-quicknav-menu" hidden aria-label="课程快速跳转"><div class="wb-qn-group">课程主线</div><a href="0000-course-outline.html"><span>课程大纲</span></a><a href="0001-from-java-to-first-function.html"><span>1 从 Java 到第 1 个函数</span></a><a href="0002-comprehensions-and-generators.html"><span>2 推导式与生成器表达式</span></a><a href="0003-functions-deep.html"><span>3 函数进阶</span></a><a href="0004-classes-and-dataclass.html"><span>4 类与 dataclass</span></a><a href="0005-exceptions-and-context-managers.html"><span>5 异常与资源管理</span></a><a href="0006-python-essentials-unique.html" aria-current="page"><span>6 Python 独有语法</span></a><a href="0007-modules-typing.html"><span>7 模块与 typing</span></a><a href="0008-asyncio.html"><span>8 异步 asyncio</span></a><a href="0009-stdlib.html"><span>9 标准库实战</span></a><a href="0010-decorators.html"><span>10 装饰器与回调</span></a><a href="0011-generators.html"><span>11 生成器与流式输出</span></a><a href="0012-fastapi.html"><span>12 FastAPI 最小面</span></a><a href="0013-nano-agent.html"><span>13 Nano Agent 实战</span></a><a href="0014-numerics-and-testing.html"><span>14 数值、异常与测试</span></a><a href="0015-stdlib-gaps.html"><span>15 标准库补漏</span></a><div class="wb-qn-group">练习场</div><a href="0001-basics-drill.html"><span>1★ 语言基础练习</span></a><a href="0002-expressions-drill.html"><span>2★ 表达式练习</span></a><a href="0003-functions-drill.html"><span>3★ 函数设计练习</span></a><a href="0004-classes-drill.html"><span>4★ 类与 dataclass 练习</span></a><a href="0005-exceptions-drill.html"><span>5★ 异常与资源管理练习</span></a><a href="0006-essentials-drill.html"><span>6★ 独有语法练习</span></a><a href="0007-modules-drill.html"><span>7★ 模块与 typing 练习</span></a><a href="0008-asyncio-drill.html"><span>8★ 异步练习</span></a><a href="0009-stdlib-drill.html"><span>9★ 标准库练习</span></a><a href="0010-gaps-drill.html"><span>10★ 官网补漏练习</span></a><div class="wb-qn-group">参考</div><a href="../reference/java-to-python-syntax.html"><span>Python 全语法速查表</span></a></nav>
 </div>
 
 <script>
