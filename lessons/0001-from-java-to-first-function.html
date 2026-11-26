@@ -391,17 +391,16 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>对照着看，你会 Java 里已经会的东西 → Python 怎么写：</p>
 
-<pre><span class="lang-tag">JAVA — 你要重写的目标</span>
-public List&lt;String&gt; topOrderIds(List&lt;Order&gt; orders) {
-    List&lt;String&gt; result = new ArrayList&lt;&gt;();
-    for (Order o : orders) {
-        if (o.getAmount() &gt; 100) {
-            result.add(o.getOrderId());
+<pre><span class="lang-tag" data-pyhl="java">JAVA — 你要重写的目标</span><code><span data-pyhl="java"><span class="tk-kw">public</span> <span class="tk-dec">List</span>&lt;<span class="tk-dec">String</span>&gt; <span class="tk-fn">topOrderIds</span>(<span class="tk-dec">List</span>&lt;<span class="tk-dec">Order</span>&gt; orders) {
+    <span class="tk-dec">List</span>&lt;<span class="tk-dec">String</span>&gt; result = <span class="tk-kw">new</span> <span class="tk-dec">ArrayList</span>&lt;&gt;();
+    <span class="tk-kw">for</span> (<span class="tk-dec">Order</span> o : orders) {
+        <span class="tk-kw">if</span> (o.<span class="tk-fn">getAmount</span>() &gt; <span class="tk-num">100</span>) {
+            result.<span class="tk-fn">add</span>(o.<span class="tk-fn">getOrderId</span>());
         }
     }
-    Collections.sort(result);
-    return result;
-}</pre>
+    <span class="tk-dec">Collections</span>.<span class="tk-fn">sort</span>(result);
+    <span class="tk-kw">return</span> result;
+}</span></code></pre>
 
 <p>用 Python 表达同样的逻辑，只需要五样东西：</p>
 
@@ -1218,10 +1217,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "lookup", "tind": "       
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

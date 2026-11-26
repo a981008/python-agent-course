@@ -395,17 +395,13 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>另一个思路差异：Java 习惯<strong>先检查再动手</strong>（LBYL，look before you leap），Python 习惯<strong>先动手再接异常</strong>（EAFP，easier to ask forgiveness than permission）——面试爱问这个：</p>
 
-<pre><span class="lang-tag">LBYL — Java 习惯：先问再动</span>
-if "user" in session:
-    name = session["user"]
-else:
-    name = "游客"
-
-<span class="lang-tag">EAFP — Python 习惯：先动再接</span>
-try:
-    name = session["user"]
-except KeyError:
-    name = "游客"</pre>
+<pre><span class="lang-tag" data-pyhl="1">LBYL — Java 习惯：先问再动</span><code><span data-pyhl="1"><span class="tk-kw">if</span> <span class="tk-str">"user"</span> <span class="tk-kw">in</span> session:
+    name = session[<span class="tk-str">"user"</span>]
+<span class="tk-kw">else</span>:
+    name = <span class="tk-str">"游客"</span></span></code><span class="lang-tag" data-pyhl="1">EAFP — Python 习惯：先动再接</span><code><span data-pyhl="1"><span class="tk-kw">try</span>:
+    name = session[<span class="tk-str">"user"</span>]
+<span class="tk-kw">except</span> KeyError:
+    name = <span class="tk-str">"游客"</span></span></code></pre>
 
 <p>取单个键用 <code>session.get("user", "游客")</code> 更简单；但逻辑一复杂（取值还要处理），EAFP 就赢了——不用把检查条件抄两遍。</p>
 
@@ -1344,10 +1340,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "pay", "task": "① 自定
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

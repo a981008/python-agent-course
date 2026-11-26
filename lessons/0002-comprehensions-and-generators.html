@@ -381,12 +381,11 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>第 1 课你已经见过 <code>[x for x in lst if cond]</code>。这节课要把它练到<strong>不过脑子</strong>。先修正一个 Java 直译过来的误区：推导式读作"对每个元素<strong>产出</strong>什么"，而不是"如何循环"。</p>
 
-<pre><span class="lang-tag">JAVA — Stream 链</span>
-List&lt;String&gt; ids = orders.stream()
-    .filter(o -&gt; o.getAmount() &gt; 100)
-    .map(Order::getOrderId)
-    .sorted()
-    .collect(Collectors.toList());</pre>
+<pre><span class="lang-tag" data-pyhl="java">JAVA — Stream 链</span><code><span data-pyhl="java"><span class="tk-dec">List</span>&lt;<span class="tk-dec">String</span>&gt; ids = orders.<span class="tk-fn">stream</span>()
+    .<span class="tk-fn">filter</span>(o -&gt; o.<span class="tk-fn">getAmount</span>() &gt; <span class="tk-num">100</span>)
+    .<span class="tk-fn">map</span>(<span class="tk-dec">Order</span>::getOrderId)
+    .<span class="tk-fn">sorted</span>()
+    .<span class="tk-fn">collect</span>(<span class="tk-dec">Collectors</span>.<span class="tk-fn">toList</span>());</span></code></pre>
 
 <pre><span class="lang-tag">PYTHON — 一行推导</span><code><span data-pyhl="1">ids = <span class="tk-fn">sorted</span>(o.order_id <span class="tk-kw">for</span> o <span class="tk-kw">in</span> orders <span class="tk-kw">if</span> o.amount &gt; <span class="tk-num">100</span>)</span></code></pre>
 
@@ -1188,10 +1187,13 @@ window.REVIEW = [{"id": "r1", "mode": "expr", "name": "", "tind": "        _exp 
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

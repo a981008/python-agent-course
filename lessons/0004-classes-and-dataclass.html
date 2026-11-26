@@ -393,21 +393,20 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h2>二、普通类：__init__、self 与 __repr__（6 分钟）</h2>
 
-<pre><span class="lang-tag">JAVA — 一个消息类</span>
-public class Message {
-    private final String role;
-    private final String content;
+<pre><span class="lang-tag" data-pyhl="java">JAVA — 一个消息类</span><code><span data-pyhl="java"><span class="tk-kw">public</span> <span class="tk-kw">class</span> <span class="tk-dec">Message</span> {
+    <span class="tk-kw">private</span> <span class="tk-kw">final</span> <span class="tk-dec">String</span> role;
+    <span class="tk-kw">private</span> <span class="tk-kw">final</span> <span class="tk-dec">String</span> content;
 
-    public Message(String role, String content) {
-        this.role = role;
-        this.content = content;
+    <span class="tk-kw">public</span> <span class="tk-dec">Message</span>(<span class="tk-dec">String</span> role, <span class="tk-dec">String</span> content) {
+        <span class="tk-kw">this</span>.role = role;
+        <span class="tk-kw">this</span>.content = content;
     }
 
-    @Override
-    public String toString() {
-        return "Message(" + role + ", " + content + ")";
+    <span class="tk-dec">@Override</span>
+    <span class="tk-kw">public</span> <span class="tk-dec">String</span> <span class="tk-fn">toString</span>() {
+        <span class="tk-kw">return</span> <span class="tk-str">"Message("</span> + role + <span class="tk-str">", "</span> + content + <span class="tk-str">")"</span>;
     }
-}</pre>
+}</span></code></pre>
 
 <pre><span class="lang-tag">PYTHON — 同一件事</span><code><span data-pyhl="1"><span class="tk-kw">class</span> Message:
     <span class="tk-kw">def</span> __init__(<span class="tk-kw">self</span>, role: <span class="tk-fn">str</span>, content: <span class="tk-fn">str</span>):
@@ -1400,10 +1399,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "Point", "task": "① 默�
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

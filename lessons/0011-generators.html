@@ -381,8 +381,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h2>一、心智模型：生成器 ≈ 惰性的 Stream（4 分钟）</h2>
 
-<pre><span class="lang-tag">对照 — Java → Python</span>
-Stream&lt;T&gt; 惰性求值             →  生成器：要一个才算一个
+<pre><span class="lang-tag">对照 — Java → Python</span>Stream&lt;T&gt; 惰性求值             →  生成器：要一个才算一个
 Iterator / Iterable            →  迭代器协议 __iter__ / __next__
 Stream.generate(...)           →  yield 无限流
 collect(toList())              →  list(gen)（消费触发计算）
@@ -1235,10 +1234,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "count_down", "task": "①
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

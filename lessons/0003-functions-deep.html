@@ -381,9 +381,8 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <p>Java 里表达"参数可选、调用方式多样"靠<strong>方法重载</strong>——同一个方法名写好几遍。Python 用<strong>一个签名</strong>解决：默认参数 + 关键字参数。这是两种语言函数层面最大的差异，也是读 LangChain/FastAPI 源码时到处可见的模式：</p>
 
-<pre><span class="lang-tag">JAVA — 重载两个方法</span>
-ChatModel call(String prompt) { ... }
-ChatModel call(String prompt, double temperature) { ... }</pre>
+<pre><span class="lang-tag" data-pyhl="java">JAVA — 重载两个方法</span><code><span data-pyhl="java"><span class="tk-dec">ChatModel</span> <span class="tk-fn">call</span>(<span class="tk-dec">String</span> prompt) { ... }
+<span class="tk-dec">ChatModel</span> <span class="tk-fn">call</span>(<span class="tk-dec">String</span> prompt, <span class="tk-kw">double</span> temperature) { ... }</span></code></pre>
 
 <pre><span class="lang-tag">PYTHON — 一个签名全搞定</span><code><span data-pyhl="1"><span class="tk-kw">def</span> call(prompt: <span class="tk-fn">str</span>, temperature: <span class="tk-fn">float</span> = <span class="tk-num">0.7</span>) -&gt; ChatModel:
     ...</span></code></pre>
@@ -1213,10 +1212,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "send", "tind": "        a
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }

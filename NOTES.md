@@ -11,4 +11,4 @@
 - 全部 Python 输入区已接 pyhl.js：语法高亮（透明输入框+上层 overlay）、Tab 插 4 空格、Shift+Tab 原生后退、Esc 解锁、Cmd/Ctrl+S 保存并恢复；目标选择器 textarea.drill-code/.py-lab-editor/.review-code 与 input.drill-in。pylab.js 不再重复处理 Tab
 - 【工作流规则】每次更新课程/练习场/组件后，必须同步 lessons/0000-course-outline.html 的课程内容、链接、题量与进度总览；状态芯片只读本地记录，首次打开统一未开始，不写死默认进度
 - 语法高亮为双层保障：初始高亮已静态烘焙进 HTML（pyhl-wrap + pre.pyhl-hl），JS 运行时 pyhl.js 采用已有 wrap/pre（:scope > pre.pyhl-hl）只补样式与事件；新增含初始代码的编辑器时需重跑烘焙，否则只靠 JS 动态渲染
-- 非编辑区静态代码块（pre>code 与 pre+lang-tag 两种形状）也已 Python 高亮：由 .workbuddy/tmp_static_hl.py bake 烘焙（span data-pyhl 标记幂等；对照/JAVA/SHELL/TOML/散文块保持原样，shape-1 打 data-nohl）；新增讲解代码后重跑 bake；pyhl.js 运行时仅对未烘焙的 pre>code 兜底。内嵌 pyhl 副本用同脚本 sync 子命令统一替换（以 assets/pyhl.js 为准）
+- 非编辑区静态代码块（pre>code 与 pre+lang-tag 两种形状）也已 Python 高亮：由 .workbuddy/tmp_static_hl.py bake 烘焙（span data-pyhl 标记幂等；对照/SHELL/TOML/散文块保持原样，shape-1 打 data-nohl）；JAVA 标签块用构建脚本内置 hl_java 分词烘焙（data-pyhl="java"，类型名复用 tk-dec 色，无运行时依赖）；LBYL/EAFP 同块多标签分段逐段判语种；新增讲解代码后重跑 bake；pyhl.js 运行时仅对未烘焙的 pre>code 兜底。内嵌 pyhl 副本用同脚本 sync 子命令统一替换（以 assets/pyhl.js 为准）

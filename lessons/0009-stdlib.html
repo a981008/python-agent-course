@@ -381,8 +381,7 @@ pre.pyhl-hl:has(+ input.drill-in) { padding: calc(0.45rem + 1px) calc(0.7rem + 1
 
 <h2>一、心智模型：batteries included（2 分钟）</h2>
 
-<pre><span class="lang-tag">对照 — Java 生态 → Python 标准库（不用装任何东西）</span>
-Jackson / Gson               →  json
+<pre><span class="lang-tag">对照 — Java 生态 → Python 标准库（不用装任何东西）</span>Jackson / Gson               →  json
 java.nio.file.Path           →  pathlib.Path
 java.util.regex              →  re（语法几乎同源）
 Guava Multimap / Cache       →  collections / functools
@@ -1237,10 +1236,13 @@ window.REVIEW = [{"id": "r1", "mode": "code", "name": "word_counts", "task": "�
     });
   }
 
-  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮 ---- */
+  /* ---- 静态代码块兜底：未烘焙的 <pre><code> 现场高亮（已烘焙/Java 块不动） ---- */
   function enhanceStatic(codeEl) {
     var pre = codeEl.closest("pre");
     if (!pre || codeEl.querySelector("span")) return; // 已烘焙则跳过
+    if (pre.hasAttribute("data-nohl") ||
+        (pre.querySelector(":scope > span[data-pyhl]") &&
+         pre.querySelector(":scope > span[data-pyhl]").getAttribute("data-pyhl") !== "1")) return;
     codeEl.innerHTML = hl(codeEl.textContent);
     pre.classList.add("pyhl-static");
   }
