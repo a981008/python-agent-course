@@ -126,6 +126,7 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 @media (max-width: 700px) {
   main table:has(.status-chip) th:nth-child(3),
   main table:has(.status-chip) td:nth-child(3) { display: none; }
+  .table-scroll:has(.status-chip) table { min-width: 0; }
 }
 
 .callout {
@@ -140,7 +141,7 @@ pre .lang-tag { display: block; color: var(--ink-soft); font-size: 0.72rem; marg
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.9rem; }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.2rem 0; }
 .table-scroll table { margin: 0; }
-.table-scroll:has(.status-chip) table { min-width: 44rem; }
+.table-scroll:has(.status-chip) table { min-width: 42rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
 th { color: var(--ink-soft); font-weight: 600; font-size: 0.82rem; }
 details {
